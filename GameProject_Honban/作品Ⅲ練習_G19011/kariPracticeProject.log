@@ -1,0 +1,9 @@
+﻿  main.cpp
+C:\Users\keita\source\repos\(提出用)PracticeGameProject\main.cpp(1205,24): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
+C:\Users\keita\source\repos\(提出用)PracticeGameProject\main.cpp(1221,21): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
+C:\Users\keita\source\repos\(提出用)PracticeGameProject\main.cpp(1237,22): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
+  コード生成しています。
+  Previous IPDB not found, fall back to full compilation.
+  All 31 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  コード生成が終了しました。
+  kariPracticeProject.vcxproj -> C:\Users\keita\source\repos\(提出用)PracticeGameProject\Release\PracticeGameProject.exe

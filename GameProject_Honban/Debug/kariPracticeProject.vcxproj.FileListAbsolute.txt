@@ -1,0 +1,4 @@
+C:\Users\keita\Desktop\doteat\kariPracticeProject\Debug\kariPracticeProject.exe
+C:\Users\keita\Desktop\doteat\kariPracticeProject\Debug\kariPracticeProject.pdb
+C:\Users\keita\source\repos\(提出用)PracticeGameProject\Debug\PracticeGameProject.exe
+C:\Users\keita\source\repos\(提出用)PracticeGameProject\Debug\PracticeGameProject.pdb
