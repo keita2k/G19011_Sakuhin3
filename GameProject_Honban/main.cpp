@@ -42,7 +42,7 @@
 #define GAME_MAP_PATH			TEXT(".\\IMAGE\\MAP\\mapchip.png")		//マップの画像
 #define MAP_DIV_WIDTH		32	//画像を分割する幅サイズ
 #define MAP_DIV_HEIGHT		32	//画像を分割する高さサイズ
-#define MAP_DIV_TATE		16	//画像を縦に分割する数
+#define MAP_DIV_TATE		18	//画像を縦に分割する数
 #define MAP_DIV_YOKO		2	//画像を横に分割する数
 #define MAP_DIV_NUM	MAP_DIV_TATE * MAP_DIV_YOKO	//画像を分割する総数
 
@@ -109,6 +109,9 @@
 #define TRUE_m4    13
 #define TRUE_ki    14
 #define TRUE_kl    15
+#define TRUE_br    16
+#define TRUE_sp    17
+#define TRUE_ca    18
 
 //スイッチが押されたかどうかの識別（1:押された　0:押されてない）
 int s1_check = 0;  //スイッチ1用
@@ -120,9 +123,9 @@ int s4_check = 0;  //スイッチ4用
 int ki_check = 0;
 
 //武器をとっているかどうかの識別（1:取っている　0:取っていない）
-int brade_check = 0;
-int spear_check = 0;
-int cane_check = 0;
+int br_check = 0;
+int sp_check = 0;
+int ca_check = 0;
 
 enum GAME_MAP_KIND
 {
@@ -256,7 +259,7 @@ GAME_MAP_KIND mapData[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 
 		k ,t ,k ,k ,k ,k ,k ,t ,s3,k ,s4,k ,t ,t ,t ,t ,t ,t ,k,	//1
 
-		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,kl,t ,k ,k ,k ,k ,t ,k,	//2
+		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,t ,k,	//2
 
 		k ,k ,k ,m2,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,k ,t ,k,	//3
 
@@ -270,15 +273,15 @@ GAME_MAP_KIND mapData[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 
 		k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,s2,k ,t ,t ,t ,k ,t ,k ,k,	//8
 
-		k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,k ,k ,ca,k ,t ,k ,t ,k ,k,	//9
+		k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k,	//9
 
-		k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,m3,sp,k ,t ,k ,t ,k ,k,	//10
+		k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,m3,t ,k ,t ,k ,kl,k ,k,	//10
 
-		k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,br,k ,t ,t ,t ,t ,k,	//11
+		k ,t ,t ,t ,t ,br,sp,ca,t ,k ,t ,k ,t ,k ,t ,t ,t ,ki,k,	//11
 
 		k ,t ,k ,m4,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k,	//12
 
-		k ,as,k ,t ,t ,t ,t ,t ,ag,k ,bg,k ,ki,t ,t ,t ,t ,bs,k,	//13
+		k ,as,k ,t ,t ,t ,t ,t ,ag,k ,bg,k ,t ,t ,t ,t ,t ,bs,k,	//13
 
 		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k		//14
 };	//ゲームのマップ
@@ -611,6 +614,8 @@ VOID MY_PLAY_INIT(VOID)
 	s3_check = 0;
 	s4_check = 0;
 
+	ki_check = 0;
+
 	return;
 }
 
@@ -681,6 +686,7 @@ VOID MY_PLAY_PROC(VOID)
 	BOOL IsMove_A = TRUE;
 	BOOL IsMove_B = TRUE;
 
+	//▼▼▼▼▼▼▼▼プレイヤーA当たり判定ここから▼▼▼▼▼▼▼▼▼▼▼▼
 	//プレイヤーAと壁が当たっていたら
 	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_k)
 	{
@@ -848,6 +854,68 @@ VOID MY_PLAY_PROC(VOID)
 		}
 	}
 
+	//プレイヤーAが剣に当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_br)
+	{
+		for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+		{
+			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+			{
+
+				//鍵を通路にして消す
+				if (map[tate][yoko].kind == br)
+				{
+					map[tate][yoko].kind = t;
+					br_check = 1;
+
+				}
+			}
+		}
+	}
+
+	//プレイヤーAが槍に当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_sp)
+	{
+		for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+		{
+			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+			{
+
+				//鍵を通路にして消す
+				if (map[tate][yoko].kind == sp)
+				{
+					map[tate][yoko].kind = t;
+					sp_check = 1;
+
+				}
+			}
+		}
+	}
+
+	//プレイヤーAが杖に当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_ca)
+	{
+		for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+		{
+			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+			{
+
+				//鍵を通路にして消す
+				if (map[tate][yoko].kind == ca)
+				{
+					map[tate][yoko].kind = t;
+					ca_check = 1;
+
+				}
+			}
+		}
+	}
+
+	//▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲プレイヤーA当たり判定ここまで▲▲▲▲▲▲▲▲▲▲▲▲
+	
+
+
+	//▼▼▼▼▼▼▼▼プレイヤーB当たり判定ここから▼▼▼▼▼▼▼▼▼▼▼▼
 	//プレイヤーBと壁が当たっていたら
 	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_k)
 	{
@@ -1012,6 +1080,64 @@ VOID MY_PLAY_PROC(VOID)
 		}
 	}
 
+	//プレイヤーAが剣に当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_br)
+	{
+		for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+		{
+			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+			{
+
+				//鍵を通路にして消す
+				if (map[tate][yoko].kind == br)
+				{
+					map[tate][yoko].kind = t;
+					br_check = 1;
+
+				}
+			}
+		}
+	}
+
+	//プレイヤーAが槍に当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_sp)
+	{
+		for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+		{
+			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+			{
+
+				//鍵を通路にして消す
+				if (map[tate][yoko].kind == sp)
+				{
+					map[tate][yoko].kind = t;
+					sp_check = 1;
+
+				}
+			}
+		}
+	}
+
+	//プレイヤーAが杖に当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_ca)
+	{
+		for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+		{
+			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+			{
+
+				//鍵を通路にして消す
+				if (map[tate][yoko].kind == ca)
+				{
+					map[tate][yoko].kind = t;
+					ca_check = 1;
+
+				}
+			}
+		}
+	}
+	//▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲プレイヤーB当たり判定ここまで▲▲▲▲▲▲▲▲▲▲▲▲
+
 	//プレイヤーAとBがゴールに当たっていたら
 	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_ag) {
 		if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_bg) {
@@ -1067,9 +1193,36 @@ VOID MY_PLAY_DRAW(VOID)
 	if (ki_check == 1) {
 		//鍵取得状態を描画
 		DrawGraph(
+			MAP_DIV_WIDTH * 7,
+			MAP_DIV_HEIGHT * 14,
+			mapChip.handle[32],
+			TRUE);
+	}
+
+	if (br_check == 1) {
+		//剣取得状態を描画
+		DrawGraph(
+			MAP_DIV_WIDTH * 8,
+			MAP_DIV_HEIGHT * 14,
+			mapChip.handle[19],
+			TRUE);
+	}
+
+	if (sp_check == 1) {
+		//槍取得状態を描画
+		DrawGraph(
 			MAP_DIV_WIDTH * 9,
 			MAP_DIV_HEIGHT * 14,
-			mapChip.handle[30],
+			mapChip.handle[20],
+			TRUE);
+	}
+
+	if (ca_check == 1) {
+		//杖取得状態を描画
+		DrawGraph(
+			MAP_DIV_WIDTH * 10,
+			MAP_DIV_HEIGHT * 14,
+			mapChip.handle[21],
 			TRUE);
 	}
 
@@ -1119,6 +1272,12 @@ VOID MY_PLAY_DRAW(VOID)
 					DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(0, 0, 177), FALSE);
 				}
 
+				//鍵扉であり、なおかつ鍵をとっていない（s4_check=0）ならばギミック用の当たり判定を描画
+				if (mapData[tate][yoko] == kl && ki_check == 0)
+				{
+					DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(0, 0, 177), FALSE);
+				}
+
 				//通路ならば通路用の当たり判定を描画
 				if (mapData[tate][yoko] == t)
 				{
@@ -1147,6 +1306,12 @@ VOID MY_PLAY_DRAW(VOID)
 				if (mapData[tate][yoko] == s4)
 				{
 					DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(0, 255, 0), FALSE);
+				}
+
+				//鍵ならば鍵用の当たり判定を描画
+				if (mapData[tate][yoko] == ki)
+				{
+					DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 255, 0), FALSE);
 				}
 
 				DrawString(0, 0, "プレイ画面(スペースキーを押して下さい)", GetColor(255, 255, 255));
@@ -1507,6 +1672,15 @@ int MY_CHECK_MAP1_PLAYER_COLL(RECT player)
 
 				//鍵扉の時
 				if (map[tate][yoko].kind == kl) { return TRUE_kl; }
+
+				//剣の時
+				if (map[tate][yoko].kind == br) { return TRUE_br; }
+
+				//槍の時
+				if (map[tate][yoko].kind == sp) { return TRUE_sp; }
+
+				//杖の時
+				if (map[tate][yoko].kind == ca) { return TRUE_ca; }
 
 				//プレイヤーA用のゴールの時
 				if (map[tate][yoko].kind == ag) { return TRUE_ag; }
