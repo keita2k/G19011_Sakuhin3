@@ -112,6 +112,7 @@
 #define TRUE_br    16
 #define TRUE_sp    17
 #define TRUE_ca    18
+#define TRUE_st    19
 
 //スイッチが押されたかどうかの識別（1:押された　0:押されてない）
 int s1_check = 0;  //スイッチ1用
@@ -126,6 +127,9 @@ int ki_check = 0;
 int br_check = 0;
 int sp_check = 0;
 int ca_check = 0;
+
+//今どの階層にいるかの識別（1:別階層 0:初期階層）
+int fl_check = 0;
 
 enum GAME_MAP_KIND
 {
@@ -148,7 +152,8 @@ enum GAME_MAP_KIND
 	kl = 15, //鍵扉
 	br = 16, //剣
 	sp = 17, //槍
-	ca = 18  //杖
+	ca = 18, //杖
+	st = 23  //階段
 };	//マップの種類
 
 enum GAME_SCENE {
@@ -271,13 +276,13 @@ GAME_MAP_KIND mapData[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 
 		k ,s1,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,t ,k ,k,	//7
 
-		k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,s2,k ,t ,t ,t ,k ,t ,k ,k,	//8
+		k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,s2,k ,ki,t ,t ,k ,t ,k ,k,	//8
 
-		k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k,	//9
+		k ,st,t ,t ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k,	//9
 
 		k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,m3,t ,k ,t ,k ,kl,k ,k,	//10
 
-		k ,t ,t ,t ,t ,br,sp,ca,t ,k ,t ,k ,t ,k ,t ,t ,t ,ki,k,	//11
+		k ,t ,t ,t ,t ,br,sp,ca,t ,k ,t ,k ,t ,k ,t ,t ,t ,st,k,	//11
 
 		k ,t ,k ,m4,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k,	//12
 
@@ -286,8 +291,52 @@ GAME_MAP_KIND mapData[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k		//14
 };	//ゲームのマップ
 
-//ゲームマップの初期化
+//ゲームマップの初期化用
 GAME_MAP_KIND mapDataInit[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
+
+//ゲームマップの初期階層保存用
+GAME_MAP_KIND mapDatafirst[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
+
+//ゲームマップの初期階層初期化用
+GAME_MAP_KIND mapDatafirstInit[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
+
+//ゲームマップの別階層用
+GAME_MAP_KIND mapDataAnother[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
+{   //  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8
+
+		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k,	//0
+
+		k ,t ,k ,k ,k ,k ,k ,t ,s3,k ,s4,k ,t ,t ,t ,t ,t ,t ,k,	//1
+
+		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,t ,k,	//2
+
+		k ,k ,k ,m2,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,k ,t ,k,	//3
+
+		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k,	//4
+
+		k ,t ,k ,k ,k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,k ,k,	//5
+
+		k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,m1,t ,t ,t ,k ,k,	//6
+
+		k ,s1,k ,st,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,t ,k ,k,	//7
+
+		k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,s2,k ,ki,t ,t ,k ,t ,k ,k,	//8
+
+		k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,st,k ,k,	//9
+
+		k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,m3,t ,k ,t ,k ,kl,k ,k,	//10
+
+		k ,t ,t ,t ,t ,br,sp,ca,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,k,	//11
+
+		k ,t ,k ,m4,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k,	//12
+
+		k ,as,k ,t ,t ,t ,t ,t ,ag,k ,bg,k ,t ,t ,t ,t ,t ,bs,k,	//13
+
+		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k		//14
+};
+
+//ゲームマップの別階層初期化用
+GAME_MAP_KIND mapDataAnotherInit[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
 
 //マップチップの画像を管理
 MAPCHIP mapChip;
@@ -615,6 +664,11 @@ VOID MY_PLAY_INIT(VOID)
 	s4_check = 0;
 
 	ki_check = 0;
+	br_check = 0;
+	sp_check = 0;
+	ca_check = 0;
+
+	fl_check = 0;
 
 	return;
 }
@@ -1037,11 +1091,11 @@ VOID MY_PLAY_PROC(VOID)
 		}
 	}
 
-	//プレイヤーAと鍵扉が当たっていたら
+	//プレイヤーBと鍵扉が当たっていたら
 	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_kl)
 	{
 		if (ki_check == 0) {
-			//プレイヤーAの座標を１つ前の座標に置き換える
+			//プレイヤーBの座標を１つ前の座標に置き換える
 			player_B.image.x = player_B.collBeforePt.x;
 			player_B.image.y = player_B.collBeforePt.y;
 
@@ -1080,7 +1134,7 @@ VOID MY_PLAY_PROC(VOID)
 		}
 	}
 
-	//プレイヤーAが剣に当たっていたら
+	//プレイヤーBが剣に当たっていたら
 	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_br)
 	{
 		for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
@@ -1099,7 +1153,7 @@ VOID MY_PLAY_PROC(VOID)
 		}
 	}
 
-	//プレイヤーAが槍に当たっていたら
+	//プレイヤーBが槍に当たっていたら
 	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_sp)
 	{
 		for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
@@ -1118,7 +1172,7 @@ VOID MY_PLAY_PROC(VOID)
 		}
 	}
 
-	//プレイヤーAが杖に当たっていたら
+	//プレイヤーBが杖に当たっていたら
 	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_ca)
 	{
 		for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
@@ -1137,6 +1191,31 @@ VOID MY_PLAY_PROC(VOID)
 		}
 	}
 	//▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲プレイヤーB当たり判定ここまで▲▲▲▲▲▲▲▲▲▲▲▲
+
+	//プレイヤーAとBが階段に当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_st) {
+		if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_st) {
+
+			for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+			{
+				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+				{
+
+					//初期階層のマップ状態を保存
+					mapDatafirst[tate][yoko] = mapData[tate][yoko];
+
+					//マップを別階層に塗り替え
+					mapData[tate][yoko] = mapDataAnother[tate][yoko];
+
+				
+				}
+			}
+
+			fl_check = 1;
+
+			return;
+		}
+	}
 
 	//プレイヤーAとBがゴールに当たっていたら
 	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_ag) {
@@ -1177,25 +1256,26 @@ VOID MY_PLAY_PROC(VOID)
 //プレイ画面の描画
 VOID MY_PLAY_DRAW(VOID)
 {
-	for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
-	{
-		for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+		for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
 		{
-			//マップを描画
-			DrawGraph(
-				map[tate][yoko].x,
-				map[tate][yoko].y,
-				mapChip.handle[map[tate][yoko].kind],
-				TRUE);
+			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+			{
+				//マップを描画
+				DrawGraph(
+					map[tate][yoko].x,
+					map[tate][yoko].y,
+					mapChip.handle[map[tate][yoko].kind],
+					TRUE);
+			}
 		}
-	}
+
 
 	if (ki_check == 1) {
 		//鍵取得状態を描画
 		DrawGraph(
 			MAP_DIV_WIDTH * 7,
 			MAP_DIV_HEIGHT * 14,
-			mapChip.handle[32],
+			mapChip.handle[19],
 			TRUE);
 	}
 
@@ -1204,7 +1284,7 @@ VOID MY_PLAY_DRAW(VOID)
 		DrawGraph(
 			MAP_DIV_WIDTH * 8,
 			MAP_DIV_HEIGHT * 14,
-			mapChip.handle[19],
+			mapChip.handle[20],
 			TRUE);
 	}
 
@@ -1213,7 +1293,7 @@ VOID MY_PLAY_DRAW(VOID)
 		DrawGraph(
 			MAP_DIV_WIDTH * 9,
 			MAP_DIV_HEIGHT * 14,
-			mapChip.handle[20],
+			mapChip.handle[21],
 			TRUE);
 	}
 
@@ -1222,7 +1302,7 @@ VOID MY_PLAY_DRAW(VOID)
 		DrawGraph(
 			MAP_DIV_WIDTH * 10,
 			MAP_DIV_HEIGHT * 14,
-			mapChip.handle[21],
+			mapChip.handle[22],
 			TRUE);
 	}
 
@@ -1687,6 +1767,9 @@ int MY_CHECK_MAP1_PLAYER_COLL(RECT player)
 
 				//プレイヤーB用のゴールの時
 				if (map[tate][yoko].kind == bg) { return TRUE_bg; }
+
+				//階段の時
+				if (map[tate][yoko].kind == st) { return TRUE_st; }
 
 
 			}
