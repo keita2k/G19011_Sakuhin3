@@ -96,6 +96,7 @@
 #define DEBUG   TEXT("OFF")
 
 //当たり判定の対象の識別
+#define TRUE_t     0
 #define TRUE_k     1
 #define TRUE_s1    6
 #define TRUE_m1    7
@@ -130,6 +131,9 @@ int ca_check = 0;
 
 //今どの階層にいるかの識別（1:別階層 0:初期階層）
 int fl_check = 0;
+
+//階層が変わってから移動したかどうかの識別（1:移動した 0:移動していない）
+int move_floor = 0;
 
 enum GAME_MAP_KIND
 {
@@ -257,7 +261,7 @@ IMAGE ImageBack;
 CHARA player_A;		//ゲームのキャラA
 CHARA player_B;		//ゲームのキャラB
 
-GAME_MAP_KIND mapData[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
+GAME_MAP_KIND mapDatafirst[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 {   //  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8
 
 		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k,	//0
@@ -291,14 +295,11 @@ GAME_MAP_KIND mapData[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k		//14
 };	//ゲームのマップ
 
-//ゲームマップの初期化用
-GAME_MAP_KIND mapDataInit[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
-
-//ゲームマップの初期階層保存用
-GAME_MAP_KIND mapDatafirst[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
-
 //ゲームマップの初期階層初期化用
 GAME_MAP_KIND mapDatafirstInit[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
+
+//ゲームマップの初期階層保持用
+GAME_MAP_KIND mapDatafirstCatch[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
 
 //ゲームマップの別階層用
 GAME_MAP_KIND mapDataAnother[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
@@ -308,9 +309,9 @@ GAME_MAP_KIND mapDataAnother[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 
 		k ,t ,k ,k ,k ,k ,k ,t ,s3,k ,s4,k ,t ,t ,t ,t ,t ,t ,k,	//1
 
-		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,t ,k,	//2
+		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,t ,t ,k ,t ,k ,k ,t ,k,	//2
 
-		k ,k ,k ,m2,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,k ,t ,k,	//3
+		k ,k ,k ,m2,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k,	//3
 
 		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k,	//4
 
@@ -318,9 +319,9 @@ GAME_MAP_KIND mapDataAnother[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 
 		k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,m1,t ,t ,t ,k ,k,	//6
 
-		k ,s1,k ,st,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,t ,k ,k,	//7
+		k ,s1,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,t ,k ,k,	//7
 
-		k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,s2,k ,ki,t ,t ,k ,t ,k ,k,	//8
+		k ,k ,k ,st,k ,k ,t ,t ,t ,k ,s2,k ,ki,t ,t ,k ,t ,k ,k,	//8
 
 		k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,st,k ,k,	//9
 
@@ -338,11 +339,17 @@ GAME_MAP_KIND mapDataAnother[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 //ゲームマップの別階層初期化用
 GAME_MAP_KIND mapDataAnotherInit[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
 
+//ゲームマップの別階層保持用
+GAME_MAP_KIND mapDataAnotherCatch[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
+
 //マップチップの画像を管理
 MAPCHIP mapChip;
 
-//マップの場所と表示する画像を管理
-MAP map[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
+//初期階層マップの場所と表示する画像を管理
+MAP mapfirst[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
+
+//別階層マップの場所と表示する画像を管理
+MAP mapAnother[GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
 
 //スタートの位置(プレイヤーそれぞれの座標）
 iPOINT startPt_A;
@@ -420,7 +427,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 		{
 			//プレイヤーAのスタート位置を探す
-			if (mapData[tate][yoko] == as)
+			if (mapDatafirst[tate][yoko] == as)
 			{
 				//プレイヤーAのスタート位置を計算
 				startPt_A.y = mapChip.height * tate;	//Y座標を取得
@@ -429,7 +436,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			}
 
 			//プレイヤーBのスタート位置を探す
-			if (mapData[tate][yoko] == bs)
+			if (mapDatafirst[tate][yoko] == bs)
 			{
 				//プレイヤーBのスタート位置を計算
 				startPt_B.x = mapChip.width * yoko;	//X座標を取得
@@ -437,7 +444,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			}
 
 			//プレイヤーAのゴール位置を探す
-			if (mapData[tate][yoko] == ag) 
+			if (mapDatafirst[tate][yoko] == ag) 
 			{
 				GoalRect_A.left = mapChip.width * yoko;
 				GoalRect_A.top = mapChip.height * tate;
@@ -446,7 +453,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			}
 
 			//プレイヤーBのゴール位置を探す
-			if (mapData[tate][yoko] == bg)
+			if (mapDatafirst[tate][yoko] == bg)
 			{
 				GoalRect_B.left = mapChip.width * yoko;
 				GoalRect_B.top = mapChip.height * tate;
@@ -641,8 +648,11 @@ VOID MY_PLAY_INIT(VOID)
 	{
 		for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 		{
-			//マップを初期化
-			map[tate][yoko].kind = mapDataInit[tate][yoko];
+			//初期階層マップを初期化
+			mapfirst[tate][yoko].kind = mapDatafirstInit[tate][yoko];
+
+			//別階層マップを初期化
+			mapAnother[tate][yoko].kind = mapDataAnotherInit[tate][yoko];
 
 			//マップの当たり判定の初期化
 			mapColl[tate][yoko].left = mapCollInit[tate][yoko].left;
@@ -669,6 +679,7 @@ VOID MY_PLAY_INIT(VOID)
 	ca_check = 0;
 
 	fl_check = 0;
+	move_floor = 0;
 
 	return;
 }
@@ -741,6 +752,12 @@ VOID MY_PLAY_PROC(VOID)
 	BOOL IsMove_B = TRUE;
 
 	//▼▼▼▼▼▼▼▼プレイヤーA当たり判定ここから▼▼▼▼▼▼▼▼▼▼▼▼
+	//プレイヤーAがフロアを移動したら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_t)
+	{
+		move_floor = 1;
+	}
+
 	//プレイヤーAと壁が当たっていたら
 	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_k)
 	{
@@ -790,7 +807,7 @@ VOID MY_PLAY_PROC(VOID)
 
 		IsMove_A = FALSE;
 	}
-	
+
 	//プレイヤーAがスイッチ1に当たっていたら
 	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_s1)
 	{
@@ -799,9 +816,10 @@ VOID MY_PLAY_PROC(VOID)
 			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 			{
 				//ギミック1を通路にして消す
-				if (map[tate][yoko].kind == m1)
+				if (mapfirst[tate][yoko].kind == m1 || mapAnother[tate][yoko].kind == m1)
 				{
-					map[tate][yoko].kind = t;
+					mapfirst[tate][yoko].kind = t;
+					mapAnother[tate][yoko].kind = t;
 					s1_check = 1;
 
 				}
@@ -817,9 +835,10 @@ VOID MY_PLAY_PROC(VOID)
 			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 			{
 				//ギミック2を通路にして消す
-				if (map[tate][yoko].kind == m2)
+				if (mapfirst[tate][yoko].kind == m2 || mapAnother[tate][yoko].kind == m2)
 				{
-					map[tate][yoko].kind = t;
+					mapfirst[tate][yoko].kind = t;
+					mapAnother[tate][yoko].kind = t;
 					s2_check = 1;
 
 				}
@@ -835,9 +854,10 @@ VOID MY_PLAY_PROC(VOID)
 			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 			{
 				//ギミック2を通路にして消す
-				if (map[tate][yoko].kind == m3)
+				if (mapfirst[tate][yoko].kind == m3 || mapAnother[tate][yoko].kind == m3)
 				{
-					map[tate][yoko].kind = t;
+					mapfirst[tate][yoko].kind = t;
+					mapAnother[tate][yoko].kind = t;
 					s3_check = 1;
 
 				}
@@ -853,9 +873,10 @@ VOID MY_PLAY_PROC(VOID)
 			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 			{
 				//ギミック2を通路にして消す
-				if (map[tate][yoko].kind == m4)
+				if (mapfirst[tate][yoko].kind == m4 || mapAnother[tate][yoko].kind == m4)
 				{
-					map[tate][yoko].kind = t;
+					mapfirst[tate][yoko].kind = t;
+					mapAnother[tate][yoko].kind = t;
 					s4_check = 1;
 
 				}
@@ -873,16 +894,17 @@ VOID MY_PLAY_PROC(VOID)
 
 			IsMove_A = FALSE;
 		}
-		else if(ki_check == 1) {
+		else if (ki_check == 1) {
 
 			for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
 					//鍵扉を通路にして消す
-					if (map[tate][yoko].kind == kl)
+					if (mapfirst[tate][yoko].kind == kl || mapAnother[tate][yoko].kind == kl)
 					{
-						map[tate][yoko].kind = t;
+						mapfirst[tate][yoko].kind = t;
+						mapAnother[tate][yoko].kind = t;
 					}
 				}
 			}
@@ -898,9 +920,10 @@ VOID MY_PLAY_PROC(VOID)
 			{
 
 				//鍵を通路にして消す
-				if (map[tate][yoko].kind == ki)
+				if (mapfirst[tate][yoko].kind == ki || mapAnother[tate][yoko].kind == ki)
 				{
-					map[tate][yoko].kind = t;
+					mapfirst[tate][yoko].kind = t;
+					mapAnother[tate][yoko].kind = t;
 					ki_check = 1;
 
 				}
@@ -917,9 +940,10 @@ VOID MY_PLAY_PROC(VOID)
 			{
 
 				//鍵を通路にして消す
-				if (map[tate][yoko].kind == br)
+				if (mapfirst[tate][yoko].kind == br || mapAnother[tate][yoko].kind == br)
 				{
-					map[tate][yoko].kind = t;
+					mapfirst[tate][yoko].kind = t;
+					mapAnother[tate][yoko].kind = t;
 					br_check = 1;
 
 				}
@@ -936,9 +960,10 @@ VOID MY_PLAY_PROC(VOID)
 			{
 
 				//鍵を通路にして消す
-				if (map[tate][yoko].kind == sp)
+				if (mapfirst[tate][yoko].kind == sp || mapAnother[tate][yoko].kind == sp)
 				{
-					map[tate][yoko].kind = t;
+					mapfirst[tate][yoko].kind = t;
+					mapAnother[tate][yoko].kind = t;
 					sp_check = 1;
 
 				}
@@ -955,9 +980,10 @@ VOID MY_PLAY_PROC(VOID)
 			{
 
 				//鍵を通路にして消す
-				if (map[tate][yoko].kind == ca)
+				if (mapfirst[tate][yoko].kind == ca || mapAnother[tate][yoko].kind == ca)
 				{
-					map[tate][yoko].kind = t;
+					mapfirst[tate][yoko].kind = t;
+					mapAnother[tate][yoko].kind = t;
 					ca_check = 1;
 
 				}
@@ -966,10 +992,16 @@ VOID MY_PLAY_PROC(VOID)
 	}
 
 	//▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲プレイヤーA当たり判定ここまで▲▲▲▲▲▲▲▲▲▲▲▲
-	
+
 
 
 	//▼▼▼▼▼▼▼▼プレイヤーB当たり判定ここから▼▼▼▼▼▼▼▼▼▼▼▼
+	//プレイヤーBがフロアを移動したら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_t)
+	{
+		move_floor = 1;
+	}
+
 	//プレイヤーBと壁が当たっていたら
 	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_k)
 	{
@@ -979,7 +1011,7 @@ VOID MY_PLAY_PROC(VOID)
 
 		IsMove_B = FALSE;
 	}
-	
+
 	//プレイヤーBとギミック1が当たっていたら
 	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_m1)
 	{
@@ -1028,9 +1060,10 @@ VOID MY_PLAY_PROC(VOID)
 			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 			{
 				//ギミック1を通路にして消す
-				if (map[tate][yoko].kind == m1)
+				if (mapfirst[tate][yoko].kind == m1 || mapAnother[tate][yoko].kind == m1)
 				{
-					map[tate][yoko].kind = t;
+					mapfirst[tate][yoko].kind = t;
+					mapAnother[tate][yoko].kind = t;
 					s1_check = 1;
 				}
 			}
@@ -1045,9 +1078,10 @@ VOID MY_PLAY_PROC(VOID)
 			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 			{
 				//ギミック2を通路にして消す
-				if (map[tate][yoko].kind == m2)
+				if (mapfirst[tate][yoko].kind == m2 || mapAnother[tate][yoko].kind == m2)
 				{
-					map[tate][yoko].kind = t;
+					mapfirst[tate][yoko].kind = t;
+					mapAnother[tate][yoko].kind = t;
 					s2_check = 1;
 
 				}
@@ -1062,10 +1096,11 @@ VOID MY_PLAY_PROC(VOID)
 		{
 			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 			{
-				//ギミック2を通路にして消す
-				if (map[tate][yoko].kind == m3)
+				//ギミック3を通路にして消す
+				if (mapfirst[tate][yoko].kind == m3 || mapAnother[tate][yoko].kind == m3)
 				{
-					map[tate][yoko].kind = t;
+					mapfirst[tate][yoko].kind = t;
+					mapAnother[tate][yoko].kind = t;
 					s3_check = 1;
 
 				}
@@ -1080,10 +1115,11 @@ VOID MY_PLAY_PROC(VOID)
 		{
 			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 			{
-				//ギミック2を通路にして消す
-				if (map[tate][yoko].kind == m4)
+				//ギミック4を通路にして消す
+				if (mapfirst[tate][yoko].kind == m4 || mapAnother[tate][yoko].kind == m4)
 				{
-					map[tate][yoko].kind = t;
+					mapfirst[tate][yoko].kind = t;
+					mapAnother[tate][yoko].kind = t;
 					s4_check = 1;
 
 				}
@@ -1108,9 +1144,10 @@ VOID MY_PLAY_PROC(VOID)
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
 					//鍵扉を通路にして消す
-					if (map[tate][yoko].kind == kl)
+					if (mapfirst[tate][yoko].kind == kl || mapAnother[tate][yoko].kind == kl)
 					{
-						map[tate][yoko].kind = t;
+						mapfirst[tate][yoko].kind = t;
+						mapAnother[tate][yoko].kind = t;
 					}
 				}
 			}
@@ -1125,9 +1162,10 @@ VOID MY_PLAY_PROC(VOID)
 			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 			{
 				//鍵を通路にして消す
-				if (map[tate][yoko].kind == ki)
+				if (mapfirst[tate][yoko].kind == ki || mapAnother[tate][yoko].kind == ki)
 				{
-					map[tate][yoko].kind = t;
+					mapfirst[tate][yoko].kind = t;
+					mapAnother[tate][yoko].kind = t;
 					ki_check = 1;
 				}
 			}
@@ -1142,10 +1180,11 @@ VOID MY_PLAY_PROC(VOID)
 			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 			{
 
-				//鍵を通路にして消す
-				if (map[tate][yoko].kind == br)
+				//剣を通路にして消す
+				if (mapfirst[tate][yoko].kind == br || mapAnother[tate][yoko].kind == br)
 				{
-					map[tate][yoko].kind = t;
+					mapfirst[tate][yoko].kind = t;
+					mapAnother[tate][yoko].kind = t;
 					br_check = 1;
 
 				}
@@ -1161,10 +1200,11 @@ VOID MY_PLAY_PROC(VOID)
 			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 			{
 
-				//鍵を通路にして消す
-				if (map[tate][yoko].kind == sp)
+				//槍を通路にして消す
+				if (mapfirst[tate][yoko].kind == sp || mapAnother[tate][yoko].kind == sp)
 				{
-					map[tate][yoko].kind = t;
+					mapfirst[tate][yoko].kind = t;
+					mapAnother[tate][yoko].kind = t;
 					sp_check = 1;
 
 				}
@@ -1180,10 +1220,11 @@ VOID MY_PLAY_PROC(VOID)
 			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 			{
 
-				//鍵を通路にして消す
-				if (map[tate][yoko].kind == ca)
+				//杖を通路にして消す
+				if (mapfirst[tate][yoko].kind == ca || mapAnother[tate][yoko].kind == ca)
 				{
-					map[tate][yoko].kind = t;
+					mapfirst[tate][yoko].kind = t;
+					mapAnother[tate][yoko].kind = t;
 					ca_check = 1;
 
 				}
@@ -1193,29 +1234,30 @@ VOID MY_PLAY_PROC(VOID)
 	//▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲プレイヤーB当たり判定ここまで▲▲▲▲▲▲▲▲▲▲▲▲
 
 	//プレイヤーAとBが階段に当たっていたら
-	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_st) {
-		if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_st) {
+		if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_st) {
+			if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_st) {
+					for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+					{
+						for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+						{
+							if (fl_check == 0)
+							{
+								move_floor = 0;
+								fl_check = 1;
+							}
+							else if (fl_check == 1)
+							{
+								move_floor = 0;
+								fl_check = 0;
+							}
+						}
+					}
 
-			for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
-			{
-				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
-				{
+					fl_check = 1;
 
-					//初期階層のマップ状態を保存
-					mapDatafirst[tate][yoko] = mapData[tate][yoko];
-
-					//マップを別階層に塗り替え
-					mapData[tate][yoko] = mapDataAnother[tate][yoko];
-
-				
-				}
+					return;
 			}
-
-			fl_check = 1;
-
-			return;
 		}
-	}
 
 	//プレイヤーAとBがゴールに当たっていたら
 	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_ag) {
@@ -1260,12 +1302,22 @@ VOID MY_PLAY_DRAW(VOID)
 		{
 			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 			{
-				//マップを描画
-				DrawGraph(
-					map[tate][yoko].x,
-					map[tate][yoko].y,
-					mapChip.handle[map[tate][yoko].kind],
-					TRUE);
+				if (fl_check == 0) {
+					//初期階層マップを描画
+					DrawGraph(
+						mapfirst[tate][yoko].x,
+						mapfirst[tate][yoko].y,
+						mapChip.handle[mapfirst[tate][yoko].kind],
+						TRUE);
+				}
+				else if (fl_check == 1) {
+					//別階層マップを描画
+					DrawGraph(
+						mapAnother[tate][yoko].x,
+						mapAnother[tate][yoko].y,
+						mapChip.handle[mapAnother[tate][yoko].kind],
+						TRUE);
+				}
 			}
 		}
 
@@ -1323,73 +1375,73 @@ VOID MY_PLAY_DRAW(VOID)
 			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 			{
 				//壁ならば壁用の当たり判定を描画
-				if (mapData[tate][yoko] == k)
+				if (mapDatafirst[tate][yoko] == k)
 				{
 					DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(0, 0, 255), FALSE);
 				}
 
 				//ギミック1であり、なおかつスイッチ1が押されていない（s1_check=0）ならばギミック用の当たり判定を描画
-				if (mapData[tate][yoko] == m1 && s1_check == 0)
+				if (mapDatafirst[tate][yoko] == m1 && s1_check == 0)
 				{
 					DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(0, 0, 177), FALSE);
 				}
 
 				//ギミック2であり、なおかつスイッチ2が押されていない（s2_check=0）ならばギミック用の当たり判定を描画
-				if (mapData[tate][yoko] == m2 && s2_check == 0)
+				if (mapDatafirst[tate][yoko] == m2 && s2_check == 0)
 				{
 					DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(0, 0, 177), FALSE);
 				}
 
 				//ギミック3であり、なおかつスイッチ3が押されていない（s3_check=0）ならばギミック用の当たり判定を描画
-				if (mapData[tate][yoko] == m3 && s3_check == 0)
+				if (mapDatafirst[tate][yoko] == m3 && s3_check == 0)
 				{
 					DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(0, 0, 177), FALSE);
 				}
 
 				//ギミック4であり、なおかつスイッチ4が押されていない（s4_check=0）ならばギミック用の当たり判定を描画
-				if (mapData[tate][yoko] == m4 && s4_check == 0)
+				if (mapDatafirst[tate][yoko] == m4 && s4_check == 0)
 				{
 					DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(0, 0, 177), FALSE);
 				}
 
 				//鍵扉であり、なおかつ鍵をとっていない（s4_check=0）ならばギミック用の当たり判定を描画
-				if (mapData[tate][yoko] == kl && ki_check == 0)
+				if (mapDatafirst[tate][yoko] == kl && ki_check == 0)
 				{
 					DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(0, 0, 177), FALSE);
 				}
 
 				//通路ならば通路用の当たり判定を描画
-				if (mapData[tate][yoko] == t)
+				if (mapDatafirst[tate][yoko] == t)
 				{
 					DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(0, 255, 255), FALSE);
 				}
 
 				//スイッチ1ならばスイッチ1用の当たり判定を描画
-				if (mapData[tate][yoko] == s1)
+				if (mapDatafirst[tate][yoko] == s1)
 				{
 					DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(0, 255, 0), FALSE);
 				}
 
 				//スイッチ2ならばスイッチ2用の当たり判定を描画
-				if (mapData[tate][yoko] == s2)
+				if (mapDatafirst[tate][yoko] == s2)
 				{
 					DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(0, 255, 0), FALSE);
 				}
 
 				//スイッチ3ならばスイッチ3用の当たり判定を描画
-				if (mapData[tate][yoko] == s3)
+				if (mapDatafirst[tate][yoko] == s3)
 				{
 					DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(0, 255, 0), FALSE);
 				}
 
 				//スイッチ4ならばスイッチ4用の当たり判定を描画
-				if (mapData[tate][yoko] == s4)
+				if (mapDatafirst[tate][yoko] == s4)
 				{
 					DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(0, 255, 0), FALSE);
 				}
 
 				//鍵ならば鍵用の当たり判定を描画
-				if (mapData[tate][yoko] == ki)
+				if (mapDatafirst[tate][yoko] == ki)
 				{
 					DrawBox(mapColl[tate][yoko].left, mapColl[tate][yoko].top, mapColl[tate][yoko].right, mapColl[tate][yoko].bottom, GetColor(255, 255, 0), FALSE);
 				}
@@ -1612,18 +1664,26 @@ BOOL MY_LOAD_IMAGE(VOID)
 		for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 		{
 			//マップデータ初期化用に情報をコピー
-			mapDataInit[tate][yoko] = mapData[tate][yoko];
+			mapDatafirstInit[tate][yoko] = mapDatafirst[tate][yoko];
 
-			//マップの種類をコピー
-			map[tate][yoko].kind = mapData[tate][yoko];
+			mapDataAnotherInit[tate][yoko] = mapDataAnother[tate][yoko];
+
+			//初期階層マップの種類をコピー
+			mapfirst[tate][yoko].kind = mapDatafirst[tate][yoko];
+			//別階層マップの種類をコピー
+			mapAnother[tate][yoko].kind = mapDataAnother[tate][yoko];
 
 			//マップの幅と高さをコピー
-			map[tate][yoko].width = mapChip.width;
-			map[tate][yoko].height = mapChip.height;
+			mapfirst[tate][yoko].width = mapChip.width;
+			mapfirst[tate][yoko].height = mapChip.height;
+			mapAnother[tate][yoko].width = mapChip.width;
+			mapAnother[tate][yoko].height = mapChip.height;
 
 			//マップの座標を設定
-			map[tate][yoko].x = yoko * map[tate][yoko].width;
-			map[tate][yoko].y = tate * map[tate][yoko].height;
+			mapfirst[tate][yoko].x = yoko * mapfirst[tate][yoko].width;
+			mapfirst[tate][yoko].y = tate * mapfirst[tate][yoko].height;
+			mapAnother[tate][yoko].x = yoko * mapAnother[tate][yoko].width;
+			mapAnother[tate][yoko].y = tate * mapAnother[tate][yoko].height;
 		}
 	}
 
@@ -1720,56 +1780,59 @@ int MY_CHECK_MAP1_PLAYER_COLL(RECT player)
 			//プレイヤーとマップが当たっているとき
 			if (MY_CHECK_RECT_COLL(player, mapColl[tate][yoko]) == TRUE)
 			{
+				//通路の時
+				if (mapfirst[tate][yoko].kind == t || mapAnother[tate][yoko].kind == t) { return TRUE_t; }
+
 				//壁の時
-				if (map[tate][yoko].kind == k) { return TRUE_k; }
+				if (mapfirst[tate][yoko].kind == k || mapAnother[tate][yoko].kind == k) { return TRUE_k; }
 
 				//ギミック1の時
-				if (map[tate][yoko].kind == m1) { return TRUE_m1; }
+				if (mapfirst[tate][yoko].kind == m1 || mapAnother[tate][yoko].kind == m1) { return TRUE_m1; }
 
 				//ギミック2の時
-				if (map[tate][yoko].kind == m2) { return TRUE_m2; }
+				if (mapfirst[tate][yoko].kind == m2 || mapAnother[tate][yoko].kind == m2) { return TRUE_m2; }
 
 				//ギミック3の時
-				if (map[tate][yoko].kind == m3) { return TRUE_m3; }
+				if (mapfirst[tate][yoko].kind == m3 || mapAnother[tate][yoko].kind == m3) { return TRUE_m3; }
 
 				//ギミック4の時
-				if (map[tate][yoko].kind == m4) { return TRUE_m4; }
+				if (mapfirst[tate][yoko].kind == m4 || mapAnother[tate][yoko].kind == m4) { return TRUE_m4; }
 
 				//スイッチ1の時
-				if (map[tate][yoko].kind == s1) { return TRUE_s1; }
+				if (mapfirst[tate][yoko].kind == s1 || mapAnother[tate][yoko].kind == s1) { return TRUE_s1; }
 
 				//スイッチ2の時
-				if (map[tate][yoko].kind == s2) { return TRUE_s2; }
+				if (mapfirst[tate][yoko].kind == s2 || mapAnother[tate][yoko].kind == s2) { return TRUE_s2; }
 
 				//スイッチ3の時
-				if (map[tate][yoko].kind == s3) { return TRUE_s3; }
+				if (mapfirst[tate][yoko].kind == s3 || mapAnother[tate][yoko].kind == s3) { return TRUE_s3; }
 
 				//スイッチ4の時
-				if (map[tate][yoko].kind == s4) { return TRUE_s4; }
+				if (mapfirst[tate][yoko].kind == s4 || mapAnother[tate][yoko].kind == s4) { return TRUE_s4; }
 
 				//鍵の時
-				if (map[tate][yoko].kind == ki) { return TRUE_ki; }
+				if (mapfirst[tate][yoko].kind == ki || mapAnother[tate][yoko].kind == ki) { return TRUE_ki; }
 
 				//鍵扉の時
-				if (map[tate][yoko].kind == kl) { return TRUE_kl; }
+				if (mapfirst[tate][yoko].kind == kl || mapAnother[tate][yoko].kind == kl) { return TRUE_kl; }
 
 				//剣の時
-				if (map[tate][yoko].kind == br) { return TRUE_br; }
+				if (mapfirst[tate][yoko].kind == br || mapAnother[tate][yoko].kind == br) { return TRUE_br; }
 
 				//槍の時
-				if (map[tate][yoko].kind == sp) { return TRUE_sp; }
+				if (mapfirst[tate][yoko].kind == sp || mapAnother[tate][yoko].kind == sp) { return TRUE_sp; }
 
 				//杖の時
-				if (map[tate][yoko].kind == ca) { return TRUE_ca; }
+				if (mapfirst[tate][yoko].kind == ca || mapAnother[tate][yoko].kind == ca) { return TRUE_ca; }
 
 				//プレイヤーA用のゴールの時
-				if (map[tate][yoko].kind == ag) { return TRUE_ag; }
+				if (mapfirst[tate][yoko].kind == ag || mapAnother[tate][yoko].kind == ag) { return TRUE_ag; }
 
 				//プレイヤーB用のゴールの時
-				if (map[tate][yoko].kind == bg) { return TRUE_bg; }
+				if (mapfirst[tate][yoko].kind == bg || mapAnother[tate][yoko].kind == bg) { return TRUE_bg; }
 
 				//階段の時
-				if (map[tate][yoko].kind == st) { return TRUE_st; }
+				if (mapfirst[tate][yoko].kind == st || mapAnother[tate][yoko].kind == st) { return TRUE_st; }
 
 
 			}
