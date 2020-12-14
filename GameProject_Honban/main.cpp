@@ -94,7 +94,7 @@
 #define MSG_CLOSE_CAPTION		TEXT("ゲームを終了しますか？")
 
 //デバッグモードのオンオフ（ON:オン　OFF:オフ）
-#define DEBUG   TEXT("ON")
+#define DEBUG   TEXT("OFF")
 
 //当たり判定の対象の識別
 #define TRUE_t     0
@@ -115,6 +115,8 @@
 #define TRUE_sp    17
 #define TRUE_ca    18
 #define TRUE_st    19
+#define TRUE_w1    20
+#define TRUE_w2    21
 
 //スイッチが押されたかどうかの識別（1:押された　0:押されてない）
 int s1_check = 0;  //スイッチ1用
@@ -158,7 +160,9 @@ enum GAME_MAP_KIND
 	br = 16, //剣
 	sp = 17, //槍
 	ca = 18, //杖
-	st = 23  //階段
+	st = 23, //階段
+	w1 = 24, //ワープ入口１
+	w2 = 25  //ワープ入口２
 };	//マップの種類
 
 enum GAME_SCENE {
@@ -274,7 +278,7 @@ GAME_MAP_KIND mapDatafirst[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 
 		k ,k ,k ,m2,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,k ,t ,k,	//3
 
-		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k,	//4
+		k ,t ,t ,t ,t ,t ,t ,w2,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k,	//4
 
 		k ,t ,k ,k ,k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,k ,k,	//5
 
@@ -282,7 +286,7 @@ GAME_MAP_KIND mapDatafirst[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 
 		k ,s1,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,t ,k ,k,	//7
 
-		k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,s2,k ,ki,t ,t ,k ,t ,k ,k,	//8
+		k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,s2,k ,ki,w1,t ,k ,t ,k ,k,	//8
 
 		k ,st,t ,t ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k,	//9
 
@@ -344,6 +348,10 @@ MAP map[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
 //スタートの位置(プレイヤーそれぞれの座標）
 iPOINT startPt_A;
 iPOINT startPt_B;
+
+//それぞれのワープの位置
+iPOINT w1_where;
+iPOINT w2_where;
 
 //マップの当たり判定
 RECT mapColl[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
@@ -449,6 +457,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				GoalRect_B.top = mapChip.height * tate;
 				GoalRect_B.right = mapChip.width * (yoko + 1);
 				GoalRect_B.bottom = mapChip.height * (tate + 1);
+			}
+
+			//ワープ１の位置を探す
+			if (mapDatafirst[0][tate][yoko] == w1)
+			{
+				//プレイヤーAのスタート位置を計算
+				w1_where.y = mapChip.height * tate;	//Y座標を取得
+				w1_where.x = mapChip.width * yoko;	//X座標を取得
+			}
+
+			//ワープ２の位置を探す
+			if (mapDatafirst[0][tate][yoko] == w2)
+			{
+				//プレイヤーAのスタート位置を計算
+				w2_where.y = mapChip.height * tate;	//Y座標を取得
+				w2_where.x = mapChip.width * yoko;	//X座標を取得
 			}
 
 		}
@@ -743,7 +767,7 @@ VOID MY_PLAY_PROC(VOID)
 
 	//▼▼▼▼▼▼▼▼プレイヤーA当たり判定ここから▼▼▼▼▼▼▼▼▼▼▼▼
 	//プレイヤーAがフロアを移動したら
-	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_t)
+	if (CheckHitKey(KEY_INPUT_W) || CheckHitKey(KEY_INPUT_A) || CheckHitKey(KEY_INPUT_S) || CheckHitKey(KEY_INPUT_D))
 	{
 		move_floor = 1;
 	}
@@ -987,13 +1011,47 @@ VOID MY_PLAY_PROC(VOID)
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
 
-					//鍵を通路にして消す
+					//杖を通路にして消す
 					if (map[floor][tate][yoko].kind == ca)
 					{
 						map[floor][tate][yoko].kind = t;
 						ca_check = 1;
 
 					}
+				}
+			}
+		}
+	}
+
+	//プレイヤーAがワープ１に当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_w1)
+	{
+		for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+		{
+			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+			{
+				if (move_floor == 1)
+				{
+					move_floor = 0;
+					player_A.image.x = w2_where.x;
+					player_A.image.y = w2_where.y;
+				}
+			}
+		}
+	}
+
+	//プレイヤーAがワープ2に当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_w2)
+	{
+		for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+		{
+			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+			{
+				if (move_floor == 1)
+				{
+					move_floor = 0;
+					player_A.image.x = w1_where.x;
+					player_A.image.y = w1_where.y;
 				}
 			}
 		}
@@ -1953,6 +2011,12 @@ int MY_CHECK_MAP1_PLAYER_COLL(RECT player)
 
 					//階段の時
 					if (map[floor][tate][yoko].kind == st) { return TRUE_st; }
+
+					//ワープ入口１の時
+					if (map[floor][tate][yoko].kind == w1) { return TRUE_w1; }
+
+					//ワープ入口２の時
+					if (map[floor][tate][yoko].kind == w2) { return TRUE_w2; }
 				}
 			}
 		}
@@ -1967,7 +2031,7 @@ BOOL MY_CHECK_RECT_COLL(RECT a, RECT b)
 	if (a.left < b.right &&
 		a.top < b.bottom &&
 		a.right > b.left &&
-		a.bottom > b.top
+		a.bottom > b.top 
 		)
 	{
 		return TRUE;  //当たっている
