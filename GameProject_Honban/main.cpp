@@ -1166,8 +1166,14 @@ VOID MY_PLAY_PROC(VOID)
 					{
 						//プレイヤー画像を死亡用に書き換える
 
+						//BGMが流れているなら
+						if (CheckSoundMem(BGM.handle) != 0)
+						{
+							StopSoundMem(BGM.handle);	//BGMを止める
+						}
+
 						//ゲームオーバーを表示する
-						GameScene = GAME_SCENE_OVER;
+						GameScene = GAME_SCENE_END;
 					}
 				}
 			}
@@ -1208,8 +1214,15 @@ VOID MY_PLAY_PROC(VOID)
 					{
 						//プレイヤー画像を死亡用に書き換える
 
+
+						//BGMが流れているなら
+						if (CheckSoundMem(BGM.handle) != 0)
+						{
+							StopSoundMem(BGM.handle);	//BGMを止める
+						}
+
 						//ゲームオーバーを表示する
-						GameScene = GAME_SCENE_OVER;
+						GameScene = GAME_SCENE_END;
 					}
 				}
 			}
@@ -1250,8 +1263,14 @@ VOID MY_PLAY_PROC(VOID)
 					{
 						//プレイヤー画像を死亡用に書き換える
 
+						//BGMが流れているなら
+						if (CheckSoundMem(BGM.handle) != 0)
+						{
+							StopSoundMem(BGM.handle);	//BGMを止める
+						}
+
 						//ゲームオーバーを表示する
-						GameScene = GAME_SCENE_OVER;
+						GameScene = GAME_SCENE_END;
 					}
 				}
 			}
@@ -1634,8 +1653,14 @@ VOID MY_PLAY_PROC(VOID)
 					{
 						//プレイヤー画像を死亡用に書き換える
 
+						//BGMが流れているなら
+						if (CheckSoundMem(BGM.handle) != 0)
+						{
+							StopSoundMem(BGM.handle);	//BGMを止める
+						}
+
 						//ゲームオーバーを表示する
-						GameScene = GAME_SCENE_OVER;
+						GameScene = GAME_SCENE_END;
 					}
 				}
 			}
@@ -1676,8 +1701,14 @@ VOID MY_PLAY_PROC(VOID)
 					{
 						//プレイヤー画像を死亡用に書き換える
 
+						//BGMが流れているなら
+						if (CheckSoundMem(BGM.handle) != 0)
+						{
+							StopSoundMem(BGM.handle);	//BGMを止める
+						}
+
 						//ゲームオーバーを表示する
-						GameScene = GAME_SCENE_OVER;
+						GameScene = GAME_SCENE_END;
 					}
 				}
 			}
@@ -1718,8 +1749,14 @@ VOID MY_PLAY_PROC(VOID)
 					{
 						//プレイヤー画像を死亡用に書き換える
 
+						//BGMが流れているなら
+						if (CheckSoundMem(BGM.handle) != 0)
+						{
+							StopSoundMem(BGM.handle);	//BGMを止める
+						}
+
 						//ゲームオーバーを表示する
-						GameScene = GAME_SCENE_OVER;
+						GameScene = GAME_SCENE_END;
 					}
 				}
 			}
