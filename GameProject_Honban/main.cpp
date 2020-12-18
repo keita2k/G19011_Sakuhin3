@@ -86,9 +86,13 @@
 #define MUSIC_BGM_TITLE_PATH		TEXT(".\\MUSIC\\title_BGM.mp3")	                //タイトルのBGM
 #define MUSIC_BGM_COMP_PATH			TEXT(".\\MUSIC\\end_BGM.mp3")				    //コンプリートBGM
 #define MUSIC_BGM_FAIL_PATH			TEXT(".\\MUSIC\\衛星の夜.mp3")					//フォールトBGM
+#define MUSIC_SE_ATACK_PATH         TEXT(".\\MUSIC\\Atack.mp3")
+#define MUSIC_SE_SWITCH_PATH        TEXT(".\\MUSIC\\SwitchOn.mp3")
+#define MUSIC_SE_KEY_PATH           TEXT(".\\MUSIC\\KeyGet.mp3")
+#define MUSIC_SE_WEAPON_PATH        TEXT(".\\MUSIC\\WeaponGet.mp3")
 
 //BGM音量
-#define MUSIC_VOLUME             0   //BGMの音量（0~100）
+#define MUSIC_VOLUME             50   //BGMの音量（0~100）
 //閉じるボタンを押したとき
 #define MSG_CLOSE_TITLE			TEXT("終了メッセージ")
 #define MSG_CLOSE_CAPTION		TEXT("ゲームを終了しますか？")
@@ -117,6 +121,9 @@
 #define TRUE_st    19
 #define TRUE_w1    20
 #define TRUE_w2    21
+#define TRUE_e1    22
+#define TRUE_e2    23
+#define TRUE_e3    24
 
 //スイッチが押されたかどうかの識別（1:押された　0:押されてない）
 int s1_check = 0;  //スイッチ1用
@@ -135,8 +142,11 @@ int ca_check = 0;
 //今どの階層にいるかの識別（1:別階層 0:初期階層）
 int fl_check = 0;
 
-//階層が変わってから移動したかどうかの識別（1:移動した 0:移動していない）
+//フロアを移動したかどうかの識別（1:移動した 0:移動していない）
 int move_floor = 0;
+
+//死んだかどうかの識別（1:生きてる　0:死んでる）
+int player_live = 1;
 
 enum GAME_MAP_KIND
 {
@@ -162,12 +172,16 @@ enum GAME_MAP_KIND
 	ca = 18, //杖
 	st = 23, //階段
 	w1 = 24, //ワープ入口１
-	w2 = 25  //ワープ入口２
+	w2 = 25, //ワープ入口２
+	e1 = 26, //敵１
+	e2 = 27, //敵２
+	e3 = 28  //敵３
 };	//マップの種類
 
 enum GAME_SCENE {
 	GAME_SCENE_START,
 	GAME_SCENE_PLAY,
+	GAME_SCENE_OVER,
 	GAME_SCENE_END,
 };	//ゲームのシーン
 
@@ -259,6 +273,10 @@ MUSIC BGM;  //ゲームのBGM
 MUSIC BGM_TITLE;	//タイトルのBGM
 MUSIC BGM_COMP;		//コンプリートのBGM
 MUSIC BGM_FAIL;		//フォールトのBGM
+MUSIC SE_ATACK;     //攻撃のSE
+MUSIC SE_SWITCH;    //スイッチのSE
+MUSIC SE_KEY;       //鍵入手のSE
+MUSIC SE_WEAPON;    //武器入手のSE
 
 //画像関連
 IMAGE ImageBack;
@@ -272,66 +290,66 @@ GAME_MAP_KIND mapDatafirst[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 
 		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k,	//0
 
-		k ,t ,k ,k ,k ,k ,k ,t ,s3,k ,s4,k ,t ,t ,t ,t ,t ,t ,k,	//1
+		k ,w1,k ,k ,k ,k ,k ,e1,s3,k ,s4,k ,t ,t ,t ,t ,t ,t ,k,	//1
 
-		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,t ,k,	//2
+		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,ca,e2,t ,k ,k ,k ,k ,t ,k,	//2
 
-		k ,k ,k ,m2,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,k ,t ,k,	//3
+		k ,k ,k ,m2,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,w2,k ,t ,k,	//3
 
-		k ,t ,t ,t ,t ,t ,t ,w2,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k,	//4
+		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k,	//4
 
-		k ,t ,k ,k ,k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,k ,k,	//5
+		k ,t ,k ,k ,k ,k ,k ,t ,k ,k ,t ,m1,t ,k ,k ,k ,k ,k ,k,	//5
 
 		k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k ,k,	//6
 
-		k ,s1,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,t ,k ,k,	//7
+		k ,s1,k ,t ,k ,k ,k ,k ,k ,k ,br,k ,k ,k ,k ,k ,t ,k ,k,	//7
 
-		k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,s2,k ,ki,w1,t ,k ,t ,k ,k,	//8
+		k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,s2,k ,ki,t ,t ,k ,t ,k ,k,	//8
 
-		k ,st,t ,t ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k,	//9
+		k ,st,sp,t ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k,	//9
 
 		k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,m3,t ,k ,t ,k ,kl,k ,k,	//10
 
-		k ,t ,t ,t ,t ,br,sp,ca,t ,k ,t ,k ,t ,k ,t ,t ,t ,st,k,	//11
+		k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,t ,t ,st,k,	//11
 
 		k ,t ,k ,m4,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k,	//12
 
-		k ,as,k ,t ,t ,t ,t ,t ,ag,k ,bg,k ,t ,t ,t ,t ,t ,bs,k,	//13
+		k ,as,k ,t ,t ,t ,t ,e3,ag,k ,bg,k ,t ,t ,t ,t ,t ,bs,k,	//13 
 
 		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k		//14
 	},
 	{
-	//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8
+		//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8
 
-		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k,	//0
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k,	//0
 
-		k ,t ,k ,k ,k ,k ,k ,t ,s3,k ,s4,k ,t ,t ,t ,t ,t ,t ,k,	//1
+			k ,t ,k ,k ,k ,k ,k ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k,	//1
 
-		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,t ,k,	//2
+			k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,t ,k,	//2
 
-		k ,k ,k ,m2,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,k ,t ,k,	//3
+			k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,k ,t ,k,	//3
 
-		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k,	//4
+			k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k,	//4
 
-		k ,t ,k ,k ,k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,k ,k,	//5
+			k ,t ,k ,k ,k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,k ,k,	//5
 
-		k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,m1,t ,t ,t ,k ,k,	//6
+			k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k ,k,	//6
 
-		k ,s1,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,t ,k ,k,	//7
+			k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,t ,k ,k,	//7
 
-		k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,s2,k ,ki,t ,t ,k ,t ,k ,k,	//8
+			k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,k ,t ,k ,k,	//8
 
-		k ,st,t ,t ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k,	//9
+			k ,st,t ,t ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k,	//9
 
-		k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,m3,t ,k ,t ,k ,kl,k ,k,	//10
+			k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,t ,t ,k ,t ,k ,kl,k ,k,	//10
 
-		k ,t ,t ,t ,t ,br,sp,ca,t ,k ,t ,k ,t ,k ,t ,t ,t ,st,k,	//11
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,t ,t ,st,k,	//11
 
-		k ,t ,k ,m4,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k,	//12
+			k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k,	//12
 
-		k ,t ,k ,t ,t ,t ,t ,t ,ag,k ,bg,k ,t ,t ,t ,t ,t ,t ,k,	//13
+			k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k,	//13
 
-		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k		//14
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k		//14
 
 	}
 };	//ゲームのマップ
@@ -374,6 +392,11 @@ VOID MY_PLAY_INIT(VOID);	//プレイ画面初期化
 VOID MY_PLAY(VOID);			//プレイ画面
 VOID MY_PLAY_PROC(VOID);	//プレイ画面の処理
 VOID MY_PLAY_DRAW(VOID);	//プレイ画面の描画
+
+VOID MY_OVER_INIT(VOID);    //ゲームオーバー画面初期化
+VOID MY_OVER(VOID);         //ゲームオーバー画面
+VOID MY_OVER_PROC(VOID);    //ゲームオーバー画面の処理
+VOID MY_OVER_DRAW(VOID);    //ゲームオーバー画面の描画
 
 VOID MY_END(VOID);			//エンド画面
 VOID MY_END_PROC(VOID);		//エンド画面の処理
@@ -537,6 +560,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		case GAME_SCENE_PLAY:
 			MY_PLAY();	//プレイ画面
 			break;
+		case GAME_SCENE_OVER:
+			MY_OVER;
+			break;
 		case GAME_SCENE_END:
 			MY_END();	//エンド画面
 			break;
@@ -695,6 +721,8 @@ VOID MY_PLAY_INIT(VOID)
 	fl_check = 0;
 	move_floor = 0;
 
+	player_live = 1;
+
 	return;
 }
 
@@ -766,12 +794,6 @@ VOID MY_PLAY_PROC(VOID)
 	BOOL IsMove_B = TRUE;
 
 	//▼▼▼▼▼▼▼▼プレイヤーA当たり判定ここから▼▼▼▼▼▼▼▼▼▼▼▼
-	//プレイヤーAがフロアを移動したら
-	if (CheckHitKey(KEY_INPUT_W) || CheckHitKey(KEY_INPUT_A) || CheckHitKey(KEY_INPUT_S) || CheckHitKey(KEY_INPUT_D))
-	{
-		move_floor = 1;
-	}
-
 	//プレイヤーAと壁が当たっていたら
 	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_k)
 	{
@@ -831,6 +853,14 @@ VOID MY_PLAY_PROC(VOID)
 				{
 					for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 					{
+						//スイッチ音が流れていないなら
+						if (CheckSoundMem(SE_SWITCH.handle) == 0 && s1_check == 0)
+						{
+							//スイッチ音の音量を下げる
+							ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_SWITCH.handle); //MUSIC_VOLUMEで音量調節
+							PlaySoundMem(SE_SWITCH.handle, DX_PLAYTYPE_BACK, TRUE);
+						}
+
 						//ギミック1を通路にして消す
 						if (map[floor][tate][yoko].kind == m1)
 						{
@@ -852,6 +882,14 @@ VOID MY_PLAY_PROC(VOID)
 				{
 					for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 					{
+						//スイッチ音が流れていないなら
+						if (CheckSoundMem(SE_SWITCH.handle) == 0 && s2_check == 0)
+						{
+							//スイッチ音の音量を下げる
+							ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_SWITCH.handle); //MUSIC_VOLUMEで音量調節
+							PlaySoundMem(SE_SWITCH.handle, DX_PLAYTYPE_BACK, TRUE);
+						}
+
 						//ギミック2を通路にして消す
 						if (map[floor][tate][yoko].kind == m2)
 						{
@@ -873,6 +911,14 @@ VOID MY_PLAY_PROC(VOID)
 				{
 					for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 					{
+						//スイッチ音が流れていないなら
+						if (CheckSoundMem(SE_SWITCH.handle) == 0 && s3_check == 0)
+						{
+							//スイッチ音の音量を下げる
+							ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_SWITCH.handle); //MUSIC_VOLUMEで音量調節
+							PlaySoundMem(SE_SWITCH.handle, DX_PLAYTYPE_BACK, TRUE);
+						}
+
 						//ギミック2を通路にして消す
 						if (map[floor][tate][yoko].kind == m3)
 						{
@@ -894,6 +940,14 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
+					//スイッチ音が流れていないなら
+					if (CheckSoundMem(SE_SWITCH.handle) == 0 && s4_check == 0)
+					{
+						//スイッチ音の音量を下げる
+						ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_SWITCH.handle); //MUSIC_VOLUMEで音量調節
+						PlaySoundMem(SE_SWITCH.handle, DX_PLAYTYPE_BACK, TRUE);
+					}
+
 					//ギミック2を通路にして消す
 					if (map[floor][tate][yoko].kind == m4)
 					{
@@ -944,6 +998,13 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
+					//鍵入手音が流れていないなら
+					if (CheckSoundMem(SE_KEY.handle) == 0 && ki_check == 0)
+					{
+						//鍵入手音の音量を下げる
+						ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_KEY.handle); //MUSIC_VOLUMEで音量調節
+						PlaySoundMem(SE_KEY.handle, DX_PLAYTYPE_BACK, TRUE);
+					}
 
 					//鍵を通路にして消す
 					if (map[floor][tate][yoko].kind == ki)
@@ -966,6 +1027,13 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
+					//武器入手音が流れていないなら
+					if (CheckSoundMem(SE_WEAPON.handle) == 0 && br_check == 0)
+					{
+						//武器入手音の音量を下げる
+						ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 70, SE_WEAPON.handle); //MUSIC_VOLUMEで音量調節
+						PlaySoundMem(SE_WEAPON.handle, DX_PLAYTYPE_BACK, TRUE);
+					}
 
 					//鍵を通路にして消す
 					if (map[floor][tate][yoko].kind == br)
@@ -988,6 +1056,13 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
+					//武器入手音が流れていないなら
+					if (CheckSoundMem(SE_WEAPON.handle) == 0 && sp_check == 0)
+					{
+						//武器入手音の音量を下げる
+						ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 70, SE_WEAPON.handle); //MUSIC_VOLUMEで音量調節
+						PlaySoundMem(SE_WEAPON.handle, DX_PLAYTYPE_BACK, TRUE);
+					}
 
 					//鍵を通路にして消す
 					if (map[floor][tate][yoko].kind == sp)
@@ -1010,6 +1085,13 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
+					//武器入手音が流れていないなら
+					if (CheckSoundMem(SE_WEAPON.handle) == 0 && ca_check == 0)
+					{
+						//武器入手音の音量を下げる
+						ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 70, SE_WEAPON.handle); //MUSIC_VOLUMEで音量調節
+						PlaySoundMem(SE_WEAPON.handle, DX_PLAYTYPE_BACK, TRUE);
+					}
 
 					//杖を通路にして消す
 					if (map[floor][tate][yoko].kind == ca)
@@ -1024,34 +1106,153 @@ VOID MY_PLAY_PROC(VOID)
 	}
 
 	//プレイヤーAがワープ１に当たっていたら
-	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_w1)
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_w1 && move_floor == 1)
 	{
 		for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
 		{
 			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 			{
-				if (move_floor == 1)
-				{
 					move_floor = 0;
 					player_A.image.x = w2_where.x;
 					player_A.image.y = w2_where.y;
-				}
 			}
 		}
 	}
 
 	//プレイヤーAがワープ2に当たっていたら
-	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_w2)
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_w2 && move_floor == 1)
 	{
 		for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
 		{
 			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 			{
-				if (move_floor == 1)
-				{
 					move_floor = 0;
 					player_A.image.x = w1_where.x;
 					player_A.image.y = w1_where.y;
+			}
+		}
+	}
+
+	//プレイヤーAが敵１に当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_e1)
+	{
+		for (int floor = 0; floor <= GAME_FLOOR_MAX - 1; floor++)
+		{
+			for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+			{
+				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+				{
+					//剣を持っていたら、
+					if (br_check == 1)
+					{
+						//敵１を通路にして消す
+						if (map[floor][tate][yoko].kind == e1)
+						{
+							map[floor][tate][yoko].kind = t;
+
+						}
+
+						//攻撃音が流れていないなら
+						if (CheckSoundMem(SE_ATACK.handle) == 0)
+						{
+							//攻撃音の音量を下げる
+							ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_ATACK.handle); //MUSIC_VOLUMEで音量調節
+							PlaySoundMem(SE_ATACK.handle, DX_PLAYTYPE_BACK, TRUE);
+						}
+
+					}
+					//剣を持っていなかったら、
+					else if (br_check == 0)
+					{
+						//プレイヤー画像を死亡用に書き換える
+
+						//ゲームオーバーを表示する
+						GameScene = GAME_SCENE_OVER;
+					}
+				}
+			}
+		}
+	}
+
+	//プレイヤーAが敵２に当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_e2)
+	{
+		for (int floor = 0; floor <= GAME_FLOOR_MAX - 1; floor++)
+		{
+			for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+			{
+				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+				{
+
+					//槍を持っていたら、
+					if (sp_check == 1)
+					{
+						//敵１を通路にして消す
+						if (map[floor][tate][yoko].kind == e2)
+						{
+							map[floor][tate][yoko].kind = t;
+
+						}
+
+						//攻撃音が流れていないなら
+						if (CheckSoundMem(SE_ATACK.handle) == 0)
+						{
+							//攻撃音の音量を下げる
+							ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_ATACK.handle); //MUSIC_VOLUMEで音量調節
+							PlaySoundMem(SE_ATACK.handle, DX_PLAYTYPE_BACK, TRUE);
+						}
+
+					}
+					//槍を持っていなかったら、
+					else if (sp_check == 0)
+					{
+						//プレイヤー画像を死亡用に書き換える
+
+						//ゲームオーバーを表示する
+						GameScene = GAME_SCENE_OVER;
+					}
+				}
+			}
+		}
+	}
+
+	//プレイヤーAが敵３に当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_e3)
+	{
+		for (int floor = 0; floor <= GAME_FLOOR_MAX - 1; floor++)
+		{
+			for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+			{
+				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+				{
+
+					//杖を持っていたら、
+					if (ca_check == 1)
+					{
+						//敵１を通路にして消す
+						if (map[floor][tate][yoko].kind == e3)
+						{
+							map[floor][tate][yoko].kind = t;
+
+						}
+
+						//攻撃音が流れていないなら
+						if (CheckSoundMem(SE_ATACK.handle) == 0)
+						{
+							//攻撃音の音量を下げる
+							ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_ATACK.handle); //MUSIC_VOLUMEで音量調節
+							PlaySoundMem(SE_ATACK.handle, DX_PLAYTYPE_BACK, TRUE);
+						}
+
+					}
+					//杖を持っていなかったら、
+					else if (ca_check == 0)
+					{
+						//プレイヤー画像を死亡用に書き換える
+
+						//ゲームオーバーを表示する
+						GameScene = GAME_SCENE_OVER;
+					}
 				}
 			}
 		}
@@ -1062,12 +1263,6 @@ VOID MY_PLAY_PROC(VOID)
 
 
 	//▼▼▼▼▼▼▼▼プレイヤーB当たり判定ここから▼▼▼▼▼▼▼▼▼▼▼▼
-	//プレイヤーBがフロアを移動したら
-	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_t)
-	{
-		move_floor = 1;
-	}
-
 	//プレイヤーBと壁が当たっていたら
 	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_k)
 	{
@@ -1133,6 +1328,14 @@ VOID MY_PLAY_PROC(VOID)
 						map[floor][tate][yoko].kind = t;
 						s1_check = 1;
 					}
+
+					//スイッチ音が流れていないなら
+					if (CheckSoundMem(SE_SWITCH.handle) == 0  && s1_check == 0)
+					{
+						//スイッチ音の音量を下げる
+						ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_SWITCH.handle); //MUSIC_VOLUMEで音量調節
+						PlaySoundMem(SE_SWITCH.handle, DX_PLAYTYPE_BACK, TRUE);
+					}
 				}
 			}
 		}
@@ -1153,6 +1356,14 @@ VOID MY_PLAY_PROC(VOID)
 						map[floor][tate][yoko].kind = t;
 						s2_check = 1;
 
+					}
+
+					//スイッチ音が流れていないなら
+					if (CheckSoundMem(SE_SWITCH.handle) == 0 && s2_check == 0)
+					{
+						//スイッチ音の音量を下げる
+						ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_SWITCH.handle); //MUSIC_VOLUMEで音量調節
+						PlaySoundMem(SE_SWITCH.handle, DX_PLAYTYPE_BACK, TRUE);
 					}
 				}
 			}
@@ -1175,6 +1386,14 @@ VOID MY_PLAY_PROC(VOID)
 						s3_check = 1;
 
 					}
+
+					//スイッチ音が流れていないなら
+					if (CheckSoundMem(SE_SWITCH.handle) == 0 && s3_check == 0)
+					{
+						//スイッチ音の音量を下げる
+						ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_SWITCH.handle); //MUSIC_VOLUMEで音量調節
+						PlaySoundMem(SE_SWITCH.handle, DX_PLAYTYPE_BACK, TRUE);
+					}
 				}
 			}
 		}
@@ -1195,6 +1414,14 @@ VOID MY_PLAY_PROC(VOID)
 						map[floor][tate][yoko].kind = t;
 						s4_check = 1;
 
+					}
+
+					//スイッチ音が流れていないなら
+					if (CheckSoundMem(SE_SWITCH.handle) == 0 && s4_check == 0)
+					{
+						//スイッチ音の音量を下げる
+						ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_SWITCH.handle); //MUSIC_VOLUMEで音量調節
+						PlaySoundMem(SE_SWITCH.handle, DX_PLAYTYPE_BACK, TRUE);
 					}
 				}
 			}
@@ -1240,6 +1467,14 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
+					//鍵入手音が流れていないなら
+					if (CheckSoundMem(SE_KEY.handle) == 0 && ki_check == 0)
+					{
+						//鍵入手音の音量を下げる
+						ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_KEY.handle); //MUSIC_VOLUMEで音量調節
+						PlaySoundMem(SE_KEY.handle, DX_PLAYTYPE_BACK, TRUE);
+					}
+
 					//鍵を通路にして消す
 					if (map[floor][tate][yoko].kind == ki)
 					{
@@ -1260,6 +1495,13 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
+					//武器入手音が流れていないなら
+					if (CheckSoundMem(SE_WEAPON.handle) == 0 && br_check == 0)
+					{
+						//武器入手音の音量を下げる
+						ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 70, SE_WEAPON.handle); //MUSIC_VOLUMEで音量調節
+						PlaySoundMem(SE_WEAPON.handle, DX_PLAYTYPE_BACK, TRUE);
+					}
 
 					//剣を通路にして消す
 					if (map[floor][tate][yoko].kind == br)
@@ -1282,6 +1524,13 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
+					//武器入手音が流れていないなら
+					if (CheckSoundMem(SE_WEAPON.handle) == 0 && sp_check == 0)
+					{
+						//武器入手音の音量を下げる
+						ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 70, SE_WEAPON.handle); //MUSIC_VOLUMEで音量調節
+						PlaySoundMem(SE_WEAPON.handle, DX_PLAYTYPE_BACK, TRUE);
+					}
 
 					//槍を通路にして消す
 					if (map[floor][tate][yoko].kind == sp)
@@ -1304,6 +1553,13 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
+					//武器入手音が流れていないなら
+					if (CheckSoundMem(SE_WEAPON.handle) == 0 && ca_check == 0)
+					{
+						//武器入手音の音量を下げる
+						ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 70, SE_WEAPON.handle); //MUSIC_VOLUMEで音量調節
+						PlaySoundMem(SE_WEAPON.handle, DX_PLAYTYPE_BACK, TRUE);
+					}
 
 					//杖を通路にして消す
 					if (map[floor][tate][yoko].kind == ca)
@@ -1316,7 +1572,166 @@ VOID MY_PLAY_PROC(VOID)
 			}
 		}
 	}
+
+	//プレイヤーBがワープ１に当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_w1 && move_floor == 1)
+	{
+		for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+		{
+			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+			{
+				move_floor = 0;
+				player_B.image.x = w2_where.x;
+				player_B.image.y = w2_where.y;
+			}
+		}
+	}
+
+	//プレイヤーBがワープ2に当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_w2 && move_floor == 1)
+	{
+		for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+		{
+			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+			{
+				move_floor = 0;
+				player_B.image.x = w1_where.x;
+				player_B.image.y = w1_where.y;
+			}
+		}
+	}
+
+	//プレイヤーBが敵１に当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_e1)
+	{
+		for (int floor = 0; floor <= GAME_FLOOR_MAX - 1; floor++)
+		{
+			for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+			{
+				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+				{
+					//剣を持っていたら、
+					if (br_check == 1)
+					{
+						//敵１を通路にして消す
+						if (map[floor][tate][yoko].kind == e1)
+						{
+							map[floor][tate][yoko].kind = t;
+
+						}
+
+						//攻撃音が流れていないなら
+						if (CheckSoundMem(SE_ATACK.handle) == 0)
+						{
+							//攻撃音の音量を下げる
+							ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_ATACK.handle); //MUSIC_VOLUMEで音量調節
+							PlaySoundMem(SE_ATACK.handle, DX_PLAYTYPE_BACK, TRUE);
+						}
+
+					}
+					//剣を持っていなかったら、
+					else if (br_check == 0)
+					{
+						//プレイヤー画像を死亡用に書き換える
+
+						//ゲームオーバーを表示する
+						GameScene = GAME_SCENE_OVER;
+					}
+				}
+			}
+		}
+	}
+
+	//プレイヤーBが敵２に当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_e2)
+	{
+		for (int floor = 0; floor <= GAME_FLOOR_MAX - 1; floor++)
+		{
+			for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+			{
+				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+				{
+
+					//槍を持っていたら、
+					if (sp_check == 1)
+					{
+						//敵２を通路にして消す
+						if (map[floor][tate][yoko].kind == e2)
+						{
+							map[floor][tate][yoko].kind = t;
+
+						}
+
+						//攻撃音が流れていないなら
+						if (CheckSoundMem(SE_ATACK.handle) == 0)
+						{
+							//攻撃音の音量を下げる
+							ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_ATACK.handle); //MUSIC_VOLUMEで音量調節
+							PlaySoundMem(SE_ATACK.handle, DX_PLAYTYPE_BACK, TRUE);
+						}
+
+					}
+					//槍を持っていなかったら、
+					else if (sp_check == 0)
+					{
+						//プレイヤー画像を死亡用に書き換える
+
+						//ゲームオーバーを表示する
+						GameScene = GAME_SCENE_OVER;
+					}
+				}
+			}
+		}
+	}
+
+	//プレイヤーBが敵３に当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_e3)
+	{
+		for (int floor = 0; floor <= GAME_FLOOR_MAX - 1; floor++)
+		{
+			for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+			{
+				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+				{
+
+					//杖を持っていたら、
+					if (ca_check == 1)
+					{
+						//敵３を通路にして消す
+						if (map[floor][tate][yoko].kind == e3)
+						{
+							map[floor][tate][yoko].kind = t;
+
+						}
+
+						//攻撃音が流れていないなら
+						if (CheckSoundMem(SE_ATACK.handle) == 0)
+						{
+							//攻撃音の音量を下げる
+							ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_ATACK.handle); //MUSIC_VOLUMEで音量調節
+							PlaySoundMem(SE_ATACK.handle, DX_PLAYTYPE_BACK, TRUE);
+						}
+
+					}
+					//杖を持っていなかったら、
+					else if (ca_check == 0)
+					{
+						//プレイヤー画像を死亡用に書き換える
+
+						//ゲームオーバーを表示する
+						GameScene = GAME_SCENE_OVER;
+					}
+				}
+			}
+		}
+	}
 	//▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲プレイヤーB当たり判定ここまで▲▲▲▲▲▲▲▲▲▲▲▲
+
+	//プレイヤーAとBがフロアを移動したら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_t && MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_t)
+	{
+		move_floor = 1;
+	}
 
 	//プレイヤーAとBが階段に当たっていたら
 		if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_st) {
@@ -1640,6 +2055,88 @@ VOID MY_PLAY_DRAW(VOID)
 	return;
 }
 
+//ゲームオーバー画面
+VOID MY_OVER(VOID)
+{
+	MY_OVER_INIT(); //初期化
+	MY_END_PROC();  //処理
+	MY_END_DRAW();  //描画
+
+	return;
+}
+
+//ゲームオーバー画面初期化
+VOID MY_OVER_INIT(VOID)
+{
+
+	return;
+}
+
+//ゲームオーバー画面の処理
+VOID MY_OVER_PROC(VOID)
+{
+	//初期化
+	MY_OVER_INIT();
+
+	//エスケープキーを押したら、スタートシーンへ移動する
+	if (CheckHitKey(KEY_INPUT_ESCAPE) == TRUE)
+	{
+		//BGMが流れているなら
+		if (CheckSoundMem(BGM_COMP.handle) != 0)
+		{
+			StopSoundMem(BGM_COMP.handle);	//BGMを止める
+		}
+		GameScene = GAME_SCENE_START;
+		return;
+	}
+
+	//BGMが流れていないなら
+	if (CheckSoundMem(BGM_COMP.handle) == 0)
+	{
+		//BGMの音量を下げる
+		ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, BGM_COMP.handle); //MUSIC_VOLUMEで音量調節
+		PlaySoundMem(BGM_COMP.handle, DX_PLAYTYPE_LOOP);
+	}
+
+	//コンプリートの点滅
+	if (ImageEndCOMP.Cnt < ImageEndCOMP.CntMAX)
+	{
+		ImageEndCOMP.Cnt += IMAGE_END_COMP_CNT;
+	}
+	else
+	{
+		//描画する/しないを決める
+		if (ImageEndCOMP.IsDraw == FALSE)
+		{
+			ImageEndCOMP.IsDraw = TRUE;
+		}
+		else if (ImageEndCOMP.IsDraw == TRUE)
+		{
+			ImageEndCOMP.IsDraw = FALSE;
+		}
+		ImageEndCOMP.Cnt = 0;
+	}
+
+	return;
+}
+
+//ゲームオーバー画面の描画
+VOID MY_OVER_DRAW(VOID)
+{
+	//点滅
+	if (ImageEndCOMP.IsDraw == TRUE)
+	{
+		//コンプリートロゴの描画
+		DrawGraph(ImageEndCOMP.image.x, ImageEndCOMP.image.y, ImageEndCOMP.image.handle, TRUE);
+
+		//エンドタイトルの描画
+		DrawGraph(ImageTitleEND.image.x, ImageTitleEND.image.y, ImageTitleEND.image.handle, TRUE);
+	}
+
+	return;
+}
+
+
 //エンド画面
 VOID MY_END(VOID)
 {
@@ -1934,6 +2431,46 @@ BOOL MY_LOAD_MUSIC(VOID)
 		return FALSE;
 	}
 
+	//攻撃音
+	strcpy_s(SE_ATACK.path, MUSIC_SE_ATACK_PATH);				//パスの設定
+	SE_ATACK.handle = LoadSoundMem(SE_ATACK.path);				//読み込み
+	if (SE_ATACK.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), MUSIC_SE_ATACK_PATH, MUSIC_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
+	//スイッチ音
+	strcpy_s(SE_SWITCH.path, MUSIC_SE_SWITCH_PATH);				//パスの設定
+	SE_SWITCH.handle = LoadSoundMem(SE_SWITCH.path);				//読み込み
+	if (SE_SWITCH.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), MUSIC_SE_SWITCH_PATH, MUSIC_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
+	//鍵入手音
+	strcpy_s(SE_KEY.path, MUSIC_SE_KEY_PATH);				//パスの設定
+	SE_KEY.handle = LoadSoundMem(SE_KEY.path);				//読み込み
+	if (SE_KEY.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), MUSIC_SE_KEY_PATH, MUSIC_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
+	//武器入手音
+	strcpy_s(SE_WEAPON.path, MUSIC_SE_WEAPON_PATH);				//パスの設定
+	SE_WEAPON.handle = LoadSoundMem(SE_WEAPON.path);				//読み込み
+	if (SE_WEAPON.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), MUSIC_SE_WEAPON_PATH, MUSIC_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
 	return TRUE;
 }
 
@@ -2017,6 +2554,15 @@ int MY_CHECK_MAP1_PLAYER_COLL(RECT player)
 
 					//ワープ入口２の時
 					if (map[floor][tate][yoko].kind == w2) { return TRUE_w2; }
+
+					//敵１の時
+					if (map[floor][tate][yoko].kind == e1) { return TRUE_e1; }
+
+					//敵２の時
+					if (map[floor][tate][yoko].kind == e2) { return TRUE_e2; }
+
+					//敵３の時
+					if (map[floor][tate][yoko].kind == e3) { return TRUE_e3; }
 				}
 			}
 		}
