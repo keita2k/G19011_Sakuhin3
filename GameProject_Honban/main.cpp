@@ -31,6 +31,9 @@
 //画像のパス
 #define IMAGE_player_A_PATH		    TEXT(".\\IMAGE\\player_A.png")	    //プレイヤーAの画像
 #define IMAGE_player_B_PATH		    TEXT(".\\IMAGE\\player_B.png")	    //プレイヤーBの画像
+#define IMAGE_enemy_1_PATH		    TEXT(".\\IMAGE\\enemy1.png")	    //敵１の画像
+#define IMAGE_enemy_2_PATH		    TEXT(".\\IMAGE\\enemy2.png")	    //敵２の画像
+#define IMAGE_enemy_3_PATH		    TEXT(".\\IMAGE\\enemy3.png")	    //敵３の画像
 #define IMAGE_TITLE_BK_PATH			TEXT(".\\IMAGE\\titleBK.png")		//タイトル背景の画像
 #define IMAGE_TITLE_ROGO_PATH		TEXT(".\\IMAGE\\title_rogo.png")	//タイトルロゴの画像
 #define IMAGE_TITLE_START_PATH		TEXT(".\\IMAGE\\title_button.png")	//タイトルスタートの画像
@@ -48,9 +51,13 @@
 #define MAP_DIV_NUM	MAP_DIV_TATE * MAP_DIV_YOKO	//画像を分割する総数
 
 //エラーメッセージ
-#define START_ERR_TITLE		TEXT("スタート位置エラー")
-#define START_ERR_CAPTION_A	TEXT("Aのスタート位置が決まっていません")
-#define START_ERR_CAPTION_B	TEXT("Bのスタート位置が決まっていません")
+#define START_ERR_TITLE		    TEXT("スタート位置エラー")
+#define START_ERR_CAPTION_A	    TEXT("Aのスタート位置が決まっていません")
+#define START_ERR_CAPTION_B     TEXT("Bのスタート位置が決まっていません")
+#define START_ERR_CAPTION_E1	TEXT("敵1のスタート位置が決まっていません")
+#define START_ERR_CAPTION_E2	TEXT("敵2のスタート位置が決まっていません")
+#define START_ERR_CAPTION_E3	TEXT("敵2のスタート位置が決まっていません")
+
 
 #define GOAL_ERR_TITLE      TEXT("ゴール位置エラー")
 #define GOAL_ERR_CAPTION_A  TEXT("Aのゴール位置が決まっていません")
@@ -147,6 +154,9 @@ int move_floor = 0;
 
 //死んだかどうかの識別（1:生きてる　0:死んでる）
 int player_live = 1;
+int enemy1_live = 1;
+int enemy2_live = 1;
+int enemy3_live = 1;
 
 enum GAME_MAP_KIND
 {
@@ -173,9 +183,9 @@ enum GAME_MAP_KIND
 	st = 23, //階段
 	w1 = 24, //ワープ入口１
 	w2 = 25, //ワープ入口２
-	e1 = 26, //敵１
-	e2 = 27, //敵２
-	e3 = 28  //敵３
+	e1 = 26, //敵１スタート
+	e2 = 27, //敵２スタート
+	e3 = 28  //敵３スタート
 };	//マップの種類
 
 enum GAME_SCENE {
@@ -184,12 +194,6 @@ enum GAME_SCENE {
 	GAME_SCENE_OVER,
 	GAME_SCENE_END,
 };	//ゲームのシーン
-
-enum CHARA_SPEED {
-	CHARA_SPEED_LOW = 1,
-	CHARA_SPEED_MIDI = 2,
-	CHARA_SPEED_HIGH = 3
-};	//プレイヤーのスピード
 
 //int型のPOINT構造体
 typedef struct STRUCT_I_POINT
@@ -215,7 +219,7 @@ typedef struct STRUCT_CHARA
 	RECT coll;
 	iPOINT collBeforePt;
 
-}CHARA;	//プレイヤー構造体
+}CHARA;	//プレイヤー、敵の構造体
 
 typedef struct STRUCT_MAP_IMAGE
 {
@@ -280,8 +284,11 @@ MUSIC SE_WEAPON;    //武器入手のSE
 
 //画像関連
 IMAGE ImageBack;
-CHARA player_A;		//ゲームのキャラA
-CHARA player_B;		//ゲームのキャラB
+CHARA player_A;		//プレイヤーA
+CHARA player_B;		//プレイヤーB
+CHARA enemy_1;
+CHARA enemy_2;
+CHARA enemy_3;
 
 GAME_MAP_KIND mapDatafirst[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 { 
@@ -314,7 +321,7 @@ GAME_MAP_KIND mapDatafirst[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 
 		k ,t ,k ,m4,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k,	//12
 
-		k ,as,k ,t ,t ,t ,t ,e3,ag,k ,bg,k ,t ,t ,t ,t ,t ,bs,k,	//13 
+		k ,as,k ,t ,t ,t ,t ,e3,ag,k ,bg,k ,t ,t ,t ,t ,t ,bs,k,	//13
 
 		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k		//14
 	},
@@ -354,18 +361,21 @@ GAME_MAP_KIND mapDatafirst[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 	}
 };	//ゲームのマップ
 
-//ゲームマップの初期階層初期化用
+//ゲームマップの階層初期化用
 GAME_MAP_KIND mapDatafirstInit[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
 
 //マップチップの画像を管理
 MAPCHIP mapChip;
 
-//初期階層マップの場所と表示する画像を管理
+//マップの場所と表示する画像を管理
 MAP map[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
 
-//スタートの位置(プレイヤーそれぞれの座標）
+//スタートの位置(プレイヤーと敵のそれぞれの座標）
 iPOINT startPt_A;
 iPOINT startPt_B;
+iPOINT startEPt_1;
+iPOINT startEPt_2;
+iPOINT startEPt_3;
 
 //それぞれのワープの位置
 iPOINT w1_where;
@@ -464,6 +474,30 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				startPt_B.y = mapChip.height * tate;	//Y座標を取得
 			}
 
+			//敵１のスタート位置を探す
+			if (mapDatafirst[0][tate][yoko] == e1)
+			{
+				//敵１のスタート位置を計算
+				startEPt_1.x = mapChip.width * yoko;	//X座標を取得
+				startEPt_1.y = mapChip.height * tate;	//Y座標を取得
+			}
+
+			//敵2のスタート位置を探す
+			if (mapDatafirst[0][tate][yoko] == e2)
+			{
+				//敵2のスタート位置を計算
+				startEPt_2.x = mapChip.width * yoko;	//X座標を取得
+				startEPt_2.y = mapChip.height * tate;	//Y座標を取得
+			}
+
+			//敵3のスタート位置を探す
+			if (mapDatafirst[0][tate][yoko] == e3)
+			{
+				//敵3のスタート位置を計算
+				startEPt_3.x = mapChip.width * yoko;	//X座標を取得
+				startEPt_3.y = mapChip.height * tate;	//Y座標を取得
+			}
+
 			//プレイヤーAのゴール位置を探す
 			if (mapDatafirst[0][tate][yoko] == ag) 
 			{
@@ -485,7 +519,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			//ワープ１の位置を探す
 			if (mapDatafirst[0][tate][yoko] == w1)
 			{
-				//プレイヤーAのスタート位置を計算
+				//ワープ１の位置を計算
 				w1_where.y = mapChip.height * tate;	//Y座標を取得
 				w1_where.x = mapChip.width * yoko;	//X座標を取得
 			}
@@ -493,7 +527,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			//ワープ２の位置を探す
 			if (mapDatafirst[0][tate][yoko] == w2)
 			{
-				//プレイヤーAのスタート位置を計算
+				//ワープ２の位置を計算
 				w2_where.y = mapChip.height * tate;	//Y座標を取得
 				w2_where.x = mapChip.width * yoko;	//X座標を取得
 			}
@@ -501,7 +535,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 
 		//スタートが決まっていれば、ループ終了
-		if (startPt_A.x != 0 && startPt_A.y != 0 && startPt_B.x != 0 && startPt_B.y != 0) { break; }
+		if (startPt_A.x != 0 && startPt_A.y != 0 && startPt_B.x != 0 && startPt_B.y != 0 &&
+			startEPt_1.x != 0 && startEPt_1.y != 0 && startEPt_2.x != 0 && startEPt_2.y != 0 &&
+			startEPt_3.x != 0 && startEPt_3.y != 0) { break; }
 	}
 
 	//Aのスタートが決まっていなければ
@@ -515,6 +551,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 		//エラーメッセージ表示
 		MessageBox(GetMainWindowHandle(), START_ERR_CAPTION_B, START_ERR_TITLE, MB_OK);	return -1;
+	}
+
+	//敵１のスタートが決まっていなければ
+	if (startEPt_1.x == 0 && startEPt_1.y == 0)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), START_ERR_CAPTION_E1, START_ERR_TITLE, MB_OK);	return -1;
+	}
+
+	//敵2のスタートが決まっていなければ
+	if (startEPt_2.x == 0 && startEPt_2.y == 0)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), START_ERR_CAPTION_E2, START_ERR_TITLE, MB_OK);	return -1;
+	}
+
+	//敵3のスタートが決まっていなければ
+	if (startEPt_3.x == 0 && startEPt_3.y == 0)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), START_ERR_CAPTION_E3, START_ERR_TITLE, MB_OK);	return -1;
 	}
 
 	//Aのゴールが決まっていなければ
@@ -536,6 +593,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//プレイヤーAの画像座標を初期位置に設定
 	player_B.image.x = startPt_B.x;
 	player_B.image.y = startPt_B.y;
+
+	//敵１の画像座標を初期位置に設定
+	enemy_1.image.x = startEPt_1.x;
+	enemy_1.image.y = startEPt_1.y;
+
+	//敵2の画像座標を初期位置に設定
+	enemy_2.image.x = startEPt_2.x;
+	enemy_2.image.y = startEPt_2.y;
+
+	//敵3の画像座標を初期位置に設定
+	enemy_3.image.x = startEPt_3.x;
+	enemy_3.image.y = startEPt_3.y;
 
 	//無限ループ
 	while (TRUE)
@@ -708,6 +777,15 @@ VOID MY_PLAY_INIT(VOID)
 	player_B.image.x = startPt_B.x;
 	player_B.image.y = startPt_B.y;
 
+	enemy_1.image.x = startEPt_1.x;
+	enemy_1.image.y = startEPt_1.y;
+
+	enemy_2.image.x = startEPt_2.x;
+	enemy_2.image.y = startEPt_2.y;
+
+	enemy_3.image.x = startEPt_3.x;
+	enemy_3.image.y = startEPt_3.y;
+
 	s1_check = 0;
 	s2_check = 0;
 	s3_check = 0;
@@ -722,6 +800,9 @@ VOID MY_PLAY_INIT(VOID)
 	move_floor = 0;
 
 	player_live = 1;
+	enemy1_live = 1;
+	enemy2_live = 1;
+	enemy2_live = 1;
 
 	return;
 }
@@ -776,7 +857,6 @@ VOID MY_PLAY_PROC(VOID)
 	if (CheckHitKey(KEY_INPUT_LEFT)) { player_B.image.x -= MAP_DIV_WIDTH; }
 	if (CheckHitKey(KEY_INPUT_RIGHT)) { player_B.image.x += MAP_DIV_WIDTH; }
 
-
 	//-----------------------当たり判定関係ここから------------------------
 	//プレイヤーAの当たり判定の設定
 	player_A.coll.left = player_A.image.x;
@@ -790,8 +870,29 @@ VOID MY_PLAY_PROC(VOID)
 	player_B.coll.right = player_B.image.x + mapChip.width;
 	player_B.coll.bottom = player_B.image.y + mapChip.height;
 
+	//敵１の当たり判定の設定
+	enemy_1.coll.left = enemy_1.image.x;
+	enemy_1.coll.top = enemy_1.image.y;
+	enemy_1.coll.right = enemy_1.image.x + mapChip.width;
+	enemy_1.coll.bottom = enemy_1.image.y + mapChip.height;
+
+	//敵2の当たり判定の設定
+	enemy_2.coll.left = enemy_2.image.x;
+	enemy_2.coll.top = enemy_2.image.y;
+	enemy_2.coll.right = enemy_2.image.x + mapChip.width;
+	enemy_2.coll.bottom = enemy_2.image.y + mapChip.height;
+
+	//敵3の当たり判定の設定
+	enemy_3.coll.left = enemy_3.image.x;
+	enemy_3.coll.top = enemy_3.image.y;
+	enemy_3.coll.right = enemy_3.image.x + mapChip.width;
+	enemy_3.coll.bottom = enemy_3.image.y + mapChip.height;
+
 	BOOL IsMove_A = TRUE;
 	BOOL IsMove_B = TRUE;
+	BOOL IsMove_E1 = TRUE;
+	BOOL IsMove_E2 = TRUE;
+	BOOL IsMove_E3 = TRUE;
 
 	//▼▼▼▼▼▼▼▼プレイヤーA当たり判定ここから▼▼▼▼▼▼▼▼▼▼▼▼
 	//プレイヤーAと壁が当たっていたら
@@ -1134,7 +1235,7 @@ VOID MY_PLAY_PROC(VOID)
 	}
 
 	//プレイヤーAが敵１に当たっていたら
-	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_e1)
+	if (MY_CHECK_RECT_COLL(player_A.coll, enemy_1.coll) == TRUE)
 	{
 		for (int floor = 0; floor <= GAME_FLOOR_MAX - 1; floor++)
 		{
@@ -1142,15 +1243,10 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
-					//剣を持っていたら、
-					if (br_check == 1)
+					//剣を持っていて、敵１が生きていたら
+					if (br_check == 1 && enemy1_live == 1)
 					{
-						//敵１を通路にして消す
-						if (map[floor][tate][yoko].kind == e1)
-						{
-							map[floor][tate][yoko].kind = t;
-
-						}
+						enemy1_live = 0;
 
 						//攻撃音が流れていないなら
 						if (CheckSoundMem(SE_ATACK.handle) == 0)
@@ -1181,7 +1277,7 @@ VOID MY_PLAY_PROC(VOID)
 	}
 
 	//プレイヤーAが敵２に当たっていたら
-	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_e2)
+	if (MY_CHECK_RECT_COLL(player_A.coll, enemy_2.coll) == TRUE)
 	{
 		for (int floor = 0; floor <= GAME_FLOOR_MAX - 1; floor++)
 		{
@@ -1190,15 +1286,10 @@ VOID MY_PLAY_PROC(VOID)
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
 
-					//槍を持っていたら、
-					if (sp_check == 1)
+					//槍を持っていて、敵２が生きていたら
+					if (sp_check == 1 && enemy2_live == 1)
 					{
-						//敵１を通路にして消す
-						if (map[floor][tate][yoko].kind == e2)
-						{
-							map[floor][tate][yoko].kind = t;
-
-						}
+						enemy2_live = 0;
 
 						//攻撃音が流れていないなら
 						if (CheckSoundMem(SE_ATACK.handle) == 0)
@@ -1230,7 +1321,7 @@ VOID MY_PLAY_PROC(VOID)
 	}
 
 	//プレイヤーAが敵３に当たっていたら
-	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_e3)
+	if (MY_CHECK_RECT_COLL(player_A.coll, enemy_3.coll) == TRUE)
 	{
 		for (int floor = 0; floor <= GAME_FLOOR_MAX - 1; floor++)
 		{
@@ -1239,15 +1330,10 @@ VOID MY_PLAY_PROC(VOID)
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
 
-					//杖を持っていたら、
-					if (ca_check == 1)
+					//杖を持っていて、敵３が生きていたら
+					if (ca_check == 1 && enemy3_live == 1)
 					{
-						//敵１を通路にして消す
-						if (map[floor][tate][yoko].kind == e3)
-						{
-							map[floor][tate][yoko].kind = t;
-
-						}
+						enemy3_live = 0;
 
 						//攻撃音が流れていないなら
 						if (CheckSoundMem(SE_ATACK.handle) == 0)
@@ -1621,7 +1707,7 @@ VOID MY_PLAY_PROC(VOID)
 	}
 
 	//プレイヤーBが敵１に当たっていたら
-	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_e1)
+	if (MY_CHECK_RECT_COLL(player_B.coll, enemy_1.coll) == TRUE)
 	{
 		for (int floor = 0; floor <= GAME_FLOOR_MAX - 1; floor++)
 		{
@@ -1629,15 +1715,10 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
-					//剣を持っていたら、
-					if (br_check == 1)
+					//剣を持っていて、敵１が生きていたら
+					if (br_check == 1 && enemy1_live == 1)
 					{
-						//敵１を通路にして消す
-						if (map[floor][tate][yoko].kind == e1)
-						{
-							map[floor][tate][yoko].kind = t;
-
-						}
+						enemy1_live = 0;
 
 						//攻撃音が流れていないなら
 						if (CheckSoundMem(SE_ATACK.handle) == 0)
@@ -1668,7 +1749,7 @@ VOID MY_PLAY_PROC(VOID)
 	}
 
 	//プレイヤーBが敵２に当たっていたら
-	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_e2)
+	if (MY_CHECK_RECT_COLL(player_B.coll, enemy_2.coll) == TRUE)
 	{
 		for (int floor = 0; floor <= GAME_FLOOR_MAX - 1; floor++)
 		{
@@ -1677,15 +1758,10 @@ VOID MY_PLAY_PROC(VOID)
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
 
-					//槍を持っていたら、
-					if (sp_check == 1)
+					//槍を持っていて、敵２が生きていたら
+					if (sp_check == 1 && enemy2_live == 1)
 					{
-						//敵２を通路にして消す
-						if (map[floor][tate][yoko].kind == e2)
-						{
-							map[floor][tate][yoko].kind = t;
-
-						}
+						enemy2_live = 0;
 
 						//攻撃音が流れていないなら
 						if (CheckSoundMem(SE_ATACK.handle) == 0)
@@ -1716,7 +1792,7 @@ VOID MY_PLAY_PROC(VOID)
 	}
 
 	//プレイヤーBが敵３に当たっていたら
-	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_e3)
+	if (MY_CHECK_RECT_COLL(player_B.coll, enemy_3.coll) == TRUE)
 	{
 		for (int floor = 0; floor <= GAME_FLOOR_MAX - 1; floor++)
 		{
@@ -1725,15 +1801,10 @@ VOID MY_PLAY_PROC(VOID)
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
 
-					//杖を持っていたら、
-					if (ca_check == 1)
+					//杖を持っていて、敵３が生きていたら
+					if (ca_check == 1 && enemy3_live == 1)
 					{
-						//敵３を通路にして消す
-						if (map[floor][tate][yoko].kind == e3)
-						{
-							map[floor][tate][yoko].kind = t;
-
-						}
+						enemy3_live = 0;
 
 						//攻撃音が流れていないなら
 						if (CheckSoundMem(SE_ATACK.handle) == 0)
@@ -1763,6 +1834,166 @@ VOID MY_PLAY_PROC(VOID)
 		}
 	}
 	//▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲プレイヤーB当たり判定ここまで▲▲▲▲▲▲▲▲▲▲▲▲
+
+	//▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼敵１当たり判定ここから▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+	//敵１と壁が当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(enemy_1.coll) == TRUE_k)
+	{
+		//敵１の座標を１つ前の座標に置き換える
+		enemy_1.image.x = enemy_1.collBeforePt.x;
+		enemy_1.image.y = enemy_1.collBeforePt.y;
+
+		IsMove_E1 = FALSE;
+	}
+
+	//敵１とギミック1が当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(enemy_1.coll) == TRUE_m1)
+	{
+		//敵１の座標を１つ前の座標に置き換える
+		enemy_1.image.x = enemy_1.collBeforePt.x;
+		enemy_1.image.y = enemy_1.collBeforePt.y;
+
+		IsMove_E1 = FALSE;
+	}
+
+	//敵１とギミック2が当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(enemy_1.coll) == TRUE_m2)
+	{
+		//敵１の座標を１つ前の座標に置き換える
+		enemy_1.image.x = enemy_1.collBeforePt.x;
+		enemy_1.image.y = enemy_1.collBeforePt.y;
+
+		IsMove_E1 = FALSE;
+	}
+
+	//敵１とギミック3が当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(enemy_1.coll) == TRUE_m3)
+	{
+		//敵１の座標を１つ前の座標に置き換える
+		enemy_1.image.x = enemy_1.collBeforePt.x;
+		enemy_1.image.y = enemy_1.collBeforePt.y;
+
+		IsMove_E1 = FALSE;
+	}
+
+	//敵１とギミック4が当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(enemy_1.coll) == TRUE_m4)
+	{
+		//敵１の座標を１つ前の座標に置き換える
+		enemy_1.image.x = enemy_1.collBeforePt.x;
+		enemy_1.image.y = enemy_1.collBeforePt.y;
+
+		IsMove_E1 = FALSE;
+	}
+
+	//▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲敵１当たり判定ここまで▲▲▲▲▲▲▲▲▲▲▲▲
+
+	//▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼敵２当たり判定ここから▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+	//敵２と壁が当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(enemy_2.coll) == TRUE_k)
+	{
+		//敵2の座標を１つ前の座標に置き換える
+		enemy_2.image.x = enemy_2.collBeforePt.x;
+		enemy_2.image.y = enemy_2.collBeforePt.y;
+
+		IsMove_E2 = FALSE;
+	}
+
+	//敵2とギミック1が当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(enemy_2.coll) == TRUE_m1)
+	{
+		//敵2の座標を１つ前の座標に置き換える
+		enemy_2.image.x = enemy_2.collBeforePt.x;
+		enemy_2.image.y = enemy_2.collBeforePt.y;
+
+		IsMove_E2 = FALSE;
+	}
+
+	//敵2とギミック2が当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(enemy_2.coll) == TRUE_m2)
+	{
+		//敵2の座標を１つ前の座標に置き換える
+		enemy_2.image.x = enemy_2.collBeforePt.x;
+		enemy_2.image.y = enemy_2.collBeforePt.y;
+
+		IsMove_E2 = FALSE;
+	}
+
+	//敵2とギミック3が当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(enemy_2.coll) == TRUE_m3)
+	{
+		//敵2の座標を１つ前の座標に置き換える
+		enemy_2.image.x = enemy_2.collBeforePt.x;
+		enemy_2.image.y = enemy_2.collBeforePt.y;
+
+		IsMove_E2 = FALSE;
+	}
+
+	//敵2とギミック4が当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(enemy_2.coll) == TRUE_m4)
+	{
+		//敵2の座標を１つ前の座標に置き換える
+		enemy_2.image.x = enemy_2.collBeforePt.x;
+		enemy_2.image.y = enemy_2.collBeforePt.y;
+
+		IsMove_E2 = FALSE;
+	}
+
+	//▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲敵２当たり判定ここまで▲▲▲▲▲▲▲▲▲▲▲▲
+
+	//▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼敵3当たり判定ここから▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+	//敵3と壁が当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(enemy_3.coll) == TRUE_k)
+	{
+		//敵3の座標を１つ前の座標に置き換える
+		enemy_3.image.x = enemy_3.collBeforePt.x;
+		enemy_3.image.y = enemy_3.collBeforePt.y;
+
+		IsMove_E3 = FALSE;
+	}
+
+	//敵3とギミック1が当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(enemy_3.coll) == TRUE_m1)
+	{
+		//敵3の座標を１つ前の座標に置き換える
+		enemy_3.image.x = enemy_3.collBeforePt.x;
+		enemy_3.image.y = enemy_3.collBeforePt.y;
+
+		IsMove_E3 = FALSE;
+	}
+
+	//敵3とギミック2が当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(enemy_3.coll) == TRUE_m2)
+	{
+		//敵3の座標を１つ前の座標に置き換える
+		enemy_3.image.x = enemy_3.collBeforePt.x;
+		enemy_3.image.y = enemy_3.collBeforePt.y;
+
+		IsMove_E3 = FALSE;
+	}
+
+	//敵3とギミック3が当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(enemy_3.coll) == TRUE_m3)
+	{
+		//敵3の座標を１つ前の座標に置き換える
+		enemy_3.image.x = enemy_3.collBeforePt.x;
+		enemy_3.image.y = enemy_3.collBeforePt.y;
+
+		IsMove_E3 = FALSE;
+	}
+
+	//敵3とギミック4が当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(enemy_3.coll) == TRUE_m4)
+	{
+		//敵3の座標を１つ前の座標に置き換える
+		enemy_3.image.x = enemy_3.collBeforePt.x;
+		enemy_3.image.y = enemy_3.collBeforePt.y;
+
+		IsMove_E3 = FALSE;
+	}
+
+	//▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲敵２当たり判定ここまで▲▲▲▲▲▲▲▲▲▲▲▲
+
 
 	//プレイヤーAとBがフロアを移動したら
 	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_t && MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_t)
@@ -1828,7 +2059,34 @@ VOID MY_PLAY_PROC(VOID)
 		player_B.collBeforePt.x = player_B.image.x;
 		player_B.collBeforePt.y = player_B.image.y;
 	}
+
+	//敵１が移動先に動けるなら
+	if (IsMove_E1 == TRUE)
+	{
+		//当たっていない時の敵１の座標を取得
+		enemy_1.collBeforePt.x = enemy_1.image.x;
+		enemy_1.collBeforePt.y = enemy_1.image.y;
+	}
+
+	//敵2が移動先に動けるなら
+	if (IsMove_E2 == TRUE)
+	{
+		//当たっていない時の敵１の座標を取得
+		enemy_2.collBeforePt.x = enemy_2.image.x;
+		enemy_2.collBeforePt.y = enemy_2.image.y;
+	}
+
+	//敵3が移動先に動けるなら
+	if (IsMove_E3 == TRUE)
+	{
+		//当たっていない時の敵１の座標を取得
+		enemy_3.collBeforePt.x = enemy_3.image.x;
+		enemy_3.collBeforePt.y = enemy_3.image.y;
+	}
 	//-----------------------当たり判定関係ここまで------------------------
+
+	//敵の動作設定
+
 
 	return;
 }
@@ -1851,14 +2109,13 @@ VOID MY_PLAY_DRAW(VOID)
 				}
 				else if(fl_check == 1 )
 				{
-					//初期階層マップを描画
+					//別階層マップを描画
 					DrawGraph(
 						map[1][tate][yoko].x,
 						map[1][tate][yoko].y,
 						mapChip.handle[map[1][tate][yoko].kind],
 						TRUE);
 				}
-
 			}
 		}
 
@@ -1906,6 +2163,27 @@ VOID MY_PLAY_DRAW(VOID)
 	//プレイヤーBを描画する
 	strcpy_s(ImageBack.path, IMAGE_player_B_PATH);
 	LoadGraphScreen(player_B.image.x , player_B.image.y, ImageBack.path, FALSE);
+
+	if (enemy1_live == 1)
+	{
+		//敵１を描画する
+		strcpy_s(ImageBack.path, IMAGE_enemy_1_PATH);
+		LoadGraphScreen(enemy_1.image.x, enemy_1.image.y, ImageBack.path, FALSE);
+	}
+
+	if (enemy2_live == 1)
+	{
+		//敵2を描画する
+		strcpy_s(ImageBack.path, IMAGE_enemy_2_PATH);
+		LoadGraphScreen(enemy_2.image.x, enemy_2.image.y, ImageBack.path, FALSE);
+	}
+
+	if (enemy3_live == 1)
+	{
+		//敵3を描画する
+		strcpy_s(ImageBack.path, IMAGE_enemy_3_PATH);
+		LoadGraphScreen(enemy_3.image.x, enemy_3.image.y, ImageBack.path, FALSE);
+	}
 	WaitTimer(60);
 
 	//デバッグ判定がONならデバッグ用表示をする
@@ -2276,6 +2554,36 @@ BOOL MY_LOAD_IMAGE(VOID)
 		return FALSE;
 	}
 
+	//敵１の画像
+	strcpy_s(enemy_1.image.path, IMAGE_enemy_1_PATH);		//パスの設定
+	enemy_1.image.handle = LoadGraph(enemy_1.image.path);	//読み込み
+	if (enemy_1.image.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), IMAGE_enemy_1_PATH, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
+	//敵2の画像
+	strcpy_s(enemy_2.image.path, IMAGE_enemy_2_PATH);		//パスの設定
+	enemy_2.image.handle = LoadGraph(enemy_2.image.path);	//読み込み
+	if (enemy_2.image.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), IMAGE_enemy_2_PATH, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
+	//敵3の画像
+	strcpy_s(enemy_3.image.path, IMAGE_enemy_3_PATH);		//パスの設定
+	enemy_3.image.handle = LoadGraph(enemy_3.image.path);	//読み込み
+	if (enemy_3.image.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), IMAGE_enemy_3_PATH, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
 	//タイトル背景
 	strcpy_s(ImageTitleBK.path, IMAGE_TITLE_BK_PATH);			//パスの設定
 	ImageTitleBK.handle = LoadGraph(ImageTitleBK.path);			//読み込み
@@ -2431,6 +2739,9 @@ VOID MY_DELETE_IMAGE(VOID)
 	DeleteGraph(ImageBack.handle);              //プレイ背景削除
 	DeleteGraph(player_A.image.handle);           //プレイヤーA画像削除
 	DeleteGraph(player_B.image.handle);           //プレイヤーB画像削除
+	DeleteGraph(enemy_1.image.handle);           //敵1画像削除
+	DeleteGraph(enemy_2.image.handle);           //敵2画像削除
+	DeleteGraph(enemy_3.image.handle);           //敵3画像削除
 
 	for (int i_num = 0; i_num < MAP_DIV_NUM; i_num++) { DeleteGraph(mapChip.handle[i_num]); }
 
@@ -2591,15 +2902,6 @@ int MY_CHECK_MAP1_PLAYER_COLL(RECT player)
 
 					//ワープ入口２の時
 					if (map[floor][tate][yoko].kind == w2) { return TRUE_w2; }
-
-					//敵１の時
-					if (map[floor][tate][yoko].kind == e1) { return TRUE_e1; }
-
-					//敵２の時
-					if (map[floor][tate][yoko].kind == e2) { return TRUE_e2; }
-
-					//敵３の時
-					if (map[floor][tate][yoko].kind == e3) { return TRUE_e3; }
 				}
 			}
 		}
