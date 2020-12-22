@@ -1,11 +1,10 @@
 ﻿  main.cpp
-C:\github\作品制作Ⅲ＿本番\GameProject_Honban\main.cpp(633,4): warning C4551: 関数呼び出しに引数リストがありません。
-C:\github\作品制作Ⅲ＿本番\GameProject_Honban\main.cpp(2636,24): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
-C:\github\作品制作Ⅲ＿本番\GameProject_Honban\main.cpp(2652,21): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
-C:\github\作品制作Ⅲ＿本番\GameProject_Honban\main.cpp(2668,22): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
+C:\github\作品制作Ⅲ＿本番\GameProject_Honban\main.cpp(2644,24): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
+C:\github\作品制作Ⅲ＿本番\GameProject_Honban\main.cpp(2660,21): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
+C:\github\作品制作Ⅲ＿本番\GameProject_Honban\main.cpp(2676,22): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
   コード生成しています。
-  0 of 34 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+  4 of 37 functions (10.8%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    2 functions had inline decision re-evaluated but remain unchanged
   コード生成が終了しました。
   kariPracticeProject.vcxproj -> C:\github\作品制作Ⅲ＿本番\GameProject_Honban\Release\PracticeGameProject.exe

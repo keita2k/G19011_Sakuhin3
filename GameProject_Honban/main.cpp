@@ -1,5 +1,6 @@
 //########## ヘッダーファイル読み込み ##########
 #include "DxLib.h"
+#include "stdlib.h"
 
 //########## マクロ定義 ##########
 #define GAME_WIDTH			608	//画面の横の大きさ
@@ -93,13 +94,13 @@
 #define MUSIC_BGM_TITLE_PATH		TEXT(".\\MUSIC\\title_BGM.mp3")	                //タイトルのBGM
 #define MUSIC_BGM_COMP_PATH			TEXT(".\\MUSIC\\end_BGM.mp3")				    //コンプリートBGM
 #define MUSIC_BGM_FAIL_PATH			TEXT(".\\MUSIC\\衛星の夜.mp3")					//フォールトBGM
-#define MUSIC_SE_ATACK_PATH         TEXT(".\\MUSIC\\Atack.mp3")
-#define MUSIC_SE_SWITCH_PATH        TEXT(".\\MUSIC\\SwitchOn.mp3")
-#define MUSIC_SE_KEY_PATH           TEXT(".\\MUSIC\\KeyGet.mp3")
-#define MUSIC_SE_WEAPON_PATH        TEXT(".\\MUSIC\\WeaponGet.mp3")
+#define MUSIC_SE_ATACK_PATH         TEXT(".\\MUSIC\\Atack.mp3")                     //攻撃音
+#define MUSIC_SE_SWITCH_PATH        TEXT(".\\MUSIC\\SwitchOn.mp3")                  //スイッチ音
+#define MUSIC_SE_KEY_PATH           TEXT(".\\MUSIC\\KeyGet.mp3")                    //鍵入手音
+#define MUSIC_SE_WEAPON_PATH        TEXT(".\\MUSIC\\WeaponGet.mp3")                 //武器入手音
 
 //BGM音量
-#define MUSIC_VOLUME             50   //BGMの音量（0~100）
+#define MUSIC_VOLUME             0   //BGMの音量（0~100）
 //閉じるボタンを押したとき
 #define MSG_CLOSE_TITLE			TEXT("終了メッセージ")
 #define MSG_CLOSE_CAPTION		TEXT("ゲームを終了しますか？")
@@ -157,6 +158,11 @@ int player_live = 1;
 int enemy1_live = 1;
 int enemy2_live = 1;
 int enemy3_live = 1;
+
+//敵の行動用ランダム数
+int enemy1_rand = 0;
+int enemy2_rand = 0;
+int enemy3_rand = 0;
 
 enum GAME_MAP_KIND
 {
@@ -403,7 +409,6 @@ VOID MY_PLAY(VOID);			//プレイ画面
 VOID MY_PLAY_PROC(VOID);	//プレイ画面の処理
 VOID MY_PLAY_DRAW(VOID);	//プレイ画面の描画
 
-VOID MY_OVER_INIT(VOID);    //ゲームオーバー画面初期化
 VOID MY_OVER(VOID);         //ゲームオーバー画面
 VOID MY_OVER_PROC(VOID);    //ゲームオーバー画面の処理
 VOID MY_OVER_DRAW(VOID);    //ゲームオーバー画面の描画
@@ -630,7 +635,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			MY_PLAY();	//プレイ画面
 			break;
 		case GAME_SCENE_OVER:
-			MY_OVER;
+			MY_OVER();
 			break;
 		case GAME_SCENE_END:
 			MY_END();	//エンド画面
@@ -802,7 +807,7 @@ VOID MY_PLAY_INIT(VOID)
 	player_live = 1;
 	enemy1_live = 1;
 	enemy2_live = 1;
-	enemy2_live = 1;
+	enemy3_live = 1;
 
 	return;
 }
@@ -856,6 +861,27 @@ VOID MY_PLAY_PROC(VOID)
 	if (CheckHitKey(KEY_INPUT_DOWN)) { player_B.image.y += MAP_DIV_HEIGHT; }
 	if (CheckHitKey(KEY_INPUT_LEFT)) { player_B.image.x -= MAP_DIV_WIDTH; }
 	if (CheckHitKey(KEY_INPUT_RIGHT)) { player_B.image.x += MAP_DIV_WIDTH; }
+
+	//敵１のランダム動作設定
+	enemy1_rand = rand() % 4 + 1;
+	if (enemy1_rand == 1) { enemy_1.image.y -= MAP_DIV_HEIGHT; }
+	if (enemy1_rand == 2) { enemy_1.image.y += MAP_DIV_HEIGHT; }
+	if (enemy1_rand == 3) { enemy_1.image.x -= MAP_DIV_WIDTH; }
+	if (enemy1_rand == 4) { enemy_1.image.x += MAP_DIV_WIDTH; }
+
+	//敵2のランダム動作設定
+	enemy2_rand = rand() % 4 + 1;
+	if (enemy2_rand == 1) { enemy_2.image.y -= MAP_DIV_HEIGHT; }
+	if (enemy2_rand == 2) { enemy_2.image.y += MAP_DIV_HEIGHT; }
+	if (enemy2_rand == 3) { enemy_2.image.x -= MAP_DIV_WIDTH; }
+	if (enemy2_rand == 4) { enemy_2.image.x += MAP_DIV_WIDTH; }
+
+	//敵3のランダム動作設定
+	enemy3_rand = rand() % 4 + 1;
+	if (enemy3_rand == 1) { enemy_3.image.y -= MAP_DIV_HEIGHT; }
+	if (enemy3_rand == 2) { enemy_3.image.y += MAP_DIV_HEIGHT; }
+	if (enemy3_rand == 3) { enemy_3.image.x -= MAP_DIV_WIDTH; }
+	if (enemy3_rand == 4) { enemy_3.image.x += MAP_DIV_WIDTH; }
 
 	//-----------------------当たり判定関係ここから------------------------
 	//プレイヤーAの当たり判定の設定
@@ -1269,7 +1295,7 @@ VOID MY_PLAY_PROC(VOID)
 						}
 
 						//ゲームオーバーを表示する
-						GameScene = GAME_SCENE_END;
+						GameScene = GAME_SCENE_OVER;
 					}
 				}
 			}
@@ -1313,7 +1339,7 @@ VOID MY_PLAY_PROC(VOID)
 						}
 
 						//ゲームオーバーを表示する
-						GameScene = GAME_SCENE_END;
+						GameScene = GAME_SCENE_OVER;
 					}
 				}
 			}
@@ -1356,7 +1382,7 @@ VOID MY_PLAY_PROC(VOID)
 						}
 
 						//ゲームオーバーを表示する
-						GameScene = GAME_SCENE_END;
+						GameScene = GAME_SCENE_OVER;
 					}
 				}
 			}
@@ -1741,7 +1767,7 @@ VOID MY_PLAY_PROC(VOID)
 						}
 
 						//ゲームオーバーを表示する
-						GameScene = GAME_SCENE_END;
+						GameScene = GAME_SCENE_OVER;
 					}
 				}
 			}
@@ -1784,7 +1810,7 @@ VOID MY_PLAY_PROC(VOID)
 						}
 
 						//ゲームオーバーを表示する
-						GameScene = GAME_SCENE_END;
+						GameScene = GAME_SCENE_OVER;
 					}
 				}
 			}
@@ -1827,7 +1853,7 @@ VOID MY_PLAY_PROC(VOID)
 						}
 
 						//ゲームオーバーを表示する
-						GameScene = GAME_SCENE_END;
+						GameScene = GAME_SCENE_OVER;
 					}
 				}
 			}
@@ -2084,10 +2110,6 @@ VOID MY_PLAY_PROC(VOID)
 		enemy_3.collBeforePt.y = enemy_3.image.y;
 	}
 	//-----------------------当たり判定関係ここまで------------------------
-
-	//敵の動作設定
-
-
 	return;
 }
 
@@ -2373,16 +2395,9 @@ VOID MY_PLAY_DRAW(VOID)
 //ゲームオーバー画面
 VOID MY_OVER(VOID)
 {
-	MY_OVER_INIT(); //初期化
-	MY_END_PROC();  //処理
-	MY_END_DRAW();  //描画
-
-	return;
-}
-
-//ゲームオーバー画面初期化
-VOID MY_OVER_INIT(VOID)
-{
+	MY_OVER_PROC();  //処理
+	MY_OVER_DRAW();  //描画
+	MY_PLAY_INIT();     //プレイ画面の初期化
 
 	return;
 }
@@ -2390,9 +2405,6 @@ VOID MY_OVER_INIT(VOID)
 //ゲームオーバー画面の処理
 VOID MY_OVER_PROC(VOID)
 {
-	//初期化
-	MY_OVER_INIT();
-
 	//エスケープキーを押したら、スタートシーンへ移動する
 	if (CheckHitKey(KEY_INPUT_ESCAPE) == TRUE)
 	{
@@ -2438,6 +2450,8 @@ VOID MY_OVER_PROC(VOID)
 //ゲームオーバー画面の描画
 VOID MY_OVER_DRAW(VOID)
 {
+	DrawGraph(ImageTitleBK.x, ImageTitleBK.y, ImageTitleBK.handle, TRUE);	//ゲームオーバー背景の描画
+
 	//点滅
 	if (ImageEndCOMP.IsDraw == TRUE)
 	{
@@ -2457,6 +2471,7 @@ VOID MY_END(VOID)
 {
 	MY_END_PROC();	//エンド画面の処理
 	MY_END_DRAW();	//エンド画面の描画
+	MY_PLAY_INIT();     //プレイ画面の初期化
 
 	return;
 }
