@@ -302,7 +302,7 @@ GAME_MAP_KIND mapDatafirst[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 
 		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k,	//0
 
-		k ,w1,k ,k ,k ,k ,k ,t ,s3,k ,s4,k ,t ,t ,t ,t ,t ,t ,k,	//1
+		k ,w1,k ,k ,k ,k ,k ,e1,s3,k ,s4,k ,t ,t ,t ,t ,t ,t ,k,	//1
 
 		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,ca,e2,t ,k ,k ,k ,k ,t ,k,	//2
 
@@ -326,42 +326,42 @@ GAME_MAP_KIND mapDatafirst[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 
 		k ,t ,k ,m4,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k,	//12
 
-		k ,as,k ,t ,t ,t ,e1,e3,ag,k ,bg,k ,t ,t ,t ,t ,t ,bs,k,	//13
+		k ,as,k ,t ,t ,t ,t ,e3,ag,k ,bg,k ,t ,t ,t ,t ,t ,bs,k,	//13
 
 		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k		//14
 	},
 	{
-		//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8
+	//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8
 
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k,	//0
+		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k,	//0
 
-			k ,t ,k ,k ,k ,k ,k ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k,	//1
+		k ,t ,k ,k ,k ,k ,k ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k,	//1
 
-			k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,t ,k,	//2
+		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,t ,k,	//2
 
-			k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,k ,t ,k,	//3
+		k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,k ,t ,k,	//3
 
-			k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k,	//4
+		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k,	//4
 
-			k ,t ,k ,k ,k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,k ,k,	//5
+		k ,t ,k ,k ,k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,k ,k,	//5
 
-			k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k ,k,	//6
+		k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k ,k,	//6
 
-			k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,t ,k ,k,	//7
+		k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,t ,k ,k,	//7
 
-			k ,t ,k ,t ,k ,k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,k ,t ,k ,k,	//8
+		k ,t ,k ,t ,k ,k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,k ,t ,k ,k,	//8
 
-			k ,st,k ,t ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k,	//9
+		k ,st,k ,t ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k,	//9
 
-			k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,t ,t ,k ,t ,k ,k ,k ,k,	//10
+		k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,t ,t ,k ,t ,k ,k ,k ,k,	//10
 
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,t ,k ,st,k,	//11
+		k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,t ,k ,st,k,	//11
 
-			k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,k ,k ,k ,t ,k,	//12
+		k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,k ,k ,k ,t ,k,	//12
 
-			k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k,	//13
+		k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k,	//13
 
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k		//14
+		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k		//14
 
 	}
 };	//ゲームのマップ
@@ -544,9 +544,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			}
 
 			//スタートが決まっていれば、ループ終了
-			if (startPt_A.x != 0 && startPt_A.y != 0 && startPt_B.x != 0 && startPt_B.y != 0 &&
-				startEPt_1.x != 0 && startEPt_1.y != 0 && startEPt_2.x != 0 && startEPt_2.y != 0 &&
-				startEPt_3.x != 0 && startEPt_3.y != 0) {
+			if (startPt_A.x != 0 && startPt_A.y != 0 &&
+				startPt_B.x != 0 && startPt_B.y != 0 &&
+				startEPt_1.x != 0 && startEPt_1.y != 0 &&
+				startEPt_2.x != 0 && startEPt_2.y != 0 &&
+				startEPt_3.x != 0 && startEPt_3.y != 0) 
+			{
 				break;
 			}
 		}
@@ -871,24 +874,33 @@ VOID MY_PLAY_PROC(VOID)
 	if (CheckHitKey(KEY_INPUT_LEFT)) { player_B.image.x -= MAP_DIV_WIDTH; }
 	if (CheckHitKey(KEY_INPUT_RIGHT)) { player_B.image.x += MAP_DIV_WIDTH; }
 
-	//敵１のランダム動作設定
 	enemy_rand = rand() % 4 + 1;
-	if (enemy_rand == 1) { enemy_1.image.y -= MAP_DIV_HEIGHT; }
-	if (enemy_rand == 2) { enemy_1.image.y += MAP_DIV_HEIGHT; }
-	if (enemy_rand == 3) { enemy_1.image.x -= MAP_DIV_WIDTH; }
-	if (enemy_rand == 4) { enemy_1.image.x += MAP_DIV_WIDTH; }
+	if (enemy_1.floor == fl_check)
+	{
+		//敵１のランダム動作設定
+		if (enemy_rand == 1) { enemy_1.image.y -= MAP_DIV_HEIGHT; }
+		if (enemy_rand == 2) { enemy_1.image.y += MAP_DIV_HEIGHT; }
+		if (enemy_rand == 3) { enemy_1.image.x -= MAP_DIV_WIDTH; }
+		if (enemy_rand == 4) { enemy_1.image.x += MAP_DIV_WIDTH; }
+	}
 
-	//敵2のランダム動作設定
-	if (enemy_rand == 1) { enemy_2.image.y -= MAP_DIV_HEIGHT; }
-	if (enemy_rand == 4) { enemy_2.image.y += MAP_DIV_HEIGHT; }
-	if (enemy_rand == 2) { enemy_2.image.x -= MAP_DIV_WIDTH; }
-	if (enemy_rand == 3) { enemy_2.image.x += MAP_DIV_WIDTH; }
+	if (enemy_2.floor == fl_check)
+	{
+		//敵2のランダム動作設定
+		if (enemy_rand == 1) { enemy_2.image.y -= MAP_DIV_HEIGHT; }
+		if (enemy_rand == 4) { enemy_2.image.y += MAP_DIV_HEIGHT; }
+		if (enemy_rand == 2) { enemy_2.image.x -= MAP_DIV_WIDTH; }
+		if (enemy_rand == 3) { enemy_2.image.x += MAP_DIV_WIDTH; }
+	}
 
-	//敵3のランダム動作設定
-	if (enemy_rand == 4) { enemy_3.image.y -= MAP_DIV_HEIGHT; }
-	if (enemy_rand == 3) { enemy_3.image.y += MAP_DIV_HEIGHT; }
-	if (enemy_rand == 1) { enemy_3.image.x -= MAP_DIV_WIDTH; }
-	if (enemy_rand == 2) { enemy_3.image.x += MAP_DIV_WIDTH; }
+	if (enemy_3.floor == fl_check)
+	{
+		//敵3のランダム動作設定
+		if (enemy_rand == 4) { enemy_3.image.y -= MAP_DIV_HEIGHT; }
+		if (enemy_rand == 3) { enemy_3.image.y += MAP_DIV_HEIGHT; }
+		if (enemy_rand == 1) { enemy_3.image.x -= MAP_DIV_WIDTH; }
+		if (enemy_rand == 2) { enemy_3.image.x += MAP_DIV_WIDTH; }
+	}
 
 	//-----------------------当たり判定関係ここから------------------------
 	//プレイヤーAの当たり判定の設定
@@ -1276,33 +1288,36 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
-					//剣を持っていて、敵１が生きていたら
-					if (br_check == 1 && enemy1_live == 1)
+					if (enemy_1.floor == fl_check)
 					{
-						enemy1_live = 0;
-
-						//攻撃音が流れていないなら
-						if (CheckSoundMem(SE_ATACK.handle) == 0)
+						//剣を持っていて、敵１が生きていたら
+						if (br_check == 1 && enemy1_live == 1)
 						{
-							//攻撃音の音量を下げる
-							ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_ATACK.handle); //MUSIC_VOLUMEで音量調節
-							PlaySoundMem(SE_ATACK.handle, DX_PLAYTYPE_BACK, TRUE);
+							enemy1_live = 0;
+
+							//攻撃音が流れていないなら
+							if (CheckSoundMem(SE_ATACK.handle) == 0)
+							{
+								//攻撃音の音量を下げる
+								ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_ATACK.handle); //MUSIC_VOLUMEで音量調節
+								PlaySoundMem(SE_ATACK.handle, DX_PLAYTYPE_BACK, TRUE);
+							}
+
 						}
-
-					}
-					//剣を持っていなかったら、
-					else if (br_check == 0)
-					{
-						//プレイヤー画像を死亡用に書き換える
-
-						//BGMが流れているなら
-						if (CheckSoundMem(BGM.handle) != 0)
+						//剣を持っていなかったら、
+						else if (br_check == 0)
 						{
-							StopSoundMem(BGM.handle);	//BGMを止める
-						}
+							//プレイヤー画像を死亡用に書き換える
 
-						//ゲームオーバーを表示する
-						GameScene = GAME_SCENE_OVER;
+							//BGMが流れているなら
+							if (CheckSoundMem(BGM.handle) != 0)
+							{
+								StopSoundMem(BGM.handle);	//BGMを止める
+							}
+
+							//ゲームオーバーを表示する
+							GameScene = GAME_SCENE_OVER;
+						}
 					}
 				}
 			}
@@ -1318,35 +1333,37 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
-
-					//槍を持っていて、敵２が生きていたら
-					if (sp_check == 1 && enemy2_live == 1)
+					if (enemy_2.floor == fl_check)
 					{
-						enemy2_live = 0;
-
-						//攻撃音が流れていないなら
-						if (CheckSoundMem(SE_ATACK.handle) == 0)
+						//槍を持っていて、敵２が生きていたら
+						if (sp_check == 1 && enemy2_live == 1)
 						{
-							//攻撃音の音量を下げる
-							ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_ATACK.handle); //MUSIC_VOLUMEで音量調節
-							PlaySoundMem(SE_ATACK.handle, DX_PLAYTYPE_BACK, TRUE);
+							enemy2_live = 0;
+
+							//攻撃音が流れていないなら
+							if (CheckSoundMem(SE_ATACK.handle) == 0)
+							{
+								//攻撃音の音量を下げる
+								ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_ATACK.handle); //MUSIC_VOLUMEで音量調節
+								PlaySoundMem(SE_ATACK.handle, DX_PLAYTYPE_BACK, TRUE);
+							}
+
 						}
-
-					}
-					//槍を持っていなかったら、
-					else if (sp_check == 0)
-					{
-						//プレイヤー画像を死亡用に書き換える
-
-
-						//BGMが流れているなら
-						if (CheckSoundMem(BGM.handle) != 0)
+						//槍を持っていなかったら、
+						else if (sp_check == 0)
 						{
-							StopSoundMem(BGM.handle);	//BGMを止める
-						}
+							//プレイヤー画像を死亡用に書き換える
 
-						//ゲームオーバーを表示する
-						GameScene = GAME_SCENE_OVER;
+
+							//BGMが流れているなら
+							if (CheckSoundMem(BGM.handle) != 0)
+							{
+								StopSoundMem(BGM.handle);	//BGMを止める
+							}
+
+							//ゲームオーバーを表示する
+							GameScene = GAME_SCENE_OVER;
+						}
 					}
 				}
 			}
@@ -1362,34 +1379,36 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
-
-					//杖を持っていて、敵３が生きていたら
-					if (ca_check == 1 && enemy3_live == 1)
+					if (enemy_3.floor == fl_check)
 					{
-						enemy3_live = 0;
-
-						//攻撃音が流れていないなら
-						if (CheckSoundMem(SE_ATACK.handle) == 0)
+						//杖を持っていて、敵３が生きていたら
+						if (ca_check == 1 && enemy3_live == 1)
 						{
-							//攻撃音の音量を下げる
-							ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_ATACK.handle); //MUSIC_VOLUMEで音量調節
-							PlaySoundMem(SE_ATACK.handle, DX_PLAYTYPE_BACK, TRUE);
+							enemy3_live = 0;
+
+							//攻撃音が流れていないなら
+							if (CheckSoundMem(SE_ATACK.handle) == 0)
+							{
+								//攻撃音の音量を下げる
+								ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_ATACK.handle); //MUSIC_VOLUMEで音量調節
+								PlaySoundMem(SE_ATACK.handle, DX_PLAYTYPE_BACK, TRUE);
+							}
+
 						}
-
-					}
-					//杖を持っていなかったら、
-					else if (ca_check == 0)
-					{
-						//プレイヤー画像を死亡用に書き換える
-
-						//BGMが流れているなら
-						if (CheckSoundMem(BGM.handle) != 0)
+						//杖を持っていなかったら、
+						else if (ca_check == 0)
 						{
-							StopSoundMem(BGM.handle);	//BGMを止める
-						}
+							//プレイヤー画像を死亡用に書き換える
 
-						//ゲームオーバーを表示する
-						GameScene = GAME_SCENE_OVER;
+							//BGMが流れているなら
+							if (CheckSoundMem(BGM.handle) != 0)
+							{
+								StopSoundMem(BGM.handle);	//BGMを止める
+							}
+
+							//ゲームオーバーを表示する
+							GameScene = GAME_SCENE_OVER;
+						}
 					}
 				}
 			}
@@ -1748,33 +1767,36 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
-					//剣を持っていて、敵１が生きていたら
-					if (br_check == 1 && enemy1_live == 1)
+					if (enemy_1.floor == fl_check)
 					{
-						enemy1_live = 0;
-
-						//攻撃音が流れていないなら
-						if (CheckSoundMem(SE_ATACK.handle) == 0)
+						//剣を持っていて、敵１が生きていたら
+						if (br_check == 1 && enemy1_live == 1)
 						{
-							//攻撃音の音量を下げる
-							ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_ATACK.handle); //MUSIC_VOLUMEで音量調節
-							PlaySoundMem(SE_ATACK.handle, DX_PLAYTYPE_BACK, TRUE);
+							enemy1_live = 0;
+
+							//攻撃音が流れていないなら
+							if (CheckSoundMem(SE_ATACK.handle) == 0)
+							{
+								//攻撃音の音量を下げる
+								ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_ATACK.handle); //MUSIC_VOLUMEで音量調節
+								PlaySoundMem(SE_ATACK.handle, DX_PLAYTYPE_BACK, TRUE);
+							}
+
 						}
-
-					}
-					//剣を持っていなかったら、
-					else if (br_check == 0)
-					{
-						//プレイヤー画像を死亡用に書き換える
-
-						//BGMが流れているなら
-						if (CheckSoundMem(BGM.handle) != 0)
+						//剣を持っていなかったら、
+						else if (br_check == 0)
 						{
-							StopSoundMem(BGM.handle);	//BGMを止める
-						}
+							//プレイヤー画像を死亡用に書き換える
 
-						//ゲームオーバーを表示する
-						GameScene = GAME_SCENE_OVER;
+							//BGMが流れているなら
+							if (CheckSoundMem(BGM.handle) != 0)
+							{
+								StopSoundMem(BGM.handle);	//BGMを止める
+							}
+
+							//ゲームオーバーを表示する
+							GameScene = GAME_SCENE_OVER;
+						}
 					}
 				}
 			}
@@ -1790,34 +1812,36 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
-
-					//槍を持っていて、敵２が生きていたら
-					if (sp_check == 1 && enemy2_live == 1)
+					if (enemy_2.floor == fl_check)
 					{
-						enemy2_live = 0;
-
-						//攻撃音が流れていないなら
-						if (CheckSoundMem(SE_ATACK.handle) == 0)
+						//槍を持っていて、敵２が生きていたら
+						if (sp_check == 1 && enemy2_live == 1)
 						{
-							//攻撃音の音量を下げる
-							ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_ATACK.handle); //MUSIC_VOLUMEで音量調節
-							PlaySoundMem(SE_ATACK.handle, DX_PLAYTYPE_BACK, TRUE);
+							enemy2_live = 0;
+
+							//攻撃音が流れていないなら
+							if (CheckSoundMem(SE_ATACK.handle) == 0)
+							{
+								//攻撃音の音量を下げる
+								ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_ATACK.handle); //MUSIC_VOLUMEで音量調節
+								PlaySoundMem(SE_ATACK.handle, DX_PLAYTYPE_BACK, TRUE);
+							}
+
 						}
-
-					}
-					//槍を持っていなかったら、
-					else if (sp_check == 0)
-					{
-						//プレイヤー画像を死亡用に書き換える
-
-						//BGMが流れているなら
-						if (CheckSoundMem(BGM.handle) != 0)
+						//槍を持っていなかったら、
+						else if (sp_check == 0)
 						{
-							StopSoundMem(BGM.handle);	//BGMを止める
-						}
+							//プレイヤー画像を死亡用に書き換える
 
-						//ゲームオーバーを表示する
-						GameScene = GAME_SCENE_OVER;
+							//BGMが流れているなら
+							if (CheckSoundMem(BGM.handle) != 0)
+							{
+								StopSoundMem(BGM.handle);	//BGMを止める
+							}
+
+							//ゲームオーバーを表示する
+							GameScene = GAME_SCENE_OVER;
+						}
 					}
 				}
 			}
@@ -1833,34 +1857,36 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
-
-					//杖を持っていて、敵３が生きていたら
-					if (ca_check == 1 && enemy3_live == 1)
+					if (enemy_3.floor == fl_check)
 					{
-						enemy3_live = 0;
-
-						//攻撃音が流れていないなら
-						if (CheckSoundMem(SE_ATACK.handle) == 0)
+						//杖を持っていて、敵３が生きていたら
+						if (ca_check == 1 && enemy3_live == 1)
 						{
-							//攻撃音の音量を下げる
-							ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_ATACK.handle); //MUSIC_VOLUMEで音量調節
-							PlaySoundMem(SE_ATACK.handle, DX_PLAYTYPE_BACK, TRUE);
+							enemy3_live = 0;
+
+							//攻撃音が流れていないなら
+							if (CheckSoundMem(SE_ATACK.handle) == 0)
+							{
+								//攻撃音の音量を下げる
+								ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_ATACK.handle); //MUSIC_VOLUMEで音量調節
+								PlaySoundMem(SE_ATACK.handle, DX_PLAYTYPE_BACK, TRUE);
+							}
+
 						}
-
-					}
-					//杖を持っていなかったら、
-					else if (ca_check == 0)
-					{
-						//プレイヤー画像を死亡用に書き換える
-
-						//BGMが流れているなら
-						if (CheckSoundMem(BGM.handle) != 0)
+						//杖を持っていなかったら、
+						else if (ca_check == 0)
 						{
-							StopSoundMem(BGM.handle);	//BGMを止める
-						}
+							//プレイヤー画像を死亡用に書き換える
 
-						//ゲームオーバーを表示する
-						GameScene = GAME_SCENE_OVER;
+							//BGMが流れているなら
+							if (CheckSoundMem(BGM.handle) != 0)
+							{
+								StopSoundMem(BGM.handle);	//BGMを止める
+							}
+
+							//ゲームオーバーを表示する
+							GameScene = GAME_SCENE_OVER;
+						}
 					}
 				}
 			}
