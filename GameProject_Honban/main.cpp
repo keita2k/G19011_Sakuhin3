@@ -3,8 +3,8 @@
 #include "stdlib.h"
 
 //########## マクロ定義 ##########
-#define GAME_WIDTH			608	//画面の横の大きさ
-#define GAME_HEIGHT			480	//画面の縦の大きさ
+#define GAME_WIDTH			928	//画面の横の大きさ
+#define GAME_HEIGHT			800	//画面の縦の大きさ
 #define GAME_COLOR			32	//画面のカラービット
 
 #define GAME_WINDOW_BAR		0					//タイトルバーはデフォルトにする
@@ -41,8 +41,8 @@
 
 //マップの情報
 #define GAME_FLOOR_MAX      2   //フロアの数
-#define GAME_MAP_TATE_MAX	15	//マップの縦の数
-#define GAME_MAP_YOKO_MAX	19	//マップの横の数
+#define GAME_MAP_TATE_MAX	25	//マップの縦の数
+#define GAME_MAP_YOKO_MAX	29	//マップの横の数
 #define GAME_MAP_KIND_MAX	1	//マップの種類の数
 #define GAME_MAP_PATH			TEXT(".\\IMAGE\\MAP\\mapchip.png")		//マップの画像
 #define MAP_DIV_WIDTH		32	//画像を分割する幅サイズ
@@ -65,17 +65,17 @@
 #define GOAL_ERR_CAPTION_B  TEXT("Bのゴール位置が決まっていません")
 
 //ロゴ画像動作用
-#define IMAGE_TITLE_ROGO_ROTA		0.01		//拡大率
+#define IMAGE_TITLE_ROGO_ROTA		0.03		//拡大率
 #define IMAGE_TITLE_ROGO_ROTA_MAX	1.0			//拡大率MAX
-#define IMAGE_TITLE_ROGO_X_SPEED	1			//X移動速度
+#define IMAGE_TITLE_ROGO_X_SPEED	3			//X移動速度
 #define IMAGE_TITLE_START_CNT		1			//点滅カウンタ
-#define IMAGE_TITLE_START_CNT_MAX	80			//点滅カウンタMAX
+#define IMAGE_TITLE_START_CNT_MAX	40			//点滅カウンタMAX
 
 //エンドコンプ画面用
 #define IMAGE_END_COMP_PATH        TEXT(".\\IMAGE\\mission_complete.png") //エンドコンプロゴ画像
 #define IMAGE_TITLE_END_PATH		TEXT(".\\IMAGE\\end_button.png")	//エンドボタンの画像
 #define IMAGE_END_COMP_CNT         1       //点滅カウンタ
-#define IMAGE_END_COMP_CNT_MAX     80      //点滅カウンタMAX(点滅の速さ)
+#define IMAGE_END_COMP_CNT_MAX     40      //点滅カウンタMAX(点滅の速さ)
 
 //キャラ画像動作用
 #define IMAGE_DIV_WIDTH    32
@@ -147,6 +147,9 @@ int br_check = 0;
 int sp_check = 0;
 int ca_check = 0;
 
+//今どのステージにいるかの識別（2:ステージ2 1:ステージ1）
+int st_check = 1;
+
 //今どの階層にいるかの識別（1:別階層 0:初期階層）
 int fl_check = 0;
 
@@ -195,6 +198,7 @@ enum GAME_MAP_KIND
 enum GAME_SCENE {
 	GAME_SCENE_START,
 	GAME_SCENE_PLAY,
+	GAME_SCENE_PLAY_SECOND,
 	GAME_SCENE_OVER,
 	GAME_SCENE_END,
 };	//ゲームのシーン
@@ -202,8 +206,10 @@ enum GAME_SCENE {
 //int型のPOINT構造体
 typedef struct STRUCT_I_POINT
 {
-	int x = 0;	//座標を初期化
-	int y = 0;	//座標を初期化
+	int x = 0;	//第１座標を初期化
+	int y = 0;	//第１座標を初期化
+	int x2 = 0; //第2座標を初期化
+	int y2 = 0; //第2座標を初期化
 }iPOINT;
 
 typedef struct STRUCT_IMAGE
@@ -298,82 +304,240 @@ CHARA enemy_3;
 GAME_MAP_KIND mapDatafirst[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 { 
 	{
-	//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8
+	//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8
 
-		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k,	//0
+		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//0
 
-		k ,w1,k ,k ,k ,k ,k ,e1,s3,k ,s4,k ,t ,t ,t ,t ,t ,t ,k,	//1
+		k ,w1,k ,k ,k ,k ,k ,e1,s3,k ,s4,k ,t ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//1
 
-		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,ca,e2,t ,k ,k ,k ,k ,t ,k,	//2
+		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,ca,e2,t ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//2
 
-		k ,k ,k ,m2,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,w2,k ,t ,k,	//3
+		k ,k ,k ,m2,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,w2,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//3
 
-		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k,	//4
+		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//4
 
-		k ,t ,k ,k ,k ,k ,k ,t ,k ,k ,t ,m1,t ,k ,k ,k ,k ,k ,k,	//5
+		k ,t ,k ,k ,k ,k ,k ,t ,k ,k ,t ,m1,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//5
 
-		k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k ,k,	//6
+		k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//6
 
-		k ,s1,k ,t ,k ,k ,k ,k ,k ,k ,br,k ,k ,k ,k ,k ,t ,k ,k,	//7
+		k ,s1,k ,t ,k ,k ,k ,k ,k ,k ,br,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//7
 
-		k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,s2,k ,ki,t ,t ,k ,t ,k ,k,	//8
+		k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,s2,k ,ki,t ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//8
 
-		k ,st,sp,t ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k,	//9
+		k ,st,sp,t ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//9
 
-		k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,m3,t ,k ,t ,k ,kl,k ,k,	//10
+		k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,m3,t ,k ,t ,k ,kl,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//10
 
-		k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,t ,t ,st,k,	//11
+		k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,t ,t ,st,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//11
 
-		k ,t ,k ,m4,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k,	//12
+		k ,t ,k ,m4,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//12
 
-		k ,as,k ,t ,t ,t ,t ,e3,ag,k ,bg,k ,t ,t ,t ,t ,t ,bs,k,	//13
+		k ,as,k ,t ,t ,t ,t ,e3,ag,k ,bg,k ,t ,t ,t ,t ,t ,bs,t ,t ,t ,t ,t ,t ,t ,k ,k ,k ,k ,	//13
 
-		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k		//14
+		k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,	//14
+
+		k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,t ,k ,k ,k ,k , //15
+
+		k ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,t ,k ,k ,k ,k , //16
+
+		k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,t ,t ,t ,t ,k , //17
+
+		k ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,t ,k , //18
+
+		k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,t ,k , //19
+
+		k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,t ,k , //20
+
+		k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,t ,k , //21
+
+		k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,t ,k , //22
+
+		k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,t ,k , //23
+
+		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k   //24
 	},
 	{
-	//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8
+	//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8
 
-		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k,	//0
+		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//0
 
-		k ,t ,k ,k ,k ,k ,k ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k,	//1
+		k ,t ,k ,k ,k ,k ,k ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//1
 
-		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,t ,k,	//2
+		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//2
 
-		k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,k ,t ,k,	//3
+		k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//3
 
-		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k,	//4
+		k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//4
 
-		k ,t ,k ,k ,k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,k ,k,	//5
+		k ,t ,k ,k ,k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//5
 
-		k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k ,k,	//6
+		k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//6
 
-		k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,t ,k ,k,	//7
+		k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//7
 
-		k ,t ,k ,t ,k ,k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,k ,t ,k ,k,	//8
+		k ,t ,k ,t ,k ,k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//8
 
-		k ,st,k ,t ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k,	//9
+		k ,st,k ,t ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//9
 
-		k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,t ,t ,k ,t ,k ,k ,k ,k,	//10
+		k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,t ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//10
 
-		k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,t ,k ,st,k,	//11
+		k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,t ,k ,st,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//11
 
-		k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,k ,k ,k ,t ,k,	//12
+		k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//12
 
-		k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k,	//13
+		k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//13
 
-		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k		//14
+		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //14
+
+		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //15
+
+		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //16
+
+		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //17
+
+		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //18
+
+		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //19
+
+		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //20
+
+		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //21
+
+		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //22
+
+		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //23
+
+		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k   //24
 
 	}
-};	//ゲームのマップ
+};
 
 //ゲームマップの階層初期化用
 GAME_MAP_KIND mapDatafirstInit[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
 
+//ゲームマップの第２ステージ
+GAME_MAP_KIND mapDatasecond[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
+{
+	{
+		//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8
+
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//0
+
+			k ,w1,k ,k ,k ,k ,k ,e1,s3,k ,s4,k ,t ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//1
+
+			k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,ca,e2,t ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//2
+
+			k ,k ,k ,m2,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,w2,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//3
+
+			k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//4
+
+			k ,t ,k ,k ,k ,k ,k ,t ,k ,k ,t ,m1,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//5
+
+			k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//6
+
+			k ,s1,k ,t ,k ,k ,k ,k ,k ,k ,br,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//7
+
+			k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,s2,k ,ki,t ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//8
+
+			k ,st,sp,t ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//9
+
+			k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,m3,t ,k ,t ,k ,kl,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//10
+
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,t ,t ,st,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//11
+
+			k ,t ,k ,m4,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//12
+
+			k ,t ,k ,t ,t ,t ,t ,e3,ag,k ,bg,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,k ,k ,k ,	//13
+
+			k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,	//14
+
+			k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,t ,k ,k ,k ,k , //15
+
+			k ,t ,t ,t ,t ,as,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,bs,k ,k ,k ,k , //16
+
+			k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,t ,t ,t ,t ,k , //17
+
+			k ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,t ,k , //18
+
+			k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,k	,k ,k ,k ,k ,k ,k ,k ,k ,t ,k , //19
+
+			k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k	,k ,k ,k ,k ,k ,k ,k ,k ,t ,k , //20
+
+			k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,k	,k ,k ,k ,k ,k ,k ,k ,k ,t ,k , //21
+
+			k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,t ,k , //22
+
+			k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,k	,k ,k ,k ,k ,k ,k ,k ,k ,t ,k , //23
+
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k   //24
+		},
+		{
+			//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8
+
+				k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//0
+
+				k ,t ,k ,k ,k ,k ,k ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//1
+
+				k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//2
+
+				k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//3
+
+				k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//4
+
+				k ,t ,k ,k ,k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//5
+
+				k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//6
+
+				k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//7
+
+				k ,t ,k ,t ,k ,k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//8
+
+				k ,st,k ,t ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//9
+
+				k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,t ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//10
+
+				k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,t ,k ,st,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//11
+
+				k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//12
+
+				k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,	//13
+
+				k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //14
+
+				k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //15
+
+				k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //16
+
+				k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //17
+
+				k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //18
+
+				k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //19
+
+				k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //20
+
+				k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //21
+
+				k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //22
+
+				k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //23
+
+				k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k	,k ,k ,k ,k ,k ,k ,k ,k ,k ,k   //24
+
+			}
+};
+
+//ゲームマップの第２ステージ初期化用
+GAME_MAP_KIND mapDatasecondInit[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
+
 //マップチップの画像を管理
 MAPCHIP mapChip;
 
-//マップの場所と表示する画像を管理
+//マップ1の場所と表示する画像を管理
 MAP map[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
+
+//マップ2の場所と表示する画像を管理
+MAP map2[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
 
 //スタートの位置(プレイヤーと敵のそれぞれの座標）
 iPOINT startPt_A;
@@ -386,10 +550,15 @@ iPOINT startEPt_3;
 iPOINT w1_where;
 iPOINT w2_where;
 
-//マップの当たり判定
+//マップ1の当たり判定
 RECT mapColl[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
-//マップの当たり判定初期化用
+//マップ1の当たり判定初期化用
 RECT mapCollInit[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
+
+//マップ2の当たり判定
+RECT mapCollSecond[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
+//マップ2の当たり判定初期化用
+RECT mapCollSecondInit[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX];
 
 //ゴールしたかの判定
 RECT GoalRect_A = { -1,-1,-1,-1 };  //プレイヤーA用
@@ -407,6 +576,10 @@ VOID MY_PLAY_INIT(VOID);	//プレイ画面初期化
 VOID MY_PLAY(VOID);			//プレイ画面
 VOID MY_PLAY_PROC(VOID);	//プレイ画面の処理
 VOID MY_PLAY_DRAW(VOID);	//プレイ画面の描画
+
+VOID MY_PLAY_SECOND_INIT(VOID);	//プレイ画面初期化
+VOID MY_PLAY_SECOND(VOID);  //2プレイ画面
+VOID MY_PLAY_SECOND_DRAW(VOID);	//2プレイ画面の描画
 
 VOID MY_OVER(VOID);         //ゲームオーバー画面
 VOID MY_OVER_PROC(VOID);    //ゲームオーバー画面の処理
@@ -463,7 +636,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		{
 			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 			{
-				//プレイヤーAのスタート位置を探す
+				//プレイヤーAの第１スタート位置を探す
 				if (mapDatafirst[0][tate][yoko] == as)
 				{
 					//プレイヤーAのスタート位置を計算
@@ -472,7 +645,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 				}
 
-				//プレイヤーBのスタート位置を探す
+				//プレイヤーAの第２スタート位置を探す
+				if (mapDatasecond[0][tate][yoko] == as)
+				{
+					//プレイヤーAのスタート位置を計算
+					startPt_A.y2 = mapChip.height * tate;	//Y座標を取得
+					startPt_A.x2 = mapChip.width * yoko;	//X座標を取得
+
+				}
+
+				//プレイヤーBの第１スタート位置を探す
 				if (mapDatafirst[0][tate][yoko] == bs)
 				{
 					//プレイヤーBのスタート位置を計算
@@ -480,7 +662,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					startPt_B.y = mapChip.height * tate;	//Y座標を取得
 				}
 
-				//敵１のスタート位置を探す
+				//プレイヤーBの第２スタート位置を探す
+				if (mapDatasecond[0][tate][yoko] == bs)
+				{
+					//プレイヤーBのスタート位置を計算
+					startPt_B.x2 = mapChip.width * yoko;	//X座標を取得
+					startPt_B.y2 = mapChip.height * tate;	//Y座標を取得
+				}
+
+				//敵１の第１スタート位置を探す
 				if (mapDatafirst[floor][tate][yoko] == e1)
 				{
 					//敵１のスタート位置を計算
@@ -489,7 +679,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					enemy_1.floor = floor;
 				}
 
-				//敵2のスタート位置を探す
+				//敵１の第２スタート位置を探す
+				if (mapDatasecond[floor][tate][yoko] == e1)
+				{
+					//敵１のスタート位置をs
+					startEPt_1.x2 = mapChip.width * yoko;	//X座標を取得
+					startEPt_1.y2 = mapChip.height * tate;	//Y座標を取得
+					enemy_1.floor = floor;
+				}
+
+				//敵2の第１スタート位置を探す
 				if (mapDatafirst[floor][tate][yoko] == e2)
 				{
 					//敵2のスタート位置を計算
@@ -498,12 +697,30 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					enemy_2.floor = floor;
 				}
 
-				//敵3のスタート位置を探す
+				//敵2の第２スタート位置を探す
+				if (mapDatasecond[floor][tate][yoko] == e2)
+				{
+					//敵2のスタート位置を計算
+					startEPt_2.x2 = mapChip.width * yoko;	//X座標を取得
+					startEPt_2.y2 = mapChip.height * tate;	//Y座標を取得
+					enemy_2.floor = floor;
+				}
+
+				//敵3の第１スタート位置を探す
 				if (mapDatafirst[floor][tate][yoko] == e3)
 				{
 					//敵3のスタート位置を計算
 					startEPt_3.x = mapChip.width * yoko;	//X座標を取得
 					startEPt_3.y = mapChip.height * tate;	//Y座標を取得
+					enemy_3.floor = floor;
+				}
+
+				//敵3の第２スタート位置を探す
+				if (mapDatasecond[floor][tate][yoko] == e3)
+				{
+					//敵3のスタート位置を計算
+					startEPt_3.x2 = mapChip.width * yoko;	//X座標を取得
+					startEPt_3.y2 = mapChip.height * tate;	//Y座標を取得
 					enemy_3.floor = floor;
 				}
 
@@ -545,10 +762,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 			//スタートが決まっていれば、ループ終了
 			if (startPt_A.x != 0 && startPt_A.y != 0 &&
+				startPt_A.x2 != 0 && startPt_A.y2 != 0 &&
+
 				startPt_B.x != 0 && startPt_B.y != 0 &&
+				startPt_B.x2 != 0 && startPt_B.y2 != 0 &&
+
 				startEPt_1.x != 0 && startEPt_1.y != 0 &&
+				startEPt_1.x2 != 0 && startEPt_1.y2 != 0 &&
+
 				startEPt_2.x != 0 && startEPt_2.y != 0 &&
-				startEPt_3.x != 0 && startEPt_3.y != 0) 
+				startEPt_2.x2 != 0 && startEPt_2.y2 != 0 &&
+
+				startEPt_3.x != 0 && startEPt_3.y != 0 &&
+				startEPt_3.x2 != 0 && startEPt_3.y2 != 0)
 			{
 				break;
 			}
@@ -556,34 +782,34 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 	//Aのスタートが決まっていなければ
-	if (startPt_A.x == 0 && startPt_A.y == 0)
+	if (startPt_A.x == 0 && startPt_A.y == 0 && startPt_A.x2 == 0 && startPt_A.y2 == 0)
 	{
 		//エラーメッセージ表示
 		MessageBox(GetMainWindowHandle(), START_ERR_CAPTION_A, START_ERR_TITLE, MB_OK);	return -1;
 	}
 	//Bのスタートが決まっていなければ
-	if (startPt_B.x == 0 && startPt_B.y == 0)
+	if (startPt_B.x == 0 && startPt_B.y == 0 && startPt_B.x2 == 0 && startPt_B.y2 == 0)
 	{
 		//エラーメッセージ表示
 		MessageBox(GetMainWindowHandle(), START_ERR_CAPTION_B, START_ERR_TITLE, MB_OK);	return -1;
 	}
 
 	//敵１のスタートが決まっていなければ
-	if (startEPt_1.x == 0 && startEPt_1.y == 0)
+	if (startEPt_1.x == 0 && startEPt_1.y == 0 && startEPt_1.x2 == 0 && startEPt_1.y2 == 0)
 	{
 		//エラーメッセージ表示
 		MessageBox(GetMainWindowHandle(), START_ERR_CAPTION_E1, START_ERR_TITLE, MB_OK);	return -1;
 	}
 
 	//敵2のスタートが決まっていなければ
-	if (startEPt_2.x == 0 && startEPt_2.y == 0)
+	if (startEPt_2.x == 0 && startEPt_2.y == 0 && startEPt_2.x2 == 0 && startEPt_2.y2 == 0)
 	{
 		//エラーメッセージ表示
 		MessageBox(GetMainWindowHandle(), START_ERR_CAPTION_E2, START_ERR_TITLE, MB_OK);	return -1;
 	}
 
 	//敵3のスタートが決まっていなければ
-	if (startEPt_3.x == 0 && startEPt_3.y == 0)
+	if (startEPt_3.x == 0 && startEPt_3.y == 0 && startEPt_3.x2 == 0 && startEPt_3.y2 == 0)
 	{
 		//エラーメッセージ表示
 		MessageBox(GetMainWindowHandle(), START_ERR_CAPTION_E3, START_ERR_TITLE, MB_OK);	return -1;
@@ -601,23 +827,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		MessageBox(GetMainWindowHandle(), GOAL_ERR_CAPTION_B, GOAL_ERR_TITLE, MB_OK);	return -1;
 	}
 
-	//プレイヤーAの画像座標を初期位置に設定
+	//プレイヤーAの画像座標を第１初期位置に設定
 	player_A.image.x = startPt_A.x;
 	player_A.image.y = startPt_A.y;
 
-	//プレイヤーAの画像座標を初期位置に設定
+	//プレイヤーAの画像座標を第１初期位置に設定
 	player_B.image.x = startPt_B.x;
 	player_B.image.y = startPt_B.y;
 
-	//敵１の画像座標を初期位置に設定
+	//敵１の画像座標を第１初期位置に設定
 	enemy_1.image.x = startEPt_1.x;
 	enemy_1.image.y = startEPt_1.y;
 
-	//敵2の画像座標を初期位置に設定
+	//敵2の画像座標を第１初期位置に設定
 	enemy_2.image.x = startEPt_2.x;
 	enemy_2.image.y = startEPt_2.y;
 
-	//敵3の画像座標を初期位置に設定
+	//敵3の画像座標を第１初期位置に設定
 	enemy_3.image.x = startEPt_3.x;
 	enemy_3.image.y = startEPt_3.y;
 
@@ -644,8 +870,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		case GAME_SCENE_PLAY:
 			MY_PLAY();	//プレイ画面
 			break;
+		case GAME_SCENE_PLAY_SECOND:
+			MY_PLAY_SECOND();	//2プレイ画面
+			break;
 		case GAME_SCENE_OVER:
-			MY_OVER();
+			MY_OVER(); //ゲームオーバー画面
 			break;
 		case GAME_SCENE_END:
 			MY_END();	//エンド画面
@@ -745,7 +974,7 @@ VOID MY_START_DRAW(VOID)
 {
 	DrawGraph(ImageTitleBK.x, ImageTitleBK.y, ImageTitleBK.handle, TRUE);	//タイトル背景の描画
 
-	//タイトルロゴを回転しながら描画
+	//タイトルロゴを拡大しながら描画
 	DrawRotaGraph(
 		ImageTitleROGO.image.x, ImageTitleROGO.image.y,	//画像の座標
 		ImageTitleROGO.rate,							//画像の拡大率
@@ -779,11 +1008,18 @@ VOID MY_PLAY_INIT(VOID)
 				//マップを初期化
 				map[floor][tate][yoko].kind = mapDatafirstInit[floor][tate][yoko];
 
+				map2[floor][tate][yoko].kind = mapDatasecondInit[floor][tate][yoko];
+
 				//マップの当たり判定の初期化
 				mapColl[floor][tate][yoko].left = mapCollInit[floor][tate][yoko].left;
 				mapColl[floor][tate][yoko].top = mapCollInit[floor][tate][yoko].top;
 				mapColl[floor][tate][yoko].right = mapCollInit[floor][tate][yoko].right;
 				mapColl[floor][tate][yoko].bottom = mapCollInit[floor][tate][yoko].bottom;
+
+				mapCollSecond[floor][tate][yoko].left = mapCollSecondInit[floor][tate][yoko].left;
+				mapCollSecond[floor][tate][yoko].top = mapCollSecondInit[floor][tate][yoko].top;
+				mapCollSecond[floor][tate][yoko].right = mapCollSecondInit[floor][tate][yoko].right;
+				mapCollSecond[floor][tate][yoko].bottom = mapCollSecondInit[floor][tate][yoko].bottom;
 			}
 		}
 	}
@@ -813,10 +1049,49 @@ VOID MY_PLAY_INIT(VOID)
 	sp_check = 0;
 	ca_check = 0;
 
+	st_check = 1;
 	fl_check = 0;
 	move_floor = 0;
 
 	player_live = 1;
+	enemy1_live = 1;
+	enemy2_live = 1;
+	enemy3_live = 1;
+
+	return;
+}
+
+//2プレイ画面の初期化
+VOID MY_PLAY_SECOND_INIT(VOID)
+{
+	player_A.image.x = startPt_A.x2;
+	player_A.image.y = startPt_A.y2;
+
+	player_B.image.x = startPt_B.x2;
+	player_B.image.y = startPt_B.y2;
+
+	enemy_1.image.x = startEPt_1.x2;
+	enemy_1.image.y = startEPt_1.y2;
+
+	enemy_2.image.x = startEPt_2.x2;
+	enemy_2.image.y = startEPt_2.y2;
+
+	enemy_3.image.x = startEPt_3.x2;
+	enemy_3.image.y = startEPt_3.y2;
+
+	s1_check = 0;
+	s2_check = 0;
+	s3_check = 0;
+	s4_check = 0;
+
+	ki_check = 0;
+	br_check = 0;
+	sp_check = 0;
+	ca_check = 0;
+
+	fl_check = 0;
+	move_floor = 0;
+
 	enemy1_live = 1;
 	enemy2_live = 1;
 	enemy3_live = 1;
@@ -829,6 +1104,15 @@ VOID MY_PLAY(VOID)
 {
 	MY_PLAY_PROC();	//プレイ画面の処理
 	MY_PLAY_DRAW();	//プレイ画面の描画
+
+	return;
+}
+
+//2プレイ画面
+VOID MY_PLAY_SECOND(VOID)
+{
+	MY_PLAY_PROC();	//2プレイ画面の処理
+	MY_PLAY_SECOND_DRAW();	//プレイ画面の描画
 
 	return;
 }
@@ -1007,12 +1291,23 @@ VOID MY_PLAY_PROC(VOID)
 							PlaySoundMem(SE_SWITCH.handle, DX_PLAYTYPE_BACK, TRUE);
 						}
 
-						//ギミック1を通路にして消す
-						if (map[floor][tate][yoko].kind == m1)
+						if (st_check == 1)
 						{
-							map[floor][tate][yoko].kind = t;
-							s1_check = 1;
-
+							//ギミック1を通路にして消す
+							if (map[floor][tate][yoko].kind == m1)
+							{
+								map[floor][tate][yoko].kind = t;
+								s1_check = 1;
+							}
+						}
+						else if (st_check == 2)
+						{
+							//ギミック1を通路にして消す
+							if (map2[floor][tate][yoko].kind == m1)
+							{
+								map2[floor][tate][yoko].kind = t;
+								s1_check = 1;
+							}
 						}
 					}
 				}
@@ -1036,12 +1331,24 @@ VOID MY_PLAY_PROC(VOID)
 							PlaySoundMem(SE_SWITCH.handle, DX_PLAYTYPE_BACK, TRUE);
 						}
 
-						//ギミック2を通路にして消す
-						if (map[floor][tate][yoko].kind == m2)
+						if (st_check == 1)
 						{
-							map[floor][tate][yoko].kind = t;
-							s2_check = 1;
+							//ギミック2を通路にして消す
+							if (map[floor][tate][yoko].kind == m2)
+							{
+								map[floor][tate][yoko].kind = t;
+								s2_check = 1;
 
+							}
+						}
+						else if (st_check == 2)
+						{
+							//ギミック2を通路にして消す
+							if (map2[floor][tate][yoko].kind == m2)
+							{
+								map2[floor][tate][yoko].kind = t;
+								s2_check = 1;
+							}
 						}
 					}
 				}
@@ -1064,13 +1371,24 @@ VOID MY_PLAY_PROC(VOID)
 							ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_SWITCH.handle); //MUSIC_VOLUMEで音量調節
 							PlaySoundMem(SE_SWITCH.handle, DX_PLAYTYPE_BACK, TRUE);
 						}
-
-						//ギミック2を通路にして消す
-						if (map[floor][tate][yoko].kind == m3)
+						if (st_check == 1)
 						{
-							map[floor][tate][yoko].kind = t;
-							s3_check = 1;
+							//ギミック2を通路にして消す
+							if (map[floor][tate][yoko].kind == m3)
+							{
+								map[floor][tate][yoko].kind = t;
+								s3_check = 1;
 
+							}
+						}
+						else if (st_check == 2)
+						{
+							//ギミック2を通路にして消す
+							if (map2[floor][tate][yoko].kind == m3)
+							{
+								map2[floor][tate][yoko].kind = t;
+								s3_check = 1;
+							}
 						}
 					}
 				}
@@ -1094,12 +1412,23 @@ VOID MY_PLAY_PROC(VOID)
 						PlaySoundMem(SE_SWITCH.handle, DX_PLAYTYPE_BACK, TRUE);
 					}
 
-					//ギミック2を通路にして消す
-					if (map[floor][tate][yoko].kind == m4)
+					if (st_check == 1)
 					{
-						map[floor][tate][yoko].kind = t;
-						s4_check = 1;
-
+						//ギミック2を通路にして消す
+						if (map[floor][tate][yoko].kind == m4)
+						{
+							map[floor][tate][yoko].kind = t;
+							s4_check = 1;
+						}
+					}
+					else if (st_check == 2)
+					{
+						//ギミック2を通路にして消す
+						if (map2[floor][tate][yoko].kind == m4)
+						{
+							map2[floor][tate][yoko].kind = t;
+							s4_check = 1;
+						}
 					}
 				}
 			}
@@ -1124,10 +1453,20 @@ VOID MY_PLAY_PROC(VOID)
 				{
 					for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 					{
-						//鍵扉を通路にして消す
-						if (map[floor][tate][yoko].kind == kl)
+						if (st_check == 1)
 						{
-							map[floor][tate][yoko].kind = t;
+							//鍵扉を通路にして消す
+							if (map[floor][tate][yoko].kind == kl)
+							{
+								map[floor][tate][yoko].kind = t;
+							}
+						}
+						else if (st_check == 2)
+						{
+							if (map2[floor][tate][yoko].kind == kl)
+							{
+								map2[floor][tate][yoko].kind = t;
+							}
 						}
 					}
 				}
@@ -1152,12 +1491,22 @@ VOID MY_PLAY_PROC(VOID)
 						PlaySoundMem(SE_KEY.handle, DX_PLAYTYPE_BACK, TRUE);
 					}
 
-					//鍵を通路にして消す
-					if (map[floor][tate][yoko].kind == ki)
+					if (st_check == 1)
 					{
-						map[floor][tate][yoko].kind = t;
-						ki_check = 1;
-
+						//鍵を通路にして消す
+						if (map[floor][tate][yoko].kind == ki)
+						{
+							map[floor][tate][yoko].kind = t;
+							ki_check = 1;
+						}
+					}
+					else if (st_check == 2)
+					{
+						if (map2[floor][tate][yoko].kind == ki)
+						{
+							map2[floor][tate][yoko].kind = t;
+							ki_check = 1;
+						}
 					}
 				}
 			}
@@ -1181,12 +1530,22 @@ VOID MY_PLAY_PROC(VOID)
 						PlaySoundMem(SE_WEAPON.handle, DX_PLAYTYPE_BACK, TRUE);
 					}
 
-					//鍵を通路にして消す
-					if (map[floor][tate][yoko].kind == br)
+					if (st_check == 1)
 					{
-						map[floor][tate][yoko].kind = t;
-						br_check = 1;
-
+						//鍵を通路にして消す
+						if (map[floor][tate][yoko].kind == br)
+						{
+							map[floor][tate][yoko].kind = t;
+							br_check = 1;
+						}
+					}
+					else if (st_check == 2)
+					{
+						if (map2[floor][tate][yoko].kind == br)
+						{
+							map2[floor][tate][yoko].kind = t;
+							br_check = 1;
+						}
 					}
 				}
 			}
@@ -1210,12 +1569,22 @@ VOID MY_PLAY_PROC(VOID)
 						PlaySoundMem(SE_WEAPON.handle, DX_PLAYTYPE_BACK, TRUE);
 					}
 
-					//鍵を通路にして消す
-					if (map[floor][tate][yoko].kind == sp)
+					if (st_check == 1)
 					{
-						map[floor][tate][yoko].kind = t;
-						sp_check = 1;
-
+						//鍵を通路にして消す
+						if (map[floor][tate][yoko].kind == sp)
+						{
+							map[floor][tate][yoko].kind = t;
+							sp_check = 1;
+						}
+					}
+					else if (st_check == 2)
+					{
+						if (map2[floor][tate][yoko].kind == sp)
+						{
+							map2[floor][tate][yoko].kind = t;
+							sp_check = 1;
+						}
 					}
 				}
 			}
@@ -1239,12 +1608,22 @@ VOID MY_PLAY_PROC(VOID)
 						PlaySoundMem(SE_WEAPON.handle, DX_PLAYTYPE_BACK, TRUE);
 					}
 
-					//杖を通路にして消す
-					if (map[floor][tate][yoko].kind == ca)
+					if (st_check == 1)
 					{
-						map[floor][tate][yoko].kind = t;
-						ca_check = 1;
-
+						//杖を通路にして消す
+						if (map[floor][tate][yoko].kind == ca)
+						{
+							map[floor][tate][yoko].kind = t;
+							ca_check = 1;
+						}
+					}
+					else if (st_check == 2)
+					{
+						if (map2[floor][tate][yoko].kind == ca)
+						{
+							map2[floor][tate][yoko].kind = t;
+							ca_check = 1;
+						}
 					}
 				}
 			}
@@ -1479,11 +1858,22 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
-					//ギミック1を通路にして消す
-					if (map[floor][tate][yoko].kind == m1)
+					if (st_check == 1)
 					{
-						map[floor][tate][yoko].kind = t;
-						s1_check = 1;
+						//ギミック1を通路にして消す
+						if (map[floor][tate][yoko].kind == m1)
+						{
+							map[floor][tate][yoko].kind = t;
+							s1_check = 1;
+						}
+					}
+					else if (st_check == 2)
+					{
+						if (map2[floor][tate][yoko].kind == m1)
+						{
+							map2[floor][tate][yoko].kind = t;
+							s1_check = 1;
+						}
 					}
 
 					//スイッチ音が流れていないなら
@@ -1507,12 +1897,23 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
-					//ギミック2を通路にして消す
-					if (map[floor][tate][yoko].kind == m2)
+					if (st_check == 1)
 					{
-						map[floor][tate][yoko].kind = t;
-						s2_check = 1;
+						//ギミック2を通路にして消す
+						if (map[floor][tate][yoko].kind == m2)
+						{
+							map[floor][tate][yoko].kind = t;
+							s2_check = 1;
 
+						}
+					}
+					else if (st_check == 2)
+					{
+						if (map2[floor][tate][yoko].kind == m2)
+						{
+							map2[floor][tate][yoko].kind = t;
+							s2_check = 1;
+						}
 					}
 
 					//スイッチ音が流れていないなら
@@ -1536,14 +1937,23 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
-					//ギミック3を通路にして消す
-					if (map[floor][tate][yoko].kind == m3)
+					if (st_check == 1)
 					{
-						map[floor][tate][yoko].kind = t;
-						s3_check = 1;
-
+						//ギミック3を通路にして消す
+						if (map[floor][tate][yoko].kind == m3)
+						{
+							map[floor][tate][yoko].kind = t;
+							s3_check = 1;
+						}
 					}
-
+					else if (st_check == 2)
+					{
+						if (map2[floor][tate][yoko].kind == m3)
+						{
+							map2[floor][tate][yoko].kind = t;
+							s3_check = 1;
+						}
+					}
 					//スイッチ音が流れていないなら
 					if (CheckSoundMem(SE_SWITCH.handle) == 0 && s3_check == 0)
 					{
@@ -1565,12 +1975,22 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
-					//ギミック4を通路にして消す
-					if (map[floor][tate][yoko].kind == m4)
+					if (st_check == 1)
 					{
-						map[floor][tate][yoko].kind = t;
-						s4_check = 1;
-
+						//ギミック4を通路にして消す
+						if (map[floor][tate][yoko].kind == m4)
+						{
+							map[floor][tate][yoko].kind = t;
+							s4_check = 1;
+						}
+					}
+					else if (st_check == 2)
+					{
+						if (map2[floor][tate][yoko].kind == m4)
+						{
+							map2[floor][tate][yoko].kind = t;
+							s4_check = 1;
+						}
 					}
 
 					//スイッチ音が流れていないなら
@@ -1604,10 +2024,21 @@ VOID MY_PLAY_PROC(VOID)
 				{
 					for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 					{
-						//鍵扉を通路にして消す
-						if (map[floor][tate][yoko].kind == kl)
+						if (st_check == 1)
 						{
-							map[floor][tate][yoko].kind = t;
+							//鍵扉を通路にして消す
+							if (map[floor][tate][yoko].kind == kl)
+							{
+								map[floor][tate][yoko].kind = t;
+							}
+						}
+						else if (st_check == 2)
+						{
+							if (map2[floor][tate][yoko].kind == m4)
+							{
+								map2[floor][tate][yoko].kind = t;
+								s4_check = 1;
+							}
 						}
 					}
 				}
@@ -1631,12 +2062,23 @@ VOID MY_PLAY_PROC(VOID)
 						ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_KEY.handle); //MUSIC_VOLUMEで音量調節
 						PlaySoundMem(SE_KEY.handle, DX_PLAYTYPE_BACK, TRUE);
 					}
-
-					//鍵を通路にして消す
-					if (map[floor][tate][yoko].kind == ki)
+					
+					if (st_check == 1)
 					{
-						map[floor][tate][yoko].kind = t;
-						ki_check = 1;
+						//鍵を通路にして消す
+						if (map[floor][tate][yoko].kind == ki)
+						{
+							map[floor][tate][yoko].kind = t;
+							ki_check = 1;
+						}
+					}
+					else if (st_check == 2)
+					{
+						if (map2[floor][tate][yoko].kind == ki)
+						{
+							map2[floor][tate][yoko].kind = t;
+							ki_check = 1;
+						}
 					}
 				}
 			}
@@ -1660,12 +2102,22 @@ VOID MY_PLAY_PROC(VOID)
 						PlaySoundMem(SE_WEAPON.handle, DX_PLAYTYPE_BACK, TRUE);
 					}
 
-					//剣を通路にして消す
-					if (map[floor][tate][yoko].kind == br)
+					if (st_check == 1)
 					{
-						map[floor][tate][yoko].kind = t;
-						br_check = 1;
-
+						//剣を通路にして消す
+						if (map[floor][tate][yoko].kind == br)
+						{
+							map[floor][tate][yoko].kind = t;
+							br_check = 1;
+						}
+					}
+					else if (st_check == 2)
+					{
+						if (map2[floor][tate][yoko].kind == br)
+						{
+							map2[floor][tate][yoko].kind = t;
+							br_check = 1;
+						}
 					}
 				}
 			}
@@ -1689,12 +2141,22 @@ VOID MY_PLAY_PROC(VOID)
 						PlaySoundMem(SE_WEAPON.handle, DX_PLAYTYPE_BACK, TRUE);
 					}
 
-					//槍を通路にして消す
-					if (map[floor][tate][yoko].kind == sp)
+					if (st_check == 1)
 					{
-						map[floor][tate][yoko].kind = t;
-						sp_check = 1;
-
+						//槍を通路にして消す
+						if (map[floor][tate][yoko].kind == sp)
+						{
+							map[floor][tate][yoko].kind = t;
+							sp_check = 1;
+						}
+					}
+					else if (st_check == 2)
+					{
+						if (map2[floor][tate][yoko].kind == sp)
+						{
+							map2[floor][tate][yoko].kind = t;
+							sp_check = 1;
+						}
 					}
 				}
 			}
@@ -1718,12 +2180,22 @@ VOID MY_PLAY_PROC(VOID)
 						PlaySoundMem(SE_WEAPON.handle, DX_PLAYTYPE_BACK, TRUE);
 					}
 
-					//杖を通路にして消す
-					if (map[floor][tate][yoko].kind == ca)
+					if (st_check == 1)
 					{
-						map[floor][tate][yoko].kind = t;
-						ca_check = 1;
-
+						//杖を通路にして消す
+						if (map[floor][tate][yoko].kind == ca)
+						{
+							map[floor][tate][yoko].kind = t;
+							ca_check = 1;
+						}
+					}
+					else if (st_check == 2)
+					{
+						if (map2[floor][tate][yoko].kind == ca)
+						{
+							map2[floor][tate][yoko].kind = t;
+							ca_check = 1;
+						}
 					}
 				}
 			}
@@ -2096,7 +2568,10 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				StopSoundMem(BGM.handle);	//BGMを止める
 			}
-			GameScene = GAME_SCENE_END;
+			st_check = 2;
+			fl_check = 0;
+			MY_PLAY_SECOND_INIT();
+			GameScene = GAME_SCENE_PLAY_SECOND;
 
 			return;
 		}
@@ -2178,8 +2653,8 @@ VOID MY_PLAY_DRAW(VOID)
 	if (ki_check == 1) {
 		//鍵取得状態を描画
 		DrawGraph(
-			MAP_DIV_WIDTH * 7,
-			MAP_DIV_HEIGHT * 14,
+			MAP_DIV_WIDTH * 12,
+			MAP_DIV_HEIGHT * 24,
 			mapChip.handle[19],
 			TRUE);
 	}
@@ -2187,8 +2662,8 @@ VOID MY_PLAY_DRAW(VOID)
 	if (br_check == 1) {
 		//剣取得状態を描画
 		DrawGraph(
-			MAP_DIV_WIDTH * 8,
-			MAP_DIV_HEIGHT * 14,
+			MAP_DIV_WIDTH * 13,
+			MAP_DIV_HEIGHT * 24,
 			mapChip.handle[20],
 			TRUE);
 	}
@@ -2196,8 +2671,8 @@ VOID MY_PLAY_DRAW(VOID)
 	if (sp_check == 1) {
 		//槍取得状態を描画
 		DrawGraph(
-			MAP_DIV_WIDTH * 9,
-			MAP_DIV_HEIGHT * 14,
+			MAP_DIV_WIDTH * 14,
+			MAP_DIV_HEIGHT * 24,
 			mapChip.handle[21],
 			TRUE);
 	}
@@ -2205,8 +2680,8 @@ VOID MY_PLAY_DRAW(VOID)
 	if (ca_check == 1) {
 		//杖取得状態を描画
 		DrawGraph(
-			MAP_DIV_WIDTH * 10,
-			MAP_DIV_HEIGHT * 14,
+			MAP_DIV_WIDTH * 15,
+			MAP_DIV_HEIGHT * 24,
 			mapChip.handle[22],
 			TRUE);
 	}
@@ -2412,6 +2887,284 @@ VOID MY_PLAY_DRAW(VOID)
 					DrawString(0, 0, "プレイ画面(スペースキーを押して下さい)", GetColor(255, 255, 255));
 				}
 			}
+
+		//プレイヤーAの当たり判定の描画（デバッグ用）
+		DrawBox(player_A.coll.left, player_A.coll.top, player_A.coll.right, player_A.coll.bottom, GetColor(255, 0, 0), FALSE);
+
+		//プレイヤーBの当たり判定の描画（デバッグ用）
+		DrawBox(player_B.coll.left, player_B.coll.top, player_B.coll.right, player_B.coll.bottom, GetColor(255, 0, 0), FALSE);
+
+	}
+
+	//DrawString(0, 0, "プレイヤーA：WASDで操作\nプレイヤーB：方向キーで操作", GetColor(255, 255, 255));
+	return;
+}
+
+VOID MY_PLAY_SECOND_DRAW(VOID)
+{
+	for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+	{
+		for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+		{
+			if (fl_check == 0)
+			{
+				//初期階層マップを描画
+				DrawGraph(
+					map2[0][tate][yoko].x,
+					map2[0][tate][yoko].y,
+					mapChip.handle[map2[0][tate][yoko].kind],
+					TRUE);
+			}
+			else if (fl_check == 1)
+			{
+				//別階層マップを描画
+				DrawGraph(
+					map2[1][tate][yoko].x,
+					map2[1][tate][yoko].y,
+					mapChip.handle[map2[1][tate][yoko].kind],
+					TRUE);
+			}
+		}
+	}
+
+
+	if (ki_check == 1) {
+		//鍵取得状態を描画
+		DrawGraph(
+			MAP_DIV_WIDTH * 12,
+			MAP_DIV_HEIGHT * 24,
+			mapChip.handle[19],
+			TRUE);
+	}
+
+	if (br_check == 1) {
+		//剣取得状態を描画
+		DrawGraph(
+			MAP_DIV_WIDTH * 13,
+			MAP_DIV_HEIGHT * 24,
+			mapChip.handle[20],
+			TRUE);
+	}
+
+	if (sp_check == 1) {
+		//槍取得状態を描画
+		DrawGraph(
+			MAP_DIV_WIDTH * 14,
+			MAP_DIV_HEIGHT * 24,
+			mapChip.handle[21],
+			TRUE);
+	}
+
+	if (ca_check == 1) {
+		//杖取得状態を描画
+		DrawGraph(
+			MAP_DIV_WIDTH * 15,
+			MAP_DIV_HEIGHT * 24,
+			mapChip.handle[22],
+			TRUE);
+	}
+
+	//プレイヤーAを描画する
+	strcpy_s(ImageBack.path, IMAGE_player_A_PATH);
+	LoadGraphScreen(player_A.image.x, player_A.image.y, ImageBack.path, FALSE);
+
+	//プレイヤーBを描画する
+	strcpy_s(ImageBack.path, IMAGE_player_B_PATH);
+	LoadGraphScreen(player_B.image.x, player_B.image.y, ImageBack.path, FALSE);
+
+	if (enemy1_live == 1 && enemy_1.floor == fl_check)
+	{
+		//敵１を描画する
+		strcpy_s(ImageBack.path, IMAGE_enemy_1_PATH);
+		LoadGraphScreen(enemy_1.image.x, enemy_1.image.y, ImageBack.path, FALSE);
+	}
+
+	if (enemy2_live == 1 && enemy_2.floor == fl_check)
+	{
+		//敵2を描画する
+		strcpy_s(ImageBack.path, IMAGE_enemy_2_PATH);
+		LoadGraphScreen(enemy_2.image.x, enemy_2.image.y, ImageBack.path, FALSE);
+	}
+
+	if (enemy3_live == 1 && enemy_3.floor == fl_check)
+	{
+		//敵3を描画する
+		strcpy_s(ImageBack.path, IMAGE_enemy_3_PATH);
+		LoadGraphScreen(enemy_3.image.x, enemy_3.image.y, ImageBack.path, FALSE);
+	}
+	WaitTimer(60);
+
+	//デバッグ判定がONならデバッグ用表示をする
+	if (DEBUG == "ON") {
+		//当たり判定の描画（デバッグ用）
+		for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+		{
+			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+			{
+				if (fl_check == 0)
+				{
+					//壁ならば壁用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == k)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 0, 255), FALSE);
+					}
+
+					//ギミック1であり、なおかつスイッチ1が押されていない（s1_check=0）ならばギミック用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == m1 && s1_check == 0)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 0, 177), FALSE);
+					}
+
+					//ギミック2であり、なおかつスイッチ2が押されていない（s2_check=0）ならばギミック用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == m2 && s2_check == 0)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 0, 177), FALSE);
+					}
+
+					//ギミック3であり、なおかつスイッチ3が押されていない（s3_check=0）ならばギミック用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == m3 && s3_check == 0)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 0, 177), FALSE);
+					}
+
+					//ギミック4であり、なおかつスイッチ4が押されていない（s4_check=0）ならばギミック用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == m4 && s4_check == 0)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 0, 177), FALSE);
+					}
+
+					//鍵扉であり、なおかつ鍵をとっていない（s4_check=0）ならばギミック用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == kl && ki_check == 0)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 0, 177), FALSE);
+					}
+
+					//通路ならば通路用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == t)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 255, 255), FALSE);
+					}
+
+					//スイッチ1ならばスイッチ1用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == s1)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 255, 0), FALSE);
+					}
+
+					//スイッチ2ならばスイッチ2用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == s2)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 255, 0), FALSE);
+					}
+
+					//スイッチ3ならばスイッチ3用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == s3)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 255, 0), FALSE);
+					}
+
+					//スイッチ4ならばスイッチ4用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == s4)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 255, 0), FALSE);
+					}
+
+					//鍵ならば鍵用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == ki)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(255, 255, 0), FALSE);
+					}
+
+					//階段ならば階段の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == st)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 0, 0), FALSE);
+					}
+				}
+				else if (fl_check == 1)
+				{
+					//壁ならば壁用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == k)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 0, 255), FALSE);
+					}
+
+					//ギミック1であり、なおかつスイッチ1が押されていない（s1_check=0）ならばギミック用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == m1 && s1_check == 0)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 0, 177), FALSE);
+					}
+
+					//ギミック2であり、なおかつスイッチ2が押されていない（s2_check=0）ならばギミック用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == m2 && s2_check == 0)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 0, 177), FALSE);
+					}
+
+					//ギミック3であり、なおかつスイッチ3が押されていない（s3_check=0）ならばギミック用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == m3 && s3_check == 0)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 0, 177), FALSE);
+					}
+
+					//ギミック4であり、なおかつスイッチ4が押されていない（s4_check=0）ならばギミック用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == m4 && s4_check == 0)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 0, 177), FALSE);
+					}
+
+					//鍵扉であり、なおかつ鍵をとっていない（s4_check=0）ならばギミック用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == kl && ki_check == 0)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 0, 177), FALSE);
+					}
+
+					//通路ならば通路用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == t)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 255, 255), FALSE);
+					}
+
+					//スイッチ1ならばスイッチ1用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == s1)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 255, 0), FALSE);
+					}
+
+					//スイッチ2ならばスイッチ2用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == s2)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 255, 0), FALSE);
+					}
+
+					//スイッチ3ならばスイッチ3用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == s3)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 255, 0), FALSE);
+					}
+
+					//スイッチ4ならばスイッチ4用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == s4)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 255, 0), FALSE);
+					}
+
+					//鍵ならば鍵用の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == ki)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(255, 255, 0), FALSE);
+					}
+
+					//階段ならば階段の当たり判定を描画
+					if (mapDatasecond[fl_check][tate][yoko] == st)
+					{
+						DrawBox(mapCollSecond[fl_check][tate][yoko].left, mapCollSecond[fl_check][tate][yoko].top, mapCollSecond[fl_check][tate][yoko].right, mapCollSecond[fl_check][tate][yoko].bottom, GetColor(0, 0, 0), FALSE);
+					}
+				}
+
+				DrawString(0, 0, "プレイ画面(スペースキーを押して下さい)", GetColor(255, 255, 255));
+			}
+		}
 
 		//プレイヤーAの当たり判定の描画（デバッグ用）
 		DrawBox(player_A.coll.left, player_A.coll.top, player_A.coll.right, player_A.coll.bottom, GetColor(255, 0, 0), FALSE);
@@ -2734,16 +3487,27 @@ BOOL MY_LOAD_IMAGE(VOID)
 				//マップデータ初期化用に情報をコピー
 				mapDatafirstInit[floor][tate][yoko] = mapDatafirst[floor][tate][yoko];
 
-				//初期階層マップの種類をコピー
+				mapDatasecondInit[floor][tate][yoko] = mapDatasecond[floor][tate][yoko];
+
+				//マップ1の種類をコピー
 				map[floor][tate][yoko].kind = mapDatafirst[floor][tate][yoko];
+
+				//マップ2の種類をコピー
+				map2[floor][tate][yoko].kind = mapDatasecond[floor][tate][yoko];
 
 				//マップの幅と高さをコピー
 				map[floor][tate][yoko].width = mapChip.width;
 				map[floor][tate][yoko].height = mapChip.height;
 
+				map2[floor][tate][yoko].width = mapChip.width;
+				map2[floor][tate][yoko].height = mapChip.height;
+
 				//マップの座標を設定
 				map[floor][tate][yoko].x = yoko * map[floor][tate][yoko].width;
 				map[floor][tate][yoko].y = tate * map[floor][tate][yoko].height;
+
+				map2[floor][tate][yoko].x = yoko * map2[floor][tate][yoko].width;
+				map2[floor][tate][yoko].y = tate * map2[floor][tate][yoko].height;
 			}
 		}
 	}
@@ -2761,11 +3525,21 @@ BOOL MY_LOAD_IMAGE(VOID)
 				mapColl[floor][tate][yoko].right = (yoko + 1) * mapChip.width - 1;
 				mapColl[floor][tate][yoko].bottom = (tate + 1) * mapChip.height - 1;
 
+				mapCollSecond[floor][tate][yoko].left = (yoko + 0) * mapChip.width + 1;
+				mapCollSecond[floor][tate][yoko].top = (tate + 0) * mapChip.height + 1;
+				mapCollSecond[floor][tate][yoko].right = (yoko + 1) * mapChip.width - 1;
+				mapCollSecond[floor][tate][yoko].bottom = (tate + 1) * mapChip.height - 1;
+
 				//マップの初期状態を設定
 				mapCollInit[floor][tate][yoko].left = mapColl[floor][tate][yoko].left;
 				mapCollInit[floor][tate][yoko].top = mapColl[floor][tate][yoko].top;
 				mapCollInit[floor][tate][yoko].right = mapColl[floor][tate][yoko].right;
 				mapCollInit[floor][tate][yoko].bottom = mapColl[floor][tate][yoko].bottom;
+
+				mapCollSecondInit[floor][tate][yoko].left = mapCollSecond[floor][tate][yoko].left;
+				mapCollSecondInit[floor][tate][yoko].top = mapCollSecond[floor][tate][yoko].top;
+				mapCollSecondInit[floor][tate][yoko].right = mapCollSecond[floor][tate][yoko].right;
+				mapCollSecondInit[floor][tate][yoko].bottom = mapCollSecond[floor][tate][yoko].bottom;
 
 			}
 		}
@@ -2886,10 +3660,11 @@ int MY_CHECK_MAP1_PLAYER_COLL(RECT player)
 		{
 			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 			{
-				//プレイヤーとマップが当たっているとき
-				if (MY_CHECK_RECT_COLL(player, mapColl[floor][tate][yoko]) == TRUE)
+				//ステージ１だった場合
+				if (st_check == 1)
 				{
-					if (fl_check == 0)
+					//プレイヤーとマップが当たっているとき
+					if (MY_CHECK_RECT_COLL(player, mapColl[floor][tate][yoko]) == TRUE)
 					{
 						//通路の時
 						if (map[fl_check][tate][yoko].kind == t) { return TRUE_t; }
@@ -2951,67 +3726,72 @@ int MY_CHECK_MAP1_PLAYER_COLL(RECT player)
 						//ワープ入口２の時
 						if (map[fl_check][tate][yoko].kind == w2) { return TRUE_w2; }
 					}
-					else if (fl_check == 1)
+				}
+				//ステージ２だった場合
+				else if (st_check == 2)
+				{
+					//プレイヤーとマップが当たっているとき
+					if (MY_CHECK_RECT_COLL(player, mapCollSecond[floor][tate][yoko]) == TRUE)
 					{
 						//通路の時
-						if (map[fl_check][tate][yoko].kind == t) { return TRUE_t; }
+						if (map2[fl_check][tate][yoko].kind == t) { return TRUE_t; }
 
 						//壁の時
-						if (map[fl_check][tate][yoko].kind == k) { return TRUE_k; }
+						if (map2[fl_check][tate][yoko].kind == k) { return TRUE_k; }
 
 						//ギミック1の時
-						if (map[fl_check][tate][yoko].kind == m1) { return TRUE_m1; }
+						if (map2[fl_check][tate][yoko].kind == m1) { return TRUE_m1; }
 
 						//ギミック2の時
-						if (map[fl_check][tate][yoko].kind == m2) { return TRUE_m2; }
+						if (map2[fl_check][tate][yoko].kind == m2) { return TRUE_m2; }
 
 						//ギミック3の時
-						if (map[fl_check][tate][yoko].kind == m3) { return TRUE_m3; }
+						if (map2[fl_check][tate][yoko].kind == m3) { return TRUE_m3; }
 
 						//ギミック4の時
-						if (map[fl_check][tate][yoko].kind == m4) { return TRUE_m4; }
+						if (map2[fl_check][tate][yoko].kind == m4) { return TRUE_m4; }
 
 						//スイッチ1の時
-						if (map[fl_check][tate][yoko].kind == s1) { return TRUE_s1; }
+						if (map2[fl_check][tate][yoko].kind == s1) { return TRUE_s1; }
 
 						//スイッチ2の時
-						if (map[fl_check][tate][yoko].kind == s2) { return TRUE_s2; }
+						if (map2[fl_check][tate][yoko].kind == s2) { return TRUE_s2; }
 
 						//スイッチ3の時
-						if (map[fl_check][tate][yoko].kind == s3) { return TRUE_s3; }
+						if (map2[fl_check][tate][yoko].kind == s3) { return TRUE_s3; }
 
 						//スイッチ4の時
-						if (map[fl_check][tate][yoko].kind == s4) { return TRUE_s4; }
+						if (map2[fl_check][tate][yoko].kind == s4) { return TRUE_s4; }
 
 						//鍵の時
-						if (map[fl_check][tate][yoko].kind == ki) { return TRUE_ki; }
+						if (map2[fl_check][tate][yoko].kind == ki) { return TRUE_ki; }
 
 						//鍵扉の時
-						if (map[fl_check][tate][yoko].kind == kl) { return TRUE_kl; }
+						if (map2[fl_check][tate][yoko].kind == kl) { return TRUE_kl; }
 
 						//剣の時
-						if (map[fl_check][tate][yoko].kind == br) { return TRUE_br; }
+						if (map2[fl_check][tate][yoko].kind == br) { return TRUE_br; }
 
 						//槍の時
-						if (map[fl_check][tate][yoko].kind == sp) { return TRUE_sp; }
+						if (map2[fl_check][tate][yoko].kind == sp) { return TRUE_sp; }
 
 						//杖の時
-						if (map[fl_check][tate][yoko].kind == ca) { return TRUE_ca; }
+						if (map2[fl_check][tate][yoko].kind == ca) { return TRUE_ca; }
 
 						//プレイヤーA用のゴールの時
-						if (map[fl_check][tate][yoko].kind == ag) { return TRUE_ag; }
+						if (map2[fl_check][tate][yoko].kind == ag) { return TRUE_ag; }
 
 						//プレイヤーB用のゴールの時
-						if (map[fl_check][tate][yoko].kind == bg) { return TRUE_bg; }
+						if (map2[fl_check][tate][yoko].kind == bg) { return TRUE_bg; }
 
 						//階段の時
-						if (map[fl_check][tate][yoko].kind == st) { return TRUE_st; }
+						if (map2[fl_check][tate][yoko].kind == st) { return TRUE_st; }
 
 						//ワープ入口１の時
-						if (map[fl_check][tate][yoko].kind == w1) { return TRUE_w1; }
+						if (map2[fl_check][tate][yoko].kind == w1) { return TRUE_w1; }
 
 						//ワープ入口２の時
-						if (map[fl_check][tate][yoko].kind == w2) { return TRUE_w2; }
+						if (map2[fl_check][tate][yoko].kind == w2) { return TRUE_w2; }
 					}
 				}
 			}
