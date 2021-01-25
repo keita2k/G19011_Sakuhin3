@@ -1,7 +1,6 @@
 //########## ヘッダーファイル読み込み ##########
 #include "DxLib.h"
 #include "stdlib.h"
-
 //########## マクロ定義 ##########
 #define GAME_WIDTH			928	//画面の横の大きさ
 #define GAME_HEIGHT			800	//画面の縦の大きさ
@@ -38,6 +37,7 @@
 #define IMAGE_TITLE_BK_PATH			TEXT(".\\IMAGE\\titleBK.png")		//タイトル背景の画像
 #define IMAGE_TITLE_ROGO_PATH		TEXT(".\\IMAGE\\title_rogo.png")	//タイトルロゴの画像
 #define IMAGE_TITLE_START_PATH		TEXT(".\\IMAGE\\title_button.png")	//タイトルスタートの画像
+#define IMAGE_END_DEATH_PATH        TEXT(".\\IMAGE\\end_death.png")
 
 //マップの情報
 #define GAME_FLOOR_MAX      2   //フロアの数
@@ -58,6 +58,12 @@
 #define START_ERR_CAPTION_E1	TEXT("敵1のスタート位置が決まっていません")
 #define START_ERR_CAPTION_E2	TEXT("敵2のスタート位置が決まっていません")
 #define START_ERR_CAPTION_E3	TEXT("敵2のスタート位置が決まっていません")
+#define START_ERR_CAPTION_W1_1  TEXT("ステージ1のワープ1の位置が決まっていません")
+#define START_ERR_CAPTION_W2_1  TEXT("ステージ1のワープ2の位置が決まっていません")
+#define START_ERR_CAPTION_W1_2  TEXT("ステージ2のワープ1の位置が決まっていません")
+#define START_ERR_CAPTION_W2_2  TEXT("ステージ2のワープ2の位置が決まっていません")
+#define START_ERR_CAPTION_W1_3  TEXT("ステージ3のワープ1の位置が決まっていません")
+#define START_ERR_CAPTION_W2_3  TEXT("ステージ3のワープ2の位置が決まっていません")
 
 
 #define GOAL_ERR_TITLE      TEXT("ゴール位置エラー")
@@ -75,7 +81,7 @@
 #define IMAGE_END_COMP_PATH        TEXT(".\\IMAGE\\mission_complete.png") //エンドコンプロゴ画像
 #define IMAGE_TITLE_END_PATH		TEXT(".\\IMAGE\\end_button.png")	//エンドボタンの画像
 #define IMAGE_END_COMP_CNT         1       //点滅カウンタ
-#define IMAGE_END_COMP_CNT_MAX     40      //点滅カウンタMAX(点滅の速さ)
+#define IMAGE_END_COMP_CNT_MAX     100      //点滅カウンタMAX(点滅の速さ)
 
 //キャラ画像動作用
 #define IMAGE_DIV_WIDTH    32
@@ -100,7 +106,7 @@
 #define MUSIC_SE_WEAPON_PATH        TEXT(".\\MUSIC\\WeaponGet.mp3")                 //武器入手音
 
 //BGM音量
-#define MUSIC_VOLUME             0   //BGMの音量（0~100）
+#define MUSIC_VOLUME             50   //BGMの音量（0~100）
 //閉じるボタンを押したとき
 #define MSG_CLOSE_TITLE			TEXT("終了メッセージ")
 #define MSG_CLOSE_CAPTION		TEXT("ゲームを終了しますか？")
@@ -147,7 +153,7 @@ int br_check = 0;
 int sp_check = 0;
 int ca_check = 0;
 
-//今どのステージにいるかの識別（2:ステージ2 1:ステージ1 3:ステージ3）
+//今どのステージにいるかの識別（3:ステージ3  2:ステージ2  1:ステージ1）
 int st_check = 1;
 
 //今どの階層にいるかの識別（1:別階層 0:初期階層）
@@ -164,6 +170,9 @@ int enemy3_live = 1;
 
 //敵の行動用ランダム数
 int enemy_rand = 0;
+
+//フェード用変数
+int c = 0;
 
 enum GAME_MAP_KIND
 {
@@ -285,6 +294,8 @@ IMAGE       ImageTitleBK;               //タイトル背景の画像
 IMAGE_ROTA  ImageTitleROGO;             //タイトルロゴの画像
 IMAGE_BLINK ImageTitleSTART;            //タイトルスタートの画像
 
+IMAGE       ImageEndDeath;             //ゲームオーバー画面の画像
+
 IMAGE_BLINK ImageEndCOMP;              //エンドコンプの画像
 IMAGE_BLINK ImageTitleEND;             //エンドボタンの画像
 
@@ -327,7 +338,7 @@ GAME_MAP_KIND mapDatafirst[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 		k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k , //14
 		k ,t ,k ,k ,k ,k ,k ,t ,k ,t ,t ,t ,k ,t ,k ,t ,k ,t ,t ,t ,k ,t ,k ,k ,k ,k ,k ,t ,k , //15
 		k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,k ,k ,t ,k ,t ,k ,k ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k , //16
-		k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,ca,k ,br,t ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //17
+		k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,k ,sp,ca,k ,br,t ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //17
 		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //18
 		k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //19
 		k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k , //20
@@ -339,13 +350,13 @@ GAME_MAP_KIND mapDatafirst[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 	{
 	//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7, 8
 		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //0
-		k ,st,t ,s4,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,st,k , //1
+		k ,st,t ,s4,t ,t ,t ,t ,t ,t ,t ,t ,t ,w2,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,st,k , //1
 		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k , //2
 		k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,s3,k , //3
 		k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k , //4
 		k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k , //5
 		k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k ,t ,k , //6
-		k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k , //7
+		k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,w1,k , //7
 		k ,t ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k , //8
 		k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k , //9
 		k ,t ,k ,t ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k , //10
@@ -394,7 +405,7 @@ GAME_MAP_KIND mapDatasecond[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX
 			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //17
 			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //18
 			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //19
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //20
+			k ,t ,t ,w1,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,w2,t ,t ,t ,k , //20
 			k ,st,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,st,k , //21
 			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //22
 			k ,as,t ,ag,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,bg,t ,bs,k , //23
@@ -451,7 +462,7 @@ GAME_MAP_KIND mapDatathird[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //10
 			k ,t ,t ,t ,t ,t ,t ,t ,ag,t ,t ,t ,t ,as,bs,t ,t ,t ,t ,bg,t ,t ,t ,t ,t ,t ,t ,t ,k , //11
 			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //12
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //13
+			k ,t ,t ,t ,t ,t ,t ,t ,w1,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,w2,t ,t ,t ,t ,t ,t ,t ,t ,k , //13
 			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //14
 			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //15
 			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //16
@@ -712,7 +723,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					enemy_2.floor2 = floor;
 				}
 
-				//敵2の第２スタート位置を探す
+				//敵2の第3スタート位置を探す
 				if (mapDatathird[floor][tate][yoko] == e2)
 				{
 					//敵2のスタート位置を計算
@@ -766,7 +777,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					GoalRect_B.bottom = mapChip.height * (tate + 1);
 				}
 
-				//ワープ１の位置を探す
+				//ステージ１のワープ１の位置を探す
 				if (mapDatafirst[floor][tate][yoko] == w1)
 				{
 					//ワープ１の位置を計算
@@ -774,7 +785,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					w1_where.x = mapChip.width * yoko;	//X座標を取得
 				}
 
-				//ワープ２の位置を探す
+				//ステージ２のワープ１の位置を探す
+				if (mapDatasecond[floor][tate][yoko] == w1)
+				{
+					//ワープ１の位置を計算
+					w1_where.y2 = mapChip.height * tate; //Y座標を取得
+					w1_where.x2 = mapChip.width * yoko;	 //X座標を取得
+				}
+
+				//ステージ３のワープ１の位置を探す
+				if (mapDatathird[floor][tate][yoko] == w1)
+				{
+					//ワープ１の位置を計算
+					w1_where.y3 = mapChip.height * tate; //Y座標を取得
+					w1_where.x3 = mapChip.width * yoko;	 //X座標を取得
+				}
+
+				//ステージ１のワープ２の位置を探す
 				if (mapDatafirst[floor][tate][yoko] == w2)
 				{
 					//ワープ２の位置を計算
@@ -782,6 +809,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					w2_where.x = mapChip.width * yoko;	//X座標を取得
 				}
 
+				//ステージ２ワープ２の位置を探す
+				if (mapDatasecond[floor][tate][yoko] == w2)
+				{
+					//ワープ２の位置を計算
+					w2_where.y2 = mapChip.height * tate; //Y座標を取得
+					w2_where.x2 = mapChip.width * yoko;	 //X座標を取得
+				}
+
+				//ステージ３ワープ２の位置を探す
+				if (mapDatathird[floor][tate][yoko] == w2)
+				{
+					//ワープ２の位置を計算
+					w2_where.y3 = mapChip.height * tate; //Y座標を取得
+					w2_where.x3 = mapChip.width * yoko;	 //X座標を取得
+				}
 			}
 
 			//スタートが決まっていれば、ループ終了
@@ -803,7 +845,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 				startEPt_3.x != 0 && startEPt_3.y != 0 &&
 				startEPt_3.x2 != 0 && startEPt_3.y2 != 0 &&
-				startEPt_3.x3 != 0 && startEPt_3.y3 != 0)
+				startEPt_3.x3 != 0 && startEPt_3.y3 != 0 &&
+				
+				w1_where.x != 0 && w1_where.y != 0 &&
+				w1_where.x2 != 0 && w1_where.y2 != 0 &&
+				w1_where.x3 != 0 && w1_where.y3 != 0 &&
+				
+				w2_where.x != 0 && w2_where.y != 0 &&
+				w2_where.x2 != 0 && w2_where.y2 != 0 &&
+				w2_where.x3 != 0 && w2_where.y3 != 0)
 			{
 				break;
 			}
@@ -842,6 +892,48 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 		//エラーメッセージ表示
 		MessageBox(GetMainWindowHandle(), START_ERR_CAPTION_E3, START_ERR_TITLE, MB_OK);	return -1;
+	}
+
+	//ステージ１のワープ1の位置が決まっていなければ
+	if (w1_where.x == 0 || w1_where.y == 0)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), START_ERR_CAPTION_W1_1, START_ERR_TITLE, MB_OK);	return -1;
+	}
+
+	//ステージ２のワープ1の位置が決まっていなければ
+	if (w1_where.x2 == 0 || w1_where.y2 == 0)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), START_ERR_CAPTION_W1_2, START_ERR_TITLE, MB_OK);	return -1;
+	}
+
+	//ステージ３のワープ1の位置が決まっていなければ
+	if (w1_where.x3 == 0 || w1_where.y3 == 0)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), START_ERR_CAPTION_W1_3, START_ERR_TITLE, MB_OK);	return -1;
+	}
+
+	//ステージ１のワープ2の位置が決まっていなければ
+	if (w2_where.x == 0 || w2_where.y == 0)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), START_ERR_CAPTION_W2_1, START_ERR_TITLE, MB_OK);	return -1;
+	}
+
+	//ステージ２のワープ2の位置が決まっていなければ
+	if (w2_where.x2 == 0 || w2_where.y2 == 0)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), START_ERR_CAPTION_W2_2, START_ERR_TITLE, MB_OK);	return -1;
+	}
+
+	//ステージ３のワープ2の位置が決まっていなければ
+	if (w2_where.x3 == 0 || w2_where.y3 == 0)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), START_ERR_CAPTION_W2_3, START_ERR_TITLE, MB_OK);	return -1;
 	}
 
 	//Aのゴールが決まっていなければ
@@ -1849,9 +1941,24 @@ VOID MY_PLAY_PROC(VOID)
 		{
 			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 			{
+				if (st_check == 1)
+				{
 					move_floor = 0;
 					player_A.image.x = w2_where.x;
 					player_A.image.y = w2_where.y;
+				}
+				else if (st_check == 2)
+				{
+					move_floor = 0;
+					player_A.image.x = w2_where.x2;
+					player_A.image.y = w2_where.y2;
+				}
+				else if (st_check == 3)
+				{
+					move_floor = 0;
+					player_A.image.x = w2_where.x3;
+					player_A.image.y = w2_where.y3;
+				}
 			}
 		}
 	}
@@ -1863,9 +1970,24 @@ VOID MY_PLAY_PROC(VOID)
 		{
 			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 			{
+				if (st_check == 1)
+				{
 					move_floor = 0;
 					player_A.image.x = w1_where.x;
 					player_A.image.y = w1_where.y;
+				}
+				else if (st_check == 2)
+				{
+					move_floor = 0;
+					player_A.image.x = w1_where.x2;
+					player_A.image.y = w1_where.y2;
+				}
+				else if (st_check == 3)
+				{
+					move_floor = 0;
+					player_A.image.x = w1_where.x3;
+					player_A.image.y = w1_where.y3;
+				}
 			}
 		}
 	}
@@ -2493,9 +2615,24 @@ VOID MY_PLAY_PROC(VOID)
 		{
 			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 			{
-				move_floor = 0;
-				player_B.image.x = w2_where.x;
-				player_B.image.y = w2_where.y;
+				if (st_check == 1)
+				{
+					move_floor = 0;
+					player_B.image.x = w2_where.x;
+					player_B.image.y = w2_where.y;
+				}
+				else if (st_check == 2)
+				{
+					move_floor = 0;
+					player_B.image.x = w2_where.x2;
+					player_B.image.y = w2_where.y2;
+				}
+				else if (st_check == 3)
+				{
+					move_floor = 0;
+					player_B.image.x = w2_where.x3;
+					player_B.image.y = w2_where.y3;
+				}
 			}
 		}
 	}
@@ -2507,9 +2644,24 @@ VOID MY_PLAY_PROC(VOID)
 		{
 			for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 			{
-				move_floor = 0;
-				player_B.image.x = w1_where.x;
-				player_B.image.y = w1_where.y;
+				if (st_check == 1)
+				{
+					move_floor = 0;
+					player_B.image.x = w1_where.x;
+					player_B.image.y = w1_where.y;
+				}
+				else if (st_check == 2)
+				{
+					move_floor = 0;
+					player_B.image.x = w1_where.x2;
+					player_B.image.y = w1_where.y2;
+				}
+				else if (st_check == 3)
+				{
+					move_floor = 0;
+					player_B.image.x = w1_where.x3;
+					player_B.image.y = w1_where.y3;
+				}
 			}
 		}
 	}
@@ -2809,36 +2961,34 @@ VOID MY_PLAY_PROC(VOID)
 
 
 	//プレイヤーAとBがフロアを移動したら
-	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_t || MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_t)
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_t && MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_t)
 	{
 		move_floor = 1;
 	}
 
 	//プレイヤーAとBが階段に当たっていたら
-		if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_st) {
-			if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_st) {
-				for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+		if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_st && MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_st) {
+			for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+			{
+				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
-					for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+					if (move_floor == 1)
 					{
-						if (move_floor == 1)
+						if (fl_check == 0)
 						{
-							if (fl_check == 0)
-							{
-								move_floor = 0;
-								fl_check = 1;
-							}
-							else if (fl_check == 1)
-							{
-								move_floor = 0;
-								fl_check = 0;
-							}
+							move_floor = 0;
+							fl_check = 1;
+						}
+						else if (fl_check == 1)
+						{
+							move_floor = 0;
+							fl_check = 0;
 						}
 					}
 				}
-
-					return;
 			}
+
+			return;
 		}
 
 	//プレイヤーAとBがゴールに当たっていたら
@@ -3808,17 +3958,33 @@ VOID MY_OVER_PROC(VOID)
 //ゲームオーバー画面の描画
 VOID MY_OVER_DRAW(VOID)
 {
-	//DrawGraph(ImageTitleBK.x, ImageTitleBK.y, ImageTitleBK.handle, TRUE);	//ゲームオーバー背景の描画
+		ClearDrawScreen();                   // 裏画面のデータを全て削除
 
-	//点滅
-	if (ImageEndCOMP.IsDraw == TRUE)
-	{
+		if (c >= 0 && c < 512)                    //cが0~256の時
+			SetDrawBright(c/2, c/2, c/2);        //段々あかるく(c= 0->255)
+		if (c >= 512 && c < 600)                  //cが256~400の時
+			SetDrawBright(255, 255, 255);  //通常の明るさ
+
+		//ゲームオーバー背景の描画
+		DrawGraph(ImageEndDeath.x, ImageEndDeath.y, ImageEndDeath.handle, TRUE);
+
 		//コンプリートロゴの描画
 		DrawGraph(ImageEndCOMP.image.x, ImageEndCOMP.image.y, ImageEndCOMP.image.handle, TRUE);
 
-		//エンドタイトルの描画
-		DrawGraph(ImageTitleEND.image.x, ImageTitleEND.image.y, ImageTitleEND.image.handle, TRUE);
-	}
+		if (c <= 600)
+		{
+			c++;                                  //cをカウントアップ
+		}
+
+		if (c >= 512)
+		{
+			//点滅
+			if (ImageEndCOMP.IsDraw == TRUE)
+			{
+				//エンドタイトルの描画
+				DrawGraph(ImageTitleEND.image.x, ImageTitleEND.image.y, ImageTitleEND.image.handle, TRUE);
+			}
+		}
 
 	return;
 }
@@ -4001,6 +4167,19 @@ BOOL MY_LOAD_IMAGE(VOID)
 	ImageTitleSTART.Cnt = 0.0;								//カウンタ
 	ImageTitleSTART.CntMAX = IMAGE_TITLE_START_CNT_MAX;		//カウンタMAX
 	ImageTitleSTART.IsDraw = FALSE;							//描画させない
+
+	//エンドデス背景
+	strcpy_s(ImageEndDeath.path, IMAGE_END_DEATH_PATH);			//パスの設定
+	ImageEndDeath.handle = LoadGraph(ImageEndDeath.path);			//読み込み
+	if (ImageEndDeath.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), IMAGE_END_DEATH_PATH, IMAGE_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+	GetGraphSize(ImageEndDeath.handle, &ImageEndDeath.width, &ImageEndDeath.height);	//画像の幅と高さを取得
+	ImageEndDeath.x = GAME_WIDTH / 2 - ImageEndDeath.width / 2;		//左右中央揃え
+	ImageEndDeath.y = GAME_HEIGHT / 2 - ImageEndDeath.height / 2;		//上下中央揃え
 
 	//エンドコンプ
 	strcpy_s(ImageEndCOMP.image.path, IMAGE_END_COMP_PATH);
@@ -4387,72 +4566,72 @@ int MY_CHECK_MAP1_PLAYER_COLL(RECT player)
 						//ワープ入口２の時
 						if (map2[fl_check][tate][yoko].kind == w2) { return TRUE_w2; }
 					}
-					//ステージ３だった場合
-					else if (st_check == 3)
+				}
+				//ステージ３だった場合
+				else if (st_check == 3)
+				{
+					//プレイヤーとマップが当たっているとき
+					if (MY_CHECK_RECT_COLL(player, mapCollThird[floor][tate][yoko]) == TRUE)
 					{
-						//プレイヤーとマップが当たっているとき
-						if (MY_CHECK_RECT_COLL(player, mapCollThird[floor][tate][yoko]) == TRUE)
-						{
-							//通路の時
-							if (map3[fl_check][tate][yoko].kind == t) { return TRUE_t; }
+						//通路の時
+						if (map3[fl_check][tate][yoko].kind == t) { return TRUE_t; }
 
-							//壁の時
-							if (map3[fl_check][tate][yoko].kind == k) { return TRUE_k; }
+						//壁の時
+						if (map3[fl_check][tate][yoko].kind == k) { return TRUE_k; }
 
-							//ギミック1の時
-							if (map3[fl_check][tate][yoko].kind == m1) { return TRUE_m1; }
+						//ギミック1の時
+						if (map3[fl_check][tate][yoko].kind == m1) { return TRUE_m1; }
 
-							//ギミック2の時
-							if (map3[fl_check][tate][yoko].kind == m2) { return TRUE_m2; }
+						//ギミック2の時
+						if (map3[fl_check][tate][yoko].kind == m2) { return TRUE_m2; }
 
-							//ギミック3の時
-							if (map3[fl_check][tate][yoko].kind == m3) { return TRUE_m3; }
+						//ギミック3の時
+						if (map3[fl_check][tate][yoko].kind == m3) { return TRUE_m3; }
 
-							//ギミック4の時
-							if (map3[fl_check][tate][yoko].kind == m4) { return TRUE_m4; }
+						//ギミック4の時
+						if (map3[fl_check][tate][yoko].kind == m4) { return TRUE_m4; }
 
-							//スイッチ1の時
-							if (map3[fl_check][tate][yoko].kind == s1) { return TRUE_s1; }
+						//スイッチ1の時
+						if (map3[fl_check][tate][yoko].kind == s1) { return TRUE_s1; }
 
-							//スイッチ2の時
-							if (map3[fl_check][tate][yoko].kind == s2) { return TRUE_s2; }
+						//スイッチ2の時
+						if (map3[fl_check][tate][yoko].kind == s2) { return TRUE_s2; }
 
-							//スイッチ3の時
-							if (map3[fl_check][tate][yoko].kind == s3) { return TRUE_s3; }
+						//スイッチ3の時
+						if (map3[fl_check][tate][yoko].kind == s3) { return TRUE_s3; }
 
-							//スイッチ4の時
-							if (map3[fl_check][tate][yoko].kind == s4) { return TRUE_s4; }
+						//スイッチ4の時
+						if (map3[fl_check][tate][yoko].kind == s4) { return TRUE_s4; }
 
-							//鍵の時
-							if (map3[fl_check][tate][yoko].kind == ki) { return TRUE_ki; }
+						//鍵の時
+						if (map3[fl_check][tate][yoko].kind == ki) { return TRUE_ki; }
 
-							//鍵扉の時
-							if (map3[fl_check][tate][yoko].kind == kl) { return TRUE_kl; }
+						//鍵扉の時
+						if (map3[fl_check][tate][yoko].kind == kl) { return TRUE_kl; }
 
-							//剣の時
-							if (map3[fl_check][tate][yoko].kind == br) { return TRUE_br; }
+						//剣の時
+						if (map3[fl_check][tate][yoko].kind == br) { return TRUE_br; }
 
-							//槍の時
-							if (map3[fl_check][tate][yoko].kind == sp) { return TRUE_sp; }
+						//槍の時
+						if (map3[fl_check][tate][yoko].kind == sp) { return TRUE_sp; }
 
-							//杖の時
-							if (map3[fl_check][tate][yoko].kind == ca) { return TRUE_ca; }
+						//杖の時
+						if (map3[fl_check][tate][yoko].kind == ca) { return TRUE_ca; }
 
-							//プレイヤーA用のゴールの時
-							if (map3[fl_check][tate][yoko].kind == ag) { return TRUE_ag; }
+						//プレイヤーA用のゴールの時
+						if (map3[fl_check][tate][yoko].kind == ag) { return TRUE_ag; }
 
-							//プレイヤーB用のゴールの時
-							if (map3[fl_check][tate][yoko].kind == bg) { return TRUE_bg; }
+						//プレイヤーB用のゴールの時
+						if (map3[fl_check][tate][yoko].kind == bg) { return TRUE_bg; }
 
-							//階段の時
-							if (map3[fl_check][tate][yoko].kind == st) { return TRUE_st; }
+						//階段の時
+						if (map3[fl_check][tate][yoko].kind == st) { return TRUE_st; }
 
-							//ワープ入口１の時
-							if (map3[fl_check][tate][yoko].kind == w1) { return TRUE_w1; }
+						//ワープ入口１の時
+						if (map3[fl_check][tate][yoko].kind == w1) { return TRUE_w1; }
 
-							//ワープ入口２の時
-							if (map3[fl_check][tate][yoko].kind == w2) { return TRUE_w2; }
-						}
+						//ワープ入口２の時
+						if (map3[fl_check][tate][yoko].kind == w2) { return TRUE_w2; }
 					}
 				}
 			}
