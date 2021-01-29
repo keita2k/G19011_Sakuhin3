@@ -105,6 +105,17 @@
 #define MUSIC_SE_KEY_PATH           TEXT(".\\MUSIC\\KeyGet.mp3")                    //鍵入手音
 #define MUSIC_SE_WEAPON_PATH        TEXT(".\\MUSIC\\WeaponGet.mp3")                 //武器入手音
 
+//フォントのパスの長さ
+#define FONT_PATH_MAX			255	//255文字まで
+
+//フォント
+#define FONT_Pixel_PATH			TEXT(".\\FONT\\PixelMplus12-Bold.ttf")	//フォントの場所
+#define FONT_Pixel_NAME			TEXT("PixelMplus12")			//フォントの名前
+
+//エラーメッセージ
+#define FONT_INSTALL_ERR_TITLE	TEXT("フォントインストールエラー")
+#define FONT_CREATE_ERR_TITLE	TEXT("フォント作成エラー")
+
 //BGM音量
 #define MUSIC_VOLUME             50   //BGMの音量（0~100）
 //閉じるボタンを押したとき
@@ -138,6 +149,9 @@
 #define TRUE_e1    22
 #define TRUE_e2    23
 #define TRUE_e3    24
+#define TRUE_k1    25
+#define TRUE_k2    26
+#define TRUE_k3    27
 
 //スイッチが押されたかどうかの識別（1:押された　0:押されてない）
 int s1_check = 0;  //スイッチ1用
@@ -201,7 +215,11 @@ enum GAME_MAP_KIND
 	w2 = 25, //ワープ入口２
 	e1 = 26, //敵１スタート
 	e2 = 27, //敵２スタート
-	e3 = 28  //敵３スタート
+	e3 = 28, //敵３スタート
+	k1 = 29, //エネミー壁１
+	k2 = 30, //エネミー壁２
+	k3 = 31  //エネミー壁３
+	
 };	//マップの種類
 
 enum GAME_SCENE {
@@ -223,6 +241,18 @@ typedef struct STRUCT_I_POINT
 	int x3 = 0; //第3座標を初期化
 	int y3 = 0; //第3座標を初期化
 }iPOINT;
+
+//フォント構造体
+typedef struct STRUCT_FONT
+{
+	char path[FONT_PATH_MAX];	//パス
+	char name[FONT_PATH_MAX];	//フォント名
+	int handle;					//ハンドル
+	int size;					//大きさ
+	int bold;					//太さ
+	int type;					//タイプ
+
+}FONT;
 
 typedef struct STRUCT_IMAGE
 {
@@ -299,6 +329,9 @@ IMAGE       ImageEndDeath;             //ゲームオーバー画面の画像
 IMAGE_BLINK ImageEndCOMP;              //エンドコンプの画像
 IMAGE_BLINK ImageTitleEND;             //エンドボタンの画像
 
+//フォント関連
+FONT FontPixel32;	//たぬき油性マジック：大きさ32　のフォント構造体
+
 //音楽関連
 MUSIC BGM;  //ゲームのBGM
 MUSIC BGM_TITLE;	//タイトルのBGM
@@ -322,7 +355,7 @@ GAME_MAP_KIND mapDatafirst[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 	{
 	//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7, 8
 		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //0
-		k ,st,k ,t ,t ,t ,k ,t ,t ,k ,t ,t ,k ,ag,k ,bg,k ,t ,t ,t ,k ,t ,k ,t ,k ,t ,t ,st,k , //1
+		k ,st,k ,t ,t ,t ,k ,t ,t ,k ,t ,k ,k ,ag,k ,bg,k ,k1,k2,k3,k ,t ,k ,t ,k ,t ,t ,st,k , //1
 		k ,t ,k ,t ,k ,t ,k ,t ,t ,k ,t ,k ,k ,t ,k ,t ,k ,k ,t ,t ,k ,t ,k ,t ,k ,t ,k ,k ,k , //2
 		k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,m3,t ,k ,t ,k ,t ,t ,t ,k , //3
 		k ,t ,k ,t ,t ,t ,t ,t ,k ,k ,t ,t ,m4,t ,k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,k ,t ,k ,k , //4
@@ -386,57 +419,57 @@ GAME_MAP_KIND mapDatasecond[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX
 	{
 		//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7, 8
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //0
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //1
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //2
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //3
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //4
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //5
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //6
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //7
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //8
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //9
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //10
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //11
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //12
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //13
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //14
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //15
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //16
+			k ,as,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k1,k2,k3,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //1
+			k ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //2
+			k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //3
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //4
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,m3,t ,t ,k , //5
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //6
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,st,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //7
+			k ,t ,t ,t ,w2,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //8
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //9
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //10
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,ag,k , //11
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //12
+			k ,bg,t ,m4,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //13
+			k ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //14
+			k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,st,t ,k ,t ,t ,k , //15
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,t ,t ,k , //16
 			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //17
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //18
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //19
-			k ,t ,t ,w1,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,w2,t ,t ,t ,k , //20
-			k ,st,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,st,k , //21
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //22
-			k ,as,t ,ag,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,bg,t ,bs,k , //23
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //18
+			k ,t ,t ,t ,t ,t ,t ,t ,s3,t ,t ,t ,w1,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //19
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //20
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //21
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //22
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,bs,k , //23
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k   //24
 	},
 	{
 		//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7, 8
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //0
-			k ,e1,e2,e3,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //1
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //2
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //3
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //4
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //5
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //6
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //7
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //8
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //9
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //10
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //11
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //12
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //13
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //14
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //15
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //16
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //17
-			k ,br,sp,ca,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //18
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //19
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //20
-			k ,st,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,st,k , //21
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //22
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //23
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,k , //1
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k , //2
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //3
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //4
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //5
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,e1,k , //6
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,st,m2,t ,t ,t ,t ,t ,t ,t ,t ,t ,e2,s3,k , //7
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,e3,k , //8
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //9
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //10
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //11
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k , //12
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,k , //13
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //14
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,st,t ,t ,t ,t ,k , //15
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k , //16
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k , //17
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k , //18
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k , //19
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k , //20
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,sp,k ,t ,k , //21
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,s4,k , //22
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,s2,br,k ,ca,k , //23
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k   //24
 	}
 };
@@ -588,10 +621,10 @@ VOID MY_DELETE_MUSIC(VOID);		//音楽をまとめて削除する関数
 int MY_CHECK_MAP1_PLAYER_COLL(RECT);   //マップとプレイヤーの当たり判定をする関数
 BOOL MY_CHECK_RECT_COLL(RECT, RECT);    //領域の当たり判定をする関数
 
-//BOOL MY_FONT_INSTALL_ONCE(VOID);
-//VOID MY_FONT_UNINSTALL_ONCE(VOID);
-//BOOL MY_FONT_CREATE(VOID);
-//VOID MY_FONT_DELETE(VOID);
+BOOL MY_FONT_INSTALL_ONCE(VOID);
+VOID MY_FONT_UNINSTALL_ONCE(VOID);
+BOOL MY_FONT_CREATE(VOID);
+VOID MY_FONT_DELETE(VOID);
 
 //########## プログラムで最初に実行される関数 ##########
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow){
@@ -606,10 +639,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	if (DxLib_Init() == -1) { return -1; }	//ＤＸライブラリ初期化処理
 
 	//フォントを一時的にインストール
-	//if (MY_FONT_INSTALL_ONCE() == FALSE) { return -1; }
+	if (MY_FONT_INSTALL_ONCE() == FALSE) { return -1; }
 
 	//フォントハンドルを作成
-	//if (MY_FONT_CREATE() == FALSE) { return -1; }
+	if (MY_FONT_CREATE() == FALSE) { return -1; }
 
 	//画像を読み込む
 	if (MY_LOAD_IMAGE() == FALSE) { return -1; }
@@ -1013,6 +1046,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//音楽ハンドルを破棄
 	MY_DELETE_MUSIC();
 
+	//フォントハンドルを破棄
+	MY_FONT_DELETE();
+
+	//一時的にインストールしたフォントをアンインストール
+	MY_FONT_UNINSTALL_ONCE();
+
 	DxLib_End();	//ＤＸライブラリ使用の終了処理
 
 	return 0;
@@ -1114,7 +1153,9 @@ VOID MY_START_DRAW(VOID)
 
 	//デバッグ判定がONならデバッグ用表示をする
 	if (DEBUG == "ON") {
-		DrawString(0, 0, "スタート画面(エンターキーを押して下さい)", GetColor(255, 255, 255));
+		//DrawString(0, 0, "スタート画面(エンターキーを押して下さい)", GetColor(255, 255, 255));
+		//フォントハンドルで文字を描画
+		DrawStringToHandle((GAME_WIDTH/2) - 64, 0, "Hello World", GetColor(255, 255, 255), FontPixel32.handle);
 	}
 
 	return;
@@ -1387,7 +1428,7 @@ VOID MY_PLAY_PROC(VOID)
 	if (CheckHitKey(KEY_INPUT_RIGHT)) { player_B.image.x += MAP_DIV_WIDTH; }
 
 	enemy_rand = rand() % 4 + 1;
-	if (enemy_1.floor == fl_check || enemy_1.floor2 == fl_check || enemy_1.floor3 == fl_check)
+	if ((enemy_1.floor == fl_check && st_check == 1) || (enemy_1.floor2 == fl_check && st_check == 2) || (enemy_1.floor3 == fl_check && st_check == 3))
 	{
 		//敵１のランダム動作設定
 		if (enemy_rand == 1) { enemy_1.image.y -= MAP_DIV_HEIGHT; }
@@ -1396,7 +1437,7 @@ VOID MY_PLAY_PROC(VOID)
 		if (enemy_rand == 4) { enemy_1.image.x += MAP_DIV_WIDTH; }
 	}
 
-	if (enemy_2.floor == fl_check || enemy_2.floor2 == fl_check || enemy_2.floor3 == fl_check)
+	if ((enemy_2.floor == fl_check && st_check == 1) || (enemy_2.floor2 == fl_check && st_check == 2) || (enemy_2.floor3 == fl_check && st_check == 3))
 	{
 		//敵2のランダム動作設定
 		if (enemy_rand == 1) { enemy_2.image.y -= MAP_DIV_HEIGHT; }
@@ -1405,7 +1446,7 @@ VOID MY_PLAY_PROC(VOID)
 		if (enemy_rand == 3) { enemy_2.image.x += MAP_DIV_WIDTH; }
 	}
 
-	if (enemy_3.floor == fl_check || enemy_3.floor2 == fl_check || enemy_3.floor3 == fl_check)
+	if ((enemy_3.floor == fl_check && st_check == 1) || (enemy_3.floor2 == fl_check && st_check == 2) || (enemy_3.floor3 == fl_check && st_check == 3))
 	{
 		//敵3のランダム動作設定
 		if (enemy_rand == 4) { enemy_3.image.y -= MAP_DIV_HEIGHT; }
@@ -2001,12 +2042,14 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
-					if (enemy_1.floor == fl_check || enemy_1.floor2 == fl_check || enemy_1.floor3 == fl_check)
+					if ((enemy_1.floor == fl_check && st_check == 1) || (enemy_1.floor2 == fl_check && st_check == 2) || (enemy_1.floor3 == fl_check && st_check == 3))
 					{
 						//剣を持っていて、敵１が生きていたら
 						if (br_check == 1 && enemy1_live == 1)
 						{
 							enemy1_live = 0;
+
+
 
 							//攻撃音が流れていないなら
 							if (CheckSoundMem(SE_ATACK.handle) == 0)
@@ -2046,7 +2089,7 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
-					if (enemy_2.floor == fl_check || enemy_2.floor2 == fl_check || enemy_2.floor3 == fl_check)
+					if ((enemy_2.floor == fl_check && st_check == 1) || (enemy_2.floor2 == fl_check && st_check == 2) || (enemy_2.floor3 == fl_check && st_check == 3))
 					{
 						//槍を持っていて、敵２が生きていたら
 						if (sp_check == 1 && enemy2_live == 1)
@@ -2092,7 +2135,7 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
-					if (enemy_3.floor == fl_check || enemy_3.floor2 == fl_check || enemy_3.floor3 == fl_check)
+					if ((enemy_3.floor == fl_check && st_check == 1) || (enemy_3.floor2 == fl_check && st_check == 2) || (enemy_3.floor3 == fl_check && st_check == 3))
 					{
 						//杖を持っていて、敵３が生きていたら
 						if (ca_check == 1 && enemy3_live == 1)
@@ -2675,7 +2718,7 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
-					if (enemy_1.floor == fl_check || enemy_1.floor2 == fl_check || enemy_1.floor3 == fl_check)
+					if ((enemy_1.floor == fl_check && st_check == 1) || (enemy_1.floor2 == fl_check && st_check == 2) || (enemy_1.floor3 == fl_check && st_check == 3))
 					{
 						//剣を持っていて、敵１が生きていたら
 						if (br_check == 1 && enemy1_live == 1)
@@ -2720,7 +2763,7 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
-					if (enemy_2.floor == fl_check || enemy_2.floor2 == fl_check || enemy_2.floor3 == fl_check)
+					if ((enemy_2.floor == fl_check && st_check == 1) || (enemy_2.floor2 == fl_check && st_check == 2) || (enemy_2.floor3 == fl_check && st_check == 3))
 					{
 						//槍を持っていて、敵２が生きていたら
 						if (sp_check == 1 && enemy2_live == 1)
@@ -2765,7 +2808,7 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
-					if (enemy_3.floor == fl_check || enemy_3.floor2 == fl_check || enemy_3.floor3 == fl_check)
+					if ((enemy_3.floor == fl_check && st_check == 1) || (enemy_3.floor2 == fl_check && st_check == 2) || (enemy_3.floor3 == fl_check && st_check == 3))
 					{
 						//杖を持っていて、敵３が生きていたら
 						if (ca_check == 1 && enemy3_live == 1)
@@ -2972,6 +3015,8 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
+					player_A.collBeforePt.x = player_A.image.x;
+					player_A.collBeforePt.y = player_A.image.y;
 					if (move_floor == 1)
 					{
 						if (fl_check == 0)
@@ -3929,8 +3974,8 @@ VOID MY_OVER_PROC(VOID)
 	if (CheckSoundMem(BGM_COMP.handle) == 0)
 	{
 		//BGMの音量を下げる
-		ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, BGM_COMP.handle); //MUSIC_VOLUMEで音量調節
-		PlaySoundMem(BGM_COMP.handle, DX_PLAYTYPE_LOOP);
+		//ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, BGM_COMP.handle); //MUSIC_VOLUMEで音量調節
+		//PlaySoundMem(BGM_COMP.handle, DX_PLAYTYPE_LOOP);
 	}
 
 	//コンプリートの点滅
@@ -3969,7 +4014,7 @@ VOID MY_OVER_DRAW(VOID)
 		DrawGraph(ImageEndDeath.x, ImageEndDeath.y, ImageEndDeath.handle, TRUE);
 
 		//コンプリートロゴの描画
-		DrawGraph(ImageEndCOMP.image.x, ImageEndCOMP.image.y, ImageEndCOMP.image.handle, TRUE);
+		//DrawGraph(ImageEndCOMP.image.x, ImageEndCOMP.image.y, ImageEndCOMP.image.handle, TRUE);
 
 		if (c <= 600)
 		{
@@ -4063,9 +4108,9 @@ VOID MY_END_DRAW(VOID)
 	}
 
 	//デバッグ判定がONならデバッグ用表示をする
-	/*if (DEBUG == "ON") {
+	if (DEBUG == "ON") {
 		DrawString(0, 0, "エンド画面(エスケープキーを押して下さい)", GetColor(255, 0, 255));
-	}*/
+	}
 	return;
 }
 
@@ -4419,6 +4464,60 @@ BOOL MY_LOAD_MUSIC(VOID)
 VOID MY_DELETE_MUSIC(VOID)
 {
 	DeleteSoundMem(BGM.handle);
+
+	return;
+}
+
+//フォントをこのソフト用に、一時的にインストール
+BOOL MY_FONT_INSTALL_ONCE(VOID)
+{
+	//フォントを一時的に読み込み(WinAPI)
+	if (AddFontResourceEx(FONT_Pixel_PATH, FR_PRIVATE, NULL) == 0)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), FONT_Pixel_NAME, FONT_INSTALL_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+//フォントをこのソフト用に、一時的にアンインストール
+VOID MY_FONT_UNINSTALL_ONCE(VOID)
+{
+	//一時的に読み込んだフォントを削除(WinAPI)
+	RemoveFontResourceEx(FONT_Pixel_PATH, FR_PRIVATE, NULL);
+
+	return;
+}
+
+BOOL MY_FONT_CREATE(VOID)
+{
+	//↓↓↓ピクセルフォントを作成↓↓↓
+
+	//フォントデータを作成
+	strcpy_s(FontPixel32.path, sizeof(FontPixel32.path), FONT_Pixel_PATH);	//パスをコピー
+	strcpy_s(FontPixel32.name, sizeof(FontPixel32.name), FONT_Pixel_NAME);	//フォント名をコピー
+	FontPixel32.handle = -1;								//ハンドルを初期化
+	FontPixel32.size = 128;								//サイズは32
+	FontPixel32.bold = 1;								//太さ1
+	FontPixel32.type = DX_FONTTYPE_ANTIALIASING_EDGE;	//アンチエイリアシング付きのフォント
+
+	//フォントハンドル作成
+	FontPixel32.handle = CreateFontToHandle(FontPixel32.name, FontPixel32.size, FontPixel32.bold, FontPixel32.type);
+	//フォントハンドル作成できないとき、エラー
+	if (FontPixel32.handle == -1) { MessageBox(GetMainWindowHandle(), FONT_Pixel_NAME, FONT_CREATE_ERR_TITLE, MB_OK); return FALSE; }
+
+	//↑↑↑ピクセルフォントを作成↑↑↑
+
+	return TRUE;
+}
+
+//フォントを削除する関数
+VOID MY_FONT_DELETE(VOID)
+{
+	//フォントデータを削除
+	DeleteFontToHandle(FontPixel32.handle);	//フォントのハンドルを削除
 
 	return;
 }
