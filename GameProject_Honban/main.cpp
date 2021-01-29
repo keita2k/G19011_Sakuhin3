@@ -1544,6 +1544,36 @@ VOID MY_PLAY_PROC(VOID)
 		IsMove_A = FALSE;
 	}
 
+	//プレイヤーAとエネミー壁１が当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_k1)
+	{
+		//プレイヤーAの座標を１つ前の座標に置き換える
+		player_A.image.x = player_A.collBeforePt.x;
+		player_A.image.y = player_A.collBeforePt.y;
+
+		IsMove_A = FALSE;
+	}
+
+	//プレイヤーAとエネミー壁２が当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_k2)
+	{
+		//プレイヤーAの座標を１つ前の座標に置き換える
+		player_A.image.x = player_A.collBeforePt.x;
+		player_A.image.y = player_A.collBeforePt.y;
+
+		IsMove_A = FALSE;
+	}
+
+	//プレイヤーAとエネミー壁３が当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_k3)
+	{
+		//プレイヤーAの座標を１つ前の座標に置き換える
+		player_A.image.x = player_A.collBeforePt.x;
+		player_A.image.y = player_A.collBeforePt.y;
+
+		IsMove_A = FALSE;
+	}
+
 	//プレイヤーAがスイッチ1に当たっていたら
 		if (MY_CHECK_MAP1_PLAYER_COLL(player_A.coll) == TRUE_s1)
 		{
@@ -2049,8 +2079,6 @@ VOID MY_PLAY_PROC(VOID)
 						{
 							enemy1_live = 0;
 
-
-
 							//攻撃音が流れていないなら
 							if (CheckSoundMem(SE_ATACK.handle) == 0)
 							{
@@ -2104,6 +2132,34 @@ VOID MY_PLAY_PROC(VOID)
 								PlaySoundMem(SE_ATACK.handle, DX_PLAYTYPE_BACK, TRUE);
 							}
 
+							//ステージ１だったら、
+							if (st_check == 1)
+							{
+								if (map[floor][tate][yoko].kind == k2)
+								{
+									//ステージ１のエネミー壁２を通路にして消す
+									map[floor][tate][yoko].kind = t;
+								}
+							}
+							//ステージ２だったら、
+							else if (st_check == 2)
+							{
+								if (map2[floor][tate][yoko].kind == k2)
+								{
+									//ステージ２のエネミー壁２を通路にして消す
+									map2[floor][tate][yoko].kind = t;
+								}
+							}
+							//ステージ３だったら、
+							else if (st_check == 3)
+							{
+								if (map3[floor][tate][yoko].kind == k2)
+								{
+									//ステージ３のエネミー壁２を通路にして消す
+									map3[floor][tate][yoko].kind = t;
+								}
+							}
+
 						}
 						//槍を持っていなかったら、
 						else if (sp_check == 0)
@@ -2148,6 +2204,34 @@ VOID MY_PLAY_PROC(VOID)
 								//攻撃音の音量を下げる
 								ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, SE_ATACK.handle); //MUSIC_VOLUMEで音量調節
 								PlaySoundMem(SE_ATACK.handle, DX_PLAYTYPE_BACK, TRUE);
+							}
+
+							//ステージ１だったら、
+							if (st_check == 1)
+							{
+								if (map[floor][tate][yoko].kind == k3)
+								{
+									//ステージ１のエネミー壁３を通路にして消す
+									map[floor][tate][yoko].kind = t;
+								}
+							}
+							//ステージ２だったら、
+							else if (st_check == 2)
+							{
+								if (map2[floor][tate][yoko].kind == k3)
+								{
+									//ステージ２のエネミー壁３を通路にして消す
+									map2[floor][tate][yoko].kind = t;
+								}
+							}
+							//ステージ３だったら、
+							else if (st_check == 3)
+							{
+								if (map3[floor][tate][yoko].kind == k3)
+								{
+									//ステージ３のエネミー壁３を通路にして消す
+									map3[floor][tate][yoko].kind = t;
+								}
 							}
 
 						}
@@ -2218,6 +2302,36 @@ VOID MY_PLAY_PROC(VOID)
 
 	//プレイヤーBとギミック4が当たっていたら
 	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_m4)
+	{
+		//プレイヤーAの座標を１つ前の座標に置き換える
+		player_B.image.x = player_B.collBeforePt.x;
+		player_B.image.y = player_B.collBeforePt.y;
+
+		IsMove_B = FALSE;
+	}
+
+	//プレイヤーBとエネミー壁１が当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_k1)
+	{
+		//プレイヤーAの座標を１つ前の座標に置き換える
+		player_B.image.x = player_B.collBeforePt.x;
+		player_B.image.y = player_B.collBeforePt.y;
+
+		IsMove_B = FALSE;
+	}
+
+	//プレイヤーBとエネミー壁２が当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_k2)
+	{
+		//プレイヤーAの座標を１つ前の座標に置き換える
+		player_B.image.x = player_B.collBeforePt.x;
+		player_B.image.y = player_B.collBeforePt.y;
+
+		IsMove_B = FALSE;
+	}
+
+	//プレイヤーBとエネミー壁３が当たっていたら
+	if (MY_CHECK_MAP1_PLAYER_COLL(player_B.coll) == TRUE_k3)
 	{
 		//プレイヤーAの座標を１つ前の座標に置き換える
 		player_B.image.x = player_B.collBeforePt.x;
@@ -3015,25 +3129,127 @@ VOID MY_PLAY_PROC(VOID)
 			{
 				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
 				{
-					player_A.collBeforePt.x = player_A.image.x;
-					player_A.collBeforePt.y = player_A.image.y;
 					if (move_floor == 1)
 					{
 						if (fl_check == 0)
 						{
-							move_floor = 0;
 							fl_check = 1;
+							move_floor = 0;
 						}
 						else if (fl_check == 1)
 						{
-							move_floor = 0;
 							fl_check = 0;
+							move_floor = 0;
 						}
 					}
 				}
 			}
 
 			return;
+		}
+
+		for (int floor = 0; floor <= GAME_FLOOR_MAX - 1; floor++)
+		{
+			for (int tate = 0; tate < GAME_MAP_TATE_MAX; tate++)
+			{
+				for (int yoko = 0; yoko < GAME_MAP_YOKO_MAX; yoko++)
+				{
+					//ステージ１だったら、
+					if (st_check == 1)
+					{
+						//敵１がいなかったら
+						if (enemy1_live == 0)
+						{
+							if (map[floor][tate][yoko].kind == k1)
+							{
+								//ステージ１のエネミー壁1を通路にして消す
+								map[floor][tate][yoko].kind = t;
+							}
+						}
+						//敵２がいなかったら
+						if (enemy2_live == 0)
+						{
+							if (map[floor][tate][yoko].kind == k2)
+							{
+								//ステージ１のエネミー壁２を通路にして消す
+								map[floor][tate][yoko].kind = t;
+							}
+						}
+						//敵3がいなかったら
+						if (enemy3_live == 0)
+						{
+							if (map[floor][tate][yoko].kind == k3)
+							{
+								//ステージ１のエネミー壁３を通路にして消す
+								map[floor][tate][yoko].kind = t;
+							}
+						}
+
+					}
+					//ステージ２だったら、
+					else if (st_check == 2)
+					{
+						//敵１がいなかったら
+						if (enemy1_live == 0)
+						{
+							if (map2[floor][tate][yoko].kind == k1)
+							{
+								//ステージ2のエネミー壁1を通路にして消す
+								map2[floor][tate][yoko].kind = t;
+							}
+						}
+						//敵２がいなかったら
+						if (enemy2_live == 0)
+						{
+							if (map2[floor][tate][yoko].kind == k2)
+							{
+								//ステージ2のエネミー壁２を通路にして消す
+								map2[floor][tate][yoko].kind = t;
+							}
+						}
+						//敵3がいなかったら
+						if (enemy3_live == 0)
+						{
+							if (map2[floor][tate][yoko].kind == k3)
+							{
+								//ステージ2のエネミー壁３を通路にして消す
+								map2[floor][tate][yoko].kind = t;
+							}
+						}
+					}
+					//ステージ３だったら、
+					else if (st_check == 3)
+					{
+						//敵１がいなかったら
+						if (enemy1_live == 0)
+						{
+							if (map3[floor][tate][yoko].kind == k1)
+							{
+								//ステージ3のエネミー壁1を通路にして消す
+								map3[floor][tate][yoko].kind = t;
+							}
+						}
+						//敵２がいなかったら
+						if (enemy2_live == 0)
+						{
+							if (map3[floor][tate][yoko].kind == k2)
+							{
+								//ステージ3のエネミー壁２を通路にして消す
+								map3[floor][tate][yoko].kind = t;
+							}
+						}
+						//敵3がいなかったら
+						if (enemy3_live == 0)
+						{
+							if (map3[floor][tate][yoko].kind == k3)
+							{
+								//ステージ3のエネミー壁３を通路にして消す
+								map3[floor][tate][yoko].kind = t;
+							}
+						}
+					}
+				}
+			}
 		}
 
 	//プレイヤーAとBがゴールに当たっていたら
@@ -4556,6 +4772,15 @@ int MY_CHECK_MAP1_PLAYER_COLL(RECT player)
 						//ギミック4の時
 						if (map[fl_check][tate][yoko].kind == m4) { return TRUE_m4; }
 
+						//エネミー壁1の時
+						if (map[fl_check][tate][yoko].kind == k1) { return TRUE_k1; }
+
+						//エネミー壁2の時
+						if (map[fl_check][tate][yoko].kind == k2) { return TRUE_k2; }
+
+						//エネミー壁3の時
+						if (map[fl_check][tate][yoko].kind == k3) { return TRUE_k3; }
+
 						//スイッチ1の時
 						if (map[fl_check][tate][yoko].kind == s1) { return TRUE_s1; }
 
@@ -4623,6 +4848,15 @@ int MY_CHECK_MAP1_PLAYER_COLL(RECT player)
 						//ギミック4の時
 						if (map2[fl_check][tate][yoko].kind == m4) { return TRUE_m4; }
 
+						//エネミー壁1の時
+						if (map2[fl_check][tate][yoko].kind == k1) { return TRUE_k1; }
+
+						//エネミー壁2の時
+						if (map2[fl_check][tate][yoko].kind == k2) { return TRUE_k2; }
+
+						//エネミー壁3の時
+						if (map2[fl_check][tate][yoko].kind == k3) { return TRUE_k3; }
+
 						//スイッチ1の時
 						if (map2[fl_check][tate][yoko].kind == s1) { return TRUE_s1; }
 
@@ -4689,6 +4923,15 @@ int MY_CHECK_MAP1_PLAYER_COLL(RECT player)
 
 						//ギミック4の時
 						if (map3[fl_check][tate][yoko].kind == m4) { return TRUE_m4; }
+
+						//エネミー壁1の時
+						if (map3[fl_check][tate][yoko].kind == k1) { return TRUE_k1; }
+
+						//エネミー壁2の時
+						if (map3[fl_check][tate][yoko].kind == k2) { return TRUE_k2; }
+
+						//エネミー壁3の時
+						if (map3[fl_check][tate][yoko].kind == k3) { return TRUE_k3; }
 
 						//スイッチ1の時
 						if (map3[fl_check][tate][yoko].kind == s1) { return TRUE_s1; }

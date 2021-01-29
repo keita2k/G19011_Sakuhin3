@@ -1,11 +1,11 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(467,5): warning MSB8028: 中間ディレクトリ (Release\) に別のプロジェクト (PracticeGameProject.vcxproj) と共有されているファイルが含まれています。これにより、クリーンしてリビルド動作が適切に行われない可能性があります。
   main.cpp
-C:\github\作品制作Ⅲ＿本番\GameProject_Honban\main.cpp(4212,24): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
-C:\github\作品制作Ⅲ＿本番\GameProject_Honban\main.cpp(4241,21): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
-C:\github\作品制作Ⅲ＿本番\GameProject_Honban\main.cpp(4257,22): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
+C:\github\作品制作Ⅲ＿本番\GameProject_Honban\main.cpp(4428,24): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
+C:\github\作品制作Ⅲ＿本番\GameProject_Honban\main.cpp(4457,21): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
+C:\github\作品制作Ⅲ＿本番\GameProject_Honban\main.cpp(4473,22): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
   コード生成しています。
-  3 of 48 functions ( 6.3%) were compiled, the rest were copied from previous compilation.
+  0 of 48 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    4 functions had inline decision re-evaluated but remain unchanged
+    0 functions had inline decision re-evaluated but remain unchanged
   コード生成が終了しました。
   kariPracticeProject.vcxproj -> C:\github\作品制作Ⅲ＿本番\GameProject_Honban\Release\G19011_Honban.exe
