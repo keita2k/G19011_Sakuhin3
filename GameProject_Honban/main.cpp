@@ -33,7 +33,7 @@
 #define IMAGE_player_B_PATH		    TEXT(".\\IMAGE\\player_B.png")	    //プレイヤーBの画像
 #define IMAGE_enemy_1_PATH		    TEXT(".\\IMAGE\\enemy1.png")	    //敵１の画像
 #define IMAGE_enemy_2_PATH		    TEXT(".\\IMAGE\\enemy2.png")	    //敵２の画像
-#define IMAGE_enemy_3_PATH		    TEXT(".\\IMAGE\\enemy3.png")	    //敵３の画像
+#define IMAGE_enemy_3_PATH		    TEXT(".\\IMAGE\\enemy3.png")	    //敵3の画像
 #define IMAGE_TITLE_BK_PATH			TEXT(".\\IMAGE\\titleBK.png")		//タイトル背景の画像
 #define IMAGE_TITLE_ROGO_PATH		TEXT(".\\IMAGE\\title_rogo.png")	//タイトルロゴの画像
 #define IMAGE_TITLE_START_PATH		TEXT(".\\IMAGE\\title_button.png")	//タイトルスタートの画像
@@ -57,7 +57,7 @@
 #define START_ERR_CAPTION_B     TEXT("Bのスタート位置が決まっていません")
 #define START_ERR_CAPTION_E1	TEXT("敵1のスタート位置が決まっていません")
 #define START_ERR_CAPTION_E2	TEXT("敵2のスタート位置が決まっていません")
-#define START_ERR_CAPTION_E3	TEXT("敵2のスタート位置が決まっていません")
+#define START_ERR_CAPTION_E3	TEXT("敵3のスタート位置が決まっていません")
 #define START_ERR_CAPTION_W1_1  TEXT("ステージ1のワープ1の位置が決まっていません")
 #define START_ERR_CAPTION_W2_1  TEXT("ステージ1のワープ2の位置が決まっていません")
 #define START_ERR_CAPTION_W1_2  TEXT("ステージ2のワープ1の位置が決まっていません")
@@ -71,7 +71,7 @@
 #define GOAL_ERR_CAPTION_B  TEXT("Bのゴール位置が決まっていません")
 
 //ロゴ画像動作用
-#define IMAGE_TITLE_ROGO_ROTA		0.03		//拡大率
+#define IMAGE_TITLE_ROGO_ROTA		0.1		    //拡大率
 #define IMAGE_TITLE_ROGO_ROTA_MAX	1.0			//拡大率MAX
 #define IMAGE_TITLE_ROGO_X_SPEED	3			//X移動速度
 #define IMAGE_TITLE_START_CNT		1			//点滅カウンタ
@@ -117,7 +117,7 @@
 #define FONT_CREATE_ERR_TITLE	TEXT("フォント作成エラー")
 
 //BGM音量
-#define MUSIC_VOLUME             50   //BGMの音量（0~100）
+#define MUSIC_VOLUME             0   //BGMの音量（0~100）
 //閉じるボタンを押したとき
 #define MSG_CLOSE_TITLE			TEXT("終了メッセージ")
 #define MSG_CLOSE_CAPTION		TEXT("ゲームを終了しますか？")
@@ -215,7 +215,7 @@ enum GAME_MAP_KIND
 	w2 = 25, //ワープ入口２
 	e1 = 26, //敵１スタート
 	e2 = 27, //敵２スタート
-	e3 = 28, //敵３スタート
+	e3 = 28, //敵3スタート
 	k1 = 29, //エネミー壁１
 	k2 = 30, //エネミー壁２
 	k3 = 31  //エネミー壁３
@@ -224,8 +224,11 @@ enum GAME_MAP_KIND
 
 enum GAME_SCENE {
 	GAME_SCENE_START,
+	GAME_INIT_PLAY,
 	GAME_SCENE_PLAY,
+	GAME_INIT_PLAY_SECOND,
 	GAME_SCENE_PLAY_SECOND,
+	GAME_INIT_PLAY_THIRD,
 	GAME_SCENE_PLAY_THIRD,
 	GAME_SCENE_OVER,
 	GAME_SCENE_END,
@@ -234,8 +237,8 @@ enum GAME_SCENE {
 //int型のPOINT構造体
 typedef struct STRUCT_I_POINT
 {
-	int x = 0;	//第１座標を初期化
-	int y = 0;	//第１座標を初期化
+	int x = 0;	//第1座標を初期化
+	int y = 0;	//第1座標を初期化
 	int x2 = 0; //第2座標を初期化
 	int y2 = 0; //第2座標を初期化
 	int x3 = 0; //第3座標を初期化
@@ -355,23 +358,23 @@ GAME_MAP_KIND mapDatafirst[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 	{
 	//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7, 8
 		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //0
-		k ,st,k ,t ,t ,t ,k ,t ,t ,k ,t ,k ,k ,ag,k ,bg,k ,k1,k2,k3,k ,t ,k ,t ,k ,t ,t ,st,k , //1
-		k ,t ,k ,t ,k ,t ,k ,t ,t ,k ,t ,k ,k ,t ,k ,t ,k ,k ,t ,t ,k ,t ,k ,t ,k ,t ,k ,k ,k , //2
-		k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,m3,t ,k ,t ,k ,t ,t ,t ,k , //3
-		k ,t ,k ,t ,t ,t ,t ,t ,k ,k ,t ,t ,m4,t ,k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,k ,t ,k ,k , //4
-		k ,k ,k ,k ,t ,k ,k ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k , //5
+		k ,st,k ,t ,t ,t ,k ,t ,t ,k ,t ,k ,k ,ag,k ,bg,k ,t ,t ,t ,k ,t ,k ,t ,k ,t ,t ,st,k , //1
+		k ,t ,k ,t ,k ,t ,k ,t ,t ,k ,t ,k ,k ,k2,k ,k3,k ,k ,t ,t ,k ,t ,k ,t ,k ,t ,k ,k ,k , //2
+		k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,k , //3
+		k ,t ,k ,t ,t ,t ,t ,t ,k ,k ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,k ,t ,k ,k , //4
+		k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k , //5
 		k ,t ,k ,t ,t ,t ,k ,t ,k ,k ,k ,k ,t ,t ,k ,t ,t ,k ,k ,k ,k ,t ,t ,t ,k ,t ,k ,t ,k , //6
-		k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k , //7
+		k ,t ,t ,t ,t ,t ,t ,t ,m4,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k , //7
 		k ,t ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k , //8
 		k ,t ,t ,k ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k , //9
-		k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,k ,t ,k , //10
+		k ,e2,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,sp,k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,k ,s4,k , //10
 		k ,k ,k ,k ,k ,k ,k ,m1,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,m2,k ,k ,k ,k ,k ,k ,k , //11
-		k ,e2,e3,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,e1,k , //12
+		k ,e1,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,br,k , //12
 		k ,k ,k ,k ,k ,t ,k ,s2,k ,t ,k ,t ,t ,t ,k ,t ,t ,t ,k ,t ,k ,s1,k ,t ,k ,k ,k ,k ,k , //13
 		k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k , //14
 		k ,t ,k ,k ,k ,k ,k ,t ,k ,t ,t ,t ,k ,t ,k ,t ,k ,t ,t ,t ,k ,t ,k ,k ,k ,k ,k ,t ,k , //15
 		k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,k ,k ,t ,k ,t ,k ,k ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k , //16
-		k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,k ,sp,ca,k ,br,t ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //17
+		k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,t ,k ,t ,t ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //17
 		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //18
 		k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //19
 		k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k , //20
@@ -383,29 +386,29 @@ GAME_MAP_KIND mapDatafirst[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 	{
 	//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7, 8
 		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //0
-		k ,st,t ,s4,t ,t ,t ,t ,t ,t ,t ,t ,t ,w2,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,st,k , //1
-		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k , //2
-		k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,s3,k , //3
-		k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k , //4
-		k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k , //5
-		k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k ,t ,k , //6
-		k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,w1,k , //7
-		k ,t ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k , //8
-		k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k , //9
-		k ,t ,k ,t ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k , //10
-		k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k , //11
-		k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k , //12
-		k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k , //13
-		k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k , //14
-		k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k , //15
-		k ,t ,k ,t ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k ,t ,k , //16
-		k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k , //17
-		k ,t ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k , //18
-		k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k , //19
-		k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k , //20
-		k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k , //21
-		k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k , //22
-		k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //23
+		k ,st,t ,s3,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,st,k , //1
+		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,ki,k ,t ,t ,t ,t ,t ,t ,k ,k ,k ,t ,k , //2
+		k ,w1,k ,t ,t ,t ,t ,t ,t ,t ,k ,ca,k ,t ,k ,t ,k ,k ,t ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k , //3
+		k ,t ,k ,k ,k ,t ,k ,k ,k ,k ,k ,kl,k ,t ,k ,t ,k ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k , //4
+		k ,t ,t ,t ,k ,t ,k ,t ,k ,w2,t ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k , //5
+		k ,k ,k ,t ,k ,t ,k ,t ,k ,k ,k ,k ,k ,t ,k ,t ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k , //6
+		k ,t ,k ,t ,t ,t ,t ,t ,k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,k ,t ,t ,k ,k ,t ,t ,t ,k ,t ,k , //7
+		k ,t ,k ,t ,k ,k ,k ,t ,k ,k ,t ,k ,k ,t ,k ,t ,t ,t ,k ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k , //8
+		k ,t ,k ,k ,k ,t ,k ,t ,t ,k ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,k ,t ,k ,t ,k , //9
+		k ,t ,k ,t ,t ,t ,k ,k ,t ,k ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k , //10
+		k ,t ,t ,t ,k ,t ,k ,k ,t ,t ,t ,t ,k ,t ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k , //11
+		k ,t ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k ,t ,k ,k ,t ,t ,e3,t ,t ,t ,t ,k ,t ,k , //12
+		k ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,m3,t ,k , //13
+		k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,k ,k , //14
+		k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,k ,t ,t ,k ,k ,t ,t ,k ,k ,k , //15
+		k ,t ,t ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,k ,t ,t ,t ,k ,t ,t ,k ,k ,k , //16
+		k ,t ,k ,t ,t ,t ,t ,t ,k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,k ,k , //17
+		k ,t ,k ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,k , //18
+		k ,t ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,t ,k ,k ,t ,t ,k ,t ,t ,t ,t ,k ,k ,k , //19
+		k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,t ,k ,t ,t ,t ,k ,k ,t ,t ,t ,k ,k ,k , //20
+		k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,k ,t ,t ,t ,t ,k ,k ,t ,t ,k ,k ,k , //21
+		k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k ,k ,k , //22
+		k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,k ,k ,t ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k , //23
 		k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k   //24
 	}
 };
@@ -419,57 +422,57 @@ GAME_MAP_KIND mapDatasecond[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX
 	{
 		//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7, 8
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //0
-			k ,as,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k1,k2,k3,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //1
-			k ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //2
-			k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //3
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //4
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,m3,t ,t ,k , //5
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //6
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,st,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //7
-			k ,t ,t ,t ,w2,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //8
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //9
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //10
+			k ,as,t ,t ,t ,t ,t ,k ,t ,s4,k ,t ,t ,t ,t ,t, k ,t ,t ,t ,t ,t ,t ,t ,e3,k ,w1,t ,k , //1
+			k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,k ,t ,k ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //2
+			k ,t ,t ,t ,t ,k ,t ,k ,t ,k ,k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //3
+			k ,t ,k ,k ,t ,k ,t ,k ,t ,k ,k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //4
+			k ,t ,k ,k ,t ,k ,t ,k ,t ,k ,k ,k ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //5
+			k ,t ,k ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //6
+			k ,t ,t ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,st,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //7
+			k ,t ,k ,k ,w2,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,kl,k ,k , //8
+			k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k1,k1,k1,k1,k1,k1,k1,k1,k ,k3,k ,k , //9
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,k , //10
 			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,ag,k , //11
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //12
-			k ,bg,t ,m4,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //13
-			k ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //14
-			k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,st,t ,k ,t ,t ,k , //15
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,t ,t ,k , //16
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //17
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //18
-			k ,t ,t ,t ,t ,t ,t ,t ,s3,t ,t ,t ,w1,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //19
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //20
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //21
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //22
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,bs,k , //23
+			k ,bg,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,k ,t ,t ,k , //13
+			k ,k2,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k ,t ,k ,t ,k ,k ,k ,t ,k ,t ,t ,k , //14
+			k ,e2,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,k ,k ,s1,k ,t ,t ,k ,t ,k ,st,t ,t ,k ,t ,t ,k , //15
+			k ,t ,t ,t ,t ,t ,k ,t ,k ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,t ,k ,k ,k ,k ,k ,t ,t ,k , //16
+			k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,k ,k ,t ,m3,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //17
+			k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,k ,k ,t ,k ,k ,k ,m4,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,k , //18
+			k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,k ,k ,t ,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //19
+			k ,t ,t ,t ,t ,t ,k ,t ,k ,k ,t ,k ,k ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k ,t ,t ,k , //20
+			k ,t ,t ,t ,t ,t ,k ,t ,t ,k ,t ,ca,k ,t ,k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,k ,t ,t ,k , //21
+			k ,k ,k ,m1,k ,k ,k ,k ,t ,k ,k ,k ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,t ,k , //22
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,ki,k ,sp,t ,t ,t ,k ,t ,bs,k , //23
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k   //24
 	},
 	{
 		//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7, 8
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //0
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,k , //1
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k , //2
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //3
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //1
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //2
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //3
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //4
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //5
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,e1,k , //6
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,st,m2,t ,t ,t ,t ,t ,t ,t ,t ,t ,e2,s3,k , //7
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,e3,k , //8
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //9
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //5
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //6
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,st,t ,m2,t ,t ,t ,t ,t ,t ,t ,t ,e1,s3,k , //7
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //8
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //9
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //10
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //11
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k , //12
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,k , //13
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //11
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //12
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //13
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //14
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,st,t ,t ,t ,t ,k , //15
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k , //16
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k , //17
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k , //18
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k , //19
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k , //20
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,sp,k ,t ,k , //21
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,s4,k , //22
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,s2,br,k ,ca,k , //23
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,st,k ,k ,br,k ,k , //15
+			k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,m2,k ,k , //16
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //17
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k , //18
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //19
+			k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //20
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //21
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k , //22
+			k ,s2,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //23
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k   //24
 	}
 };
@@ -483,57 +486,57 @@ GAME_MAP_KIND mapDatathird[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 	{
 		//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7, 8
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //0
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //1
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //2
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //3
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //4
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //5
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //6
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //7
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //8
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //9
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //10
-			k ,t ,t ,t ,t ,t ,t ,t ,ag,t ,t ,t ,t ,as,bs,t ,t ,t ,t ,bg,t ,t ,t ,t ,t ,t ,t ,t ,k , //11
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //12
-			k ,t ,t ,t ,t ,t ,t ,t ,w1,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,w2,t ,t ,t ,t ,t ,t ,t ,t ,k , //13
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //14
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //15
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //16
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //17
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //18
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //19
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //20
-			k ,st,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,st,k , //21
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //22
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //23
+			k ,e2,t ,t ,t ,t ,k ,ag,k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,k ,bg,k ,t ,t ,e3,t ,t ,k , //1
+			k ,k ,k ,k ,k ,t ,k ,k2,k ,t ,t ,t ,t ,t ,k ,t ,t ,t ,k ,t ,k ,k3,k ,t ,t ,t ,t ,t ,k , //2
+			k ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k , //3
+			k ,t ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k , //4
+			k ,t ,k ,k ,k ,t ,t ,t ,t ,t ,sp,ca,t ,t ,k ,t ,k ,t ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,k , //5
+			k ,t ,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k , //6
+			k ,t ,k ,t ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k , //7
+			k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k , //8
+			k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //9
+			k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,t ,t ,t ,k ,t ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,k , //10
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k , //11
+			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //12
+			k ,st,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,st,k , //13
+			k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,k ,k , //14
+			k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,k ,t ,k , //15
+			k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,t ,k , //16
+			k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //17
+			k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,t ,k , //18
+			k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k , //19
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,k ,k ,t ,k , //20
+			k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,k , //21
+			k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,k ,k , //22
+			k ,bs,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,as,k , //23
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k   //24
 	},
 	{
 		//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7, 8
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //0
-			k ,e1,e2,e3,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //1
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //2
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //3
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //4
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //5
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //6
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //7
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //8
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //9
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //10
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //11
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //12
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //13
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //14
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //15
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //16
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //17
-			k ,br,sp,ca,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //18
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //19
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //20
-			k ,st,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,st,k , //21
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //22
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //23
+			k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,w2,k ,k , //1
+			k ,t ,k ,t ,k ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //2
+			k ,t ,k ,t ,k ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,k , //3
+			k ,t ,k ,t ,t ,k ,t ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k , //4
+			k ,t ,t ,k ,t ,k ,t ,k ,k ,k ,k ,t ,t ,t ,t ,k ,k ,t ,k ,t ,t ,t ,t ,k ,k ,t ,k ,t ,k , //5
+			k ,k ,k ,k ,t ,k ,t ,e1,k ,t ,t ,t ,k ,k ,t ,t ,t ,t ,k ,t ,k ,k ,k ,k ,k ,t ,k ,t ,k , //6
+			k ,t ,k ,t ,t ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,t ,t ,t ,t ,t ,k , //7
+			k ,t ,k ,t ,k ,k ,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,k ,k ,t ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k , //8
+			k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,k ,k ,t ,t ,k ,t ,t ,t ,k ,k , //9
+			k ,t ,k ,t ,k ,k ,k ,t ,k ,t ,t ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k ,t ,k ,t ,k ,k , //10
+			k ,t ,k ,t ,t ,t ,t ,t ,k ,st,k ,k ,k ,t ,t ,t ,t ,k ,k ,st,k ,t ,t ,k ,t ,k ,t ,k ,k , //11
+			k ,k ,k ,t ,k ,t ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,t ,k ,t ,k ,k , //12
+			k ,t ,t ,t ,k ,k ,k ,k ,t ,t ,k ,k ,br,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //13
+			k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k , //14
+			k ,t ,k ,t ,k ,k ,t ,t ,k ,k ,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,k , //15
+			k ,t ,k ,t ,k ,t ,t ,k ,k ,t ,k ,t ,k ,t ,k ,t ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k , //16
+			k ,t ,t ,t ,t ,t ,k ,k ,k ,t ,t ,t ,k ,t ,k ,t ,k ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k , //17
+			k ,t ,k ,t ,k ,k ,k ,k ,k ,t ,k ,k ,k ,t ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k , //18
+			k ,t ,k ,t ,k ,k ,k ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k , //19
+			k ,t ,k ,k ,k ,t ,t ,t ,t ,t ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,t ,k , //20
+			k ,t ,k ,k ,t ,t ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,k ,ki,t ,t ,t ,k ,t ,t ,t ,k , //21
+			k ,k ,k ,k ,t ,k ,k ,t ,t ,t ,t ,t ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k , //22
+			k ,k ,w1,kl,t ,k ,t ,t ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k , //23
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k   //24
 	}
 };
@@ -683,7 +686,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					//プレイヤーAのスタート位置を計算
 					startPt_A.y3 = mapChip.height * tate;	//Y座標を取得
 					startPt_A.x3 = mapChip.width * yoko;	//X座標を取得
-
 				}
 
 
@@ -772,6 +774,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					startEPt_3.x = mapChip.width * yoko;	//X座標を取得
 					startEPt_3.y = mapChip.height * tate;	//Y座標を取得
 					enemy_3.floor = floor;
+					enemy_3.floor = floor;
 				}
 
 				//敵3の第２スタート位置を探す
@@ -859,34 +862,34 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				}
 			}
 
-			//スタートが決まっていれば、ループ終了
-			if (startPt_A.x != 0 && startPt_A.y != 0 &&
-				startPt_A.x2 != 0 && startPt_A.y2 != 0 &&
-				startPt_A.x3 != 0 && startPt_A.y3 != 0 &&
+			//スタートやワープ位置が決まっていれば、ループ終了
+			if (startPt_A.x != 0 && startPt_A.y != 0 &&        //プレイヤーAのステージ1のスタート位置
+				startPt_A.x2 != 0 && startPt_A.y2 != 0 &&      //プレイヤーAのステージ2のスタート位置
+				startPt_A.x3 != 0 && startPt_A.y3 != 0 &&      //プレイヤーAのステージ3のスタート位置
 
-				startPt_B.x != 0 && startPt_B.y != 0 &&
-				startPt_B.x2 != 0 && startPt_B.y2 != 0 &&
-				startPt_B.x3 != 0 && startPt_B.y3 != 0 &&
+				startPt_B.x != 0 && startPt_B.y != 0 &&       //プレイヤーBのステージ1のスタート位置
+				startPt_B.x2 != 0 && startPt_B.y2 != 0 &&     //プレイヤーBのステージ2のスタート位置
+				startPt_B.x3 != 0 && startPt_B.y3 != 0 &&     //プレイヤーBのステージ3のスタート位置
 
-				startEPt_1.x != 0 && startEPt_1.y != 0 &&
-				startEPt_1.x2 != 0 && startEPt_1.y2 != 0 &&
-				startEPt_1.x3 != 0 && startEPt_1.y3 != 0 &&
+				startEPt_1.x != 0 && startEPt_1.y != 0 &&     //敵1のステージ1のスタート位置
+				startEPt_1.x2 != 0 && startEPt_1.y2 != 0 &&   //敵1のステージ2のスタート位置
+				startEPt_1.x3 != 0 && startEPt_1.y3 != 0 &&   //敵1のステージ3のスタート位置
 
-				startEPt_2.x != 0 && startEPt_2.y != 0 &&
-				startEPt_2.x2 != 0 && startEPt_2.y2 != 0 &&
-				startEPt_2.x3 != 0 && startEPt_2.y3 != 0 &&
+				startEPt_2.x != 0 && startEPt_2.y != 0 &&     //敵2のステージ1のスタート位置
+				startEPt_2.x2 != 0 && startEPt_2.y2 != 0 &&   //敵2のステージ2のスタート位置
+				startEPt_2.x3 != 0 && startEPt_2.y3 != 0 &&   //敵2のステージ3のスタート位置
 
-				startEPt_3.x != 0 && startEPt_3.y != 0 &&
-				startEPt_3.x2 != 0 && startEPt_3.y2 != 0 &&
-				startEPt_3.x3 != 0 && startEPt_3.y3 != 0 &&
+				startEPt_3.x != 0 && startEPt_3.y != 0 &&     //敵3のステージ1のスタート位置
+				startEPt_3.x2 != 0 && startEPt_3.y2 != 0 &&   //敵3のステージ2のスタート位置
+				startEPt_3.x3 != 0 && startEPt_3.y3 != 0 &&   //敵3のステージ3のスタート位置
 				
-				w1_where.x != 0 && w1_where.y != 0 &&
-				w1_where.x2 != 0 && w1_where.y2 != 0 &&
-				w1_where.x3 != 0 && w1_where.y3 != 0 &&
+				w1_where.x != 0 && w1_where.y != 0 &&         //ワープ1のステージ1の位置
+				w1_where.x2 != 0 && w1_where.y2 != 0 &&       //ワープ1のステージ2の位置
+				w1_where.x3 != 0 && w1_where.y3 != 0 &&       //ワープ1のステージ3の位置
 				
-				w2_where.x != 0 && w2_where.y != 0 &&
-				w2_where.x2 != 0 && w2_where.y2 != 0 &&
-				w2_where.x3 != 0 && w2_where.y3 != 0)
+				w2_where.x != 0 && w2_where.y != 0 &&         //ワープ2のステージ1の位置
+				w2_where.x2 != 0 && w2_where.y2 != 0 &&       //ワープ2のステージ2の位置
+				w2_where.x3 != 0 && w2_where.y3 != 0)         //ワープ2のステージ3の位置
 			{
 				break;
 			}
@@ -1021,18 +1024,38 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		case GAME_SCENE_START:
 			MY_START();	//スタート画面
 			break;
+
+		case GAME_INIT_PLAY:
+			MY_PLAY_INIT();  //1プレイ画面の初期化
+			GameScene = GAME_SCENE_PLAY;
+			break;
+
 		case GAME_SCENE_PLAY:
 			MY_PLAY();	//プレイ画面
 			break;
+
+		case GAME_INIT_PLAY_SECOND:
+			MY_PLAY_SECOND_INIT();  //2プレイ画面の初期化
+			GameScene = GAME_SCENE_PLAY_SECOND;
+			break;
+
 		case GAME_SCENE_PLAY_SECOND:
 			MY_PLAY_SECOND();	//2プレイ画面
 			break;
+
+		case GAME_INIT_PLAY_THIRD:  //3プレイ画面の初期化
+			MY_PLAY_THIRD_INIT();
+			GameScene = GAME_SCENE_PLAY_THIRD;
+			break;
+
 		case GAME_SCENE_PLAY_THIRD:
 			MY_PLAY_THIRD();	//2プレイ画面
 			break;
+
 		case GAME_SCENE_OVER:
 			MY_OVER(); //ゲームオーバー画面
 			break;
+
 		case GAME_SCENE_END:
 			MY_END();	//エンド画面
 			break;
@@ -1086,10 +1109,8 @@ VOID MY_START_PROC(VOID)
 			StopSoundMem(BGM_TITLE.handle);	//BGMを止める
 		}
 
-		//ゲームのシーンをプレイ画面にする
-		GameScene = GAME_SCENE_PLAY;
-
-		MY_PLAY_INIT();   //プレイ画面の初期化
+		//プレイ画面を初期化する
+		GameScene = GAME_INIT_PLAY;
 
 		return;  //強制的にプレイ画面へ
 	}
@@ -1184,9 +1205,13 @@ VOID MY_PLAY_INIT(VOID)
 
 	player_A.image.x = startPt_A.x;
 	player_A.image.y = startPt_A.y;
+	player_A.collBeforePt.x = startPt_A.x;
+	player_A.collBeforePt.y = startPt_A.y;
 
 	player_B.image.x = startPt_B.x;
 	player_B.image.y = startPt_B.y;
+	player_B.collBeforePt.x = startPt_B.x;
+	player_B.collBeforePt.y = startPt_B.y;
 
 	enemy_1.image.x = startEPt_1.x;
 	enemy_1.image.y = startEPt_1.y;
@@ -1248,9 +1273,13 @@ VOID MY_PLAY_SECOND_INIT(VOID)
 
 	player_A.image.x = startPt_A.x2;
 	player_A.image.y = startPt_A.y2;
+	player_A.collBeforePt.x = startPt_A.x2;
+	player_A.collBeforePt.y = startPt_A.y2;
 
 	player_B.image.x = startPt_B.x2;
 	player_B.image.y = startPt_B.y2;
+	player_B.collBeforePt.x = startPt_B.x2;
+	player_B.collBeforePt.y = startPt_B.y2;
 
 	enemy_1.image.x = startEPt_1.x2;
 	enemy_1.image.y = startEPt_1.y2;
@@ -1280,10 +1309,6 @@ VOID MY_PLAY_SECOND_INIT(VOID)
 	st_check = 2;
 	fl_check = 0;
 	move_floor = 0;
-
-	enemy_1.floor = 0;
-	enemy_2.floor = 0;
-	enemy_3.floor = 0;
 
 	enemy1_live = 1;
 	enemy2_live = 1;
@@ -1315,9 +1340,13 @@ VOID MY_PLAY_THIRD_INIT(VOID)
 
 	player_A.image.x = startPt_A.x3;
 	player_A.image.y = startPt_A.y3;
+	player_A.collBeforePt.x = startPt_A.x3;
+	player_A.collBeforePt.y = startPt_A.y3;
 
 	player_B.image.x = startPt_B.x3;
 	player_B.image.y = startPt_B.y3;
+	player_B.collBeforePt.x = startPt_B.x3;
+	player_B.collBeforePt.y = startPt_B.y3;
 
 	enemy_1.image.x = startEPt_1.x3;
 	enemy_1.image.y = startEPt_1.y3;
@@ -1348,10 +1377,6 @@ VOID MY_PLAY_THIRD_INIT(VOID)
 	fl_check = 0;
 	move_floor = 0;
 
-	enemy_1.floor = 0;
-	enemy_2.floor = 0;
-	enemy_3.floor = 0;
-
 	enemy1_live = 1;
 	enemy2_live = 1;
 	enemy3_live = 1;
@@ -1380,7 +1405,7 @@ VOID MY_PLAY_SECOND(VOID)
 //3プレイ画面
 VOID MY_PLAY_THIRD(VOID)
 {
-	MY_PLAY_PROC();	//2プレイ画面の処理
+	MY_PLAY_PROC();	//3プレイ画面の処理
 	MY_PLAY_THIRD_DRAW();	//プレイ画面の描画
 
 	return;
@@ -2182,7 +2207,7 @@ VOID MY_PLAY_PROC(VOID)
 		}
 	}
 
-	//プレイヤーAが敵３に当たっていたら
+	//プレイヤーAが敵3に当たっていたら
 	if (MY_CHECK_RECT_COLL(player_A.coll, enemy_3.coll) == TRUE)
 	{
 		for (int floor = 0; floor <= GAME_FLOOR_MAX - 1; floor++)
@@ -2193,7 +2218,7 @@ VOID MY_PLAY_PROC(VOID)
 				{
 					if ((enemy_3.floor == fl_check && st_check == 1) || (enemy_3.floor2 == fl_check && st_check == 2) || (enemy_3.floor3 == fl_check && st_check == 3))
 					{
-						//杖を持っていて、敵３が生きていたら
+						//杖を持っていて、敵3が生きていたら
 						if (ca_check == 1 && enemy3_live == 1)
 						{
 							enemy3_live = 0;
@@ -2913,7 +2938,7 @@ VOID MY_PLAY_PROC(VOID)
 		}
 	}
 
-	//プレイヤーBが敵３に当たっていたら
+	//プレイヤーBが敵3に当たっていたら
 	if (MY_CHECK_RECT_COLL(player_B.coll, enemy_3.coll) == TRUE)
 	{
 		for (int floor = 0; floor <= GAME_FLOOR_MAX - 1; floor++)
@@ -2924,7 +2949,7 @@ VOID MY_PLAY_PROC(VOID)
 				{
 					if ((enemy_3.floor == fl_check && st_check == 1) || (enemy_3.floor2 == fl_check && st_check == 2) || (enemy_3.floor3 == fl_check && st_check == 3))
 					{
-						//杖を持っていて、敵３が生きていたら
+						//杖を持っていて、敵3が生きていたら
 						if (ca_check == 1 && enemy3_live == 1)
 						{
 							enemy3_live = 0;
@@ -2959,7 +2984,8 @@ VOID MY_PLAY_PROC(VOID)
 
 	//▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼敵１当たり判定ここから▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
 	//敵１と壁が当たっていたら
-	if (MY_CHECK_MAP1_PLAYER_COLL(enemy_1.coll) == TRUE_k)
+	if (MY_CHECK_MAP1_PLAYER_COLL(enemy_1.coll) == TRUE_k || MY_CHECK_MAP1_PLAYER_COLL(enemy_1.coll) == TRUE_k1 ||
+		MY_CHECK_MAP1_PLAYER_COLL(enemy_1.coll) == TRUE_k2 || MY_CHECK_MAP1_PLAYER_COLL(enemy_1.coll) == TRUE_k3)
 	{
 		//敵2の座標を１つ前の座標に置き換える
 		enemy_1.image.x = enemy_1.collBeforePt.x;
@@ -3012,7 +3038,8 @@ VOID MY_PLAY_PROC(VOID)
 
 	//▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼敵２当たり判定ここから▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
 	//敵２と壁が当たっていたら
-	if (MY_CHECK_MAP1_PLAYER_COLL(enemy_2.coll) == TRUE_k)
+	if (MY_CHECK_MAP1_PLAYER_COLL(enemy_2.coll) == TRUE_k || MY_CHECK_MAP1_PLAYER_COLL(enemy_2.coll) == TRUE_k1 ||
+		MY_CHECK_MAP1_PLAYER_COLL(enemy_2.coll) == TRUE_k2 || MY_CHECK_MAP1_PLAYER_COLL(enemy_2.coll) == TRUE_k3)
 	{
 		//敵2の座標を１つ前の座標に置き換える
 		enemy_2.image.x = enemy_2.collBeforePt.x;
@@ -3065,7 +3092,8 @@ VOID MY_PLAY_PROC(VOID)
 
 	//▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼敵3当たり判定ここから▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
 	//敵3と壁が当たっていたら
-	if (MY_CHECK_MAP1_PLAYER_COLL(enemy_3.coll) == TRUE_k)
+	if (MY_CHECK_MAP1_PLAYER_COLL(enemy_3.coll) == TRUE_k || MY_CHECK_MAP1_PLAYER_COLL(enemy_3.coll) == TRUE_k1 || 
+		MY_CHECK_MAP1_PLAYER_COLL(enemy_3.coll) == TRUE_k2 || MY_CHECK_MAP1_PLAYER_COLL(enemy_3.coll) == TRUE_k3)
 	{
 		//敵3の座標を１つ前の座標に置き換える
 		enemy_3.image.x = enemy_3.collBeforePt.x;
@@ -3114,7 +3142,7 @@ VOID MY_PLAY_PROC(VOID)
 		IsMove_E3 = FALSE;
 	}
 
-	//▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲敵３当たり判定ここまで▲▲▲▲▲▲▲▲▲▲▲▲
+	//▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲敵3当たり判定ここまで▲▲▲▲▲▲▲▲▲▲▲▲
 
 
 	//プレイヤーAとBがフロアを移動したら
@@ -3264,13 +3292,11 @@ VOID MY_PLAY_PROC(VOID)
 
 			if (st_check == 1)
 			{
-				MY_PLAY_SECOND_INIT();
-				GameScene = GAME_SCENE_PLAY_SECOND;
+				GameScene = GAME_INIT_PLAY_SECOND;
 			}
 			else if (st_check == 2)
 			{
-				MY_PLAY_THIRD_INIT();
-				GameScene = GAME_SCENE_PLAY_THIRD;
+				GameScene = GAME_INIT_PLAY_THIRD;
 			}
 			else if (st_check == 3)
 			{
@@ -4182,6 +4208,7 @@ VOID MY_OVER_PROC(VOID)
 		{
 			StopSoundMem(BGM_COMP.handle);	//BGMを止める
 		}
+		SetDrawBright(255, 255, 255);
 		GameScene = GAME_SCENE_START;
 		return;
 	}
@@ -4221,9 +4248,9 @@ VOID MY_OVER_DRAW(VOID)
 {
 		ClearDrawScreen();                   // 裏画面のデータを全て削除
 
-		if (c >= 0 && c < 512)                    //cが0~256の時
-			SetDrawBright(c/2, c/2, c/2);        //段々あかるく(c= 0->255)
-		if (c >= 512 && c < 600)                  //cが256~400の時
+		if (c >= 0 && c < 128)                    //cが0~256の時
+			SetDrawBright(c*2, c*2, c*2);        //段々あかるく(c= 0->255)
+		if (c >= 128 && c < 300)                  //cが256~400の時
 			SetDrawBright(255, 255, 255);  //通常の明るさ
 
 		//ゲームオーバー背景の描画
@@ -4232,12 +4259,12 @@ VOID MY_OVER_DRAW(VOID)
 		//コンプリートロゴの描画
 		//DrawGraph(ImageEndCOMP.image.x, ImageEndCOMP.image.y, ImageEndCOMP.image.handle, TRUE);
 
-		if (c <= 600)
+		if (c <= 128)
 		{
 			c++;                                  //cをカウントアップ
 		}
 
-		if (c >= 512)
+		if (c >= 128)
 		{
 			//点滅
 			if (ImageEndCOMP.IsDraw == TRUE)
@@ -4263,9 +4290,6 @@ VOID MY_END(VOID)
 //エンド画面の処理
 VOID MY_END_PROC(VOID)
 {
-	//プレイ画面初期化
-	MY_PLAY_INIT();
-
 	//エスケープキーを押したら、スタートシーンへ移動する
 	if (CheckHitKey(KEY_INPUT_ESCAPE) == TRUE)
 	{
@@ -4406,7 +4430,7 @@ BOOL MY_LOAD_IMAGE(VOID)
 		return FALSE;
 	}
 	GetGraphSize(ImageTitleROGO.image.handle, &ImageTitleROGO.image.width, &ImageTitleROGO.image.height);	//画像の幅と高さを取得
-	ImageTitleROGO.image.x = 230;							//光っている部分から描画したい
+	ImageTitleROGO.image.x = GAME_WIDTH / 2;			    //中央寄せ
 	ImageTitleROGO.image.y = GAME_HEIGHT / 2;				//中央寄せ
 	ImageTitleROGO.angle = DX_PI * 2;						//回転率
 	ImageTitleROGO.angleMAX = DX_PI * 2;					//回転率MAX
@@ -4469,7 +4493,7 @@ BOOL MY_LOAD_IMAGE(VOID)
 	}
 	GetGraphSize(ImageTitleEND.image.handle, &ImageTitleEND.image.width, &ImageTitleEND.image.height);	//画像の幅と高さを取得
 	ImageTitleEND.image.x = GAME_WIDTH / 2 - ImageTitleEND.image.width / 2 + 10;					//左右中央揃え
-	ImageTitleEND.image.y = ImageEndCOMP.image.y + ImageEndCOMP.image.height / 2 + 150;	//ロゴの下に表示
+	ImageTitleEND.image.y = ImageEndCOMP.image.y + ImageEndCOMP.image.height / 2 + 200;	//ロゴの下に表示
 	ImageTitleEND.Cnt = 0.0;								//カウンタ
 	ImageTitleEND.CntMAX = IMAGE_END_COMP_CNT_MAX;		    //カウンタMAX
 	ImageTitleEND.IsDraw = FALSE;							//描画させない
