@@ -81,7 +81,7 @@
 #define IMAGE_END_COMP_PATH        TEXT(".\\IMAGE\\mission_complete.png") //エンドコンプロゴ画像
 #define IMAGE_TITLE_END_PATH		TEXT(".\\IMAGE\\end_button.png")	//エンドボタンの画像
 #define IMAGE_END_COMP_CNT         1       //点滅カウンタ
-#define IMAGE_END_COMP_CNT_MAX     100      //点滅カウンタMAX(点滅の速さ)
+#define IMAGE_END_COMP_CNT_MAX     70      //点滅カウンタMAX(点滅の速さ)
 
 //キャラ画像動作用
 #define IMAGE_DIV_WIDTH    32
@@ -99,7 +99,7 @@
 #define MUSIC_BGM_PATH              TEXT(".\\MUSIC\\play_BGM.mp3")                  //プレイ画面のBGM
 #define MUSIC_BGM_TITLE_PATH		TEXT(".\\MUSIC\\title_BGM.mp3")	                //タイトルのBGM
 #define MUSIC_BGM_COMP_PATH			TEXT(".\\MUSIC\\end_BGM.mp3")				    //コンプリートBGM
-#define MUSIC_BGM_FAIL_PATH			TEXT(".\\MUSIC\\衛星の夜.mp3")					//フォールトBGM
+#define MUSIC_BGM_FAIL_PATH			TEXT(".\\MUSIC\\GameOver.mp3")					//フォールトBGM
 #define MUSIC_SE_ATACK_PATH         TEXT(".\\MUSIC\\Atack.mp3")                     //攻撃音
 #define MUSIC_SE_SWITCH_PATH        TEXT(".\\MUSIC\\SwitchOn.mp3")                  //スイッチ音
 #define MUSIC_SE_KEY_PATH           TEXT(".\\MUSIC\\KeyGet.mp3")                    //鍵入手音
@@ -117,7 +117,7 @@
 #define FONT_CREATE_ERR_TITLE	TEXT("フォント作成エラー")
 
 //BGM音量
-#define MUSIC_VOLUME             0   //BGMの音量（0~100）
+#define MUSIC_VOLUME             50   //BGMの音量（0~100）
 //閉じるボタンを押したとき
 #define MSG_CLOSE_TITLE			TEXT("終了メッセージ")
 #define MSG_CLOSE_CAPTION		TEXT("ゲームを終了しますか？")
@@ -422,57 +422,57 @@ GAME_MAP_KIND mapDatasecond[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX
 	{
 		//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7, 8
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //0
-			k ,as,t ,t ,t ,t ,t ,k ,t ,s4,k ,t ,t ,t ,t ,t, k ,t ,t ,t ,t ,t ,t ,t ,e3,k ,w1,t ,k , //1
-			k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,k ,t ,k ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //2
-			k ,t ,t ,t ,t ,k ,t ,k ,t ,k ,k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //3
+			k ,as,t ,t ,t ,t ,t ,k ,t ,s4,k ,t ,k ,t ,t ,t, k ,t ,t ,t ,t ,t ,t ,t ,e3,k ,w1,t ,k , //1
+			k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //2
+			k ,t ,t ,t ,t ,k ,t ,k ,t ,k ,k ,t ,k ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //3
 			k ,t ,k ,k ,t ,k ,t ,k ,t ,k ,k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //4
 			k ,t ,k ,k ,t ,k ,t ,k ,t ,k ,k ,k ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //5
 			k ,t ,k ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //6
 			k ,t ,t ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,st,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //7
 			k ,t ,k ,k ,w2,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,kl,k ,k , //8
 			k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k1,k1,k1,k1,k1,k1,k1,k1,k ,k3,k ,k , //9
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,k , //10
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,ag,k , //11
+			k ,t ,t ,t ,k ,t ,t ,t ,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,k , //10
+			k ,t ,k ,t ,t ,t ,k ,t ,t ,t ,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,ag,k , //11
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //12
 			k ,bg,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,k ,t ,t ,k , //13
 			k ,k2,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k ,t ,k ,t ,k ,k ,k ,t ,k ,t ,t ,k , //14
-			k ,e2,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,k ,k ,s1,k ,t ,t ,k ,t ,k ,st,t ,t ,k ,t ,t ,k , //15
-			k ,t ,t ,t ,t ,t ,k ,t ,k ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,t ,k ,k ,k ,k ,k ,t ,t ,k , //16
-			k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,k ,k ,t ,m3,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //17
+			k ,e2,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,k ,k ,t ,k ,t ,t ,k ,t ,k ,st,t ,t ,k ,t ,t ,k , //15
+			k ,t ,k ,t ,k ,t ,k ,t ,k ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,t ,k ,k ,k ,k ,k ,t ,t ,k , //16
+			k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,t ,k ,k ,t ,m3,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //17
 			k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,k ,k ,t ,k ,k ,k ,m4,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,k , //18
-			k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,k ,k ,t ,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //19
-			k ,t ,t ,t ,t ,t ,k ,t ,k ,k ,t ,k ,k ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k ,t ,t ,k , //20
+			k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,t ,k ,k ,t ,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k , //19
+			k ,t ,k ,t ,k ,t ,k ,t ,k ,k ,t ,k ,k ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k ,t ,t ,k , //20
 			k ,t ,t ,t ,t ,t ,k ,t ,t ,k ,t ,ca,k ,t ,k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,k ,t ,t ,k , //21
 			k ,k ,k ,m1,k ,k ,k ,k ,t ,k ,k ,k ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,t ,k , //22
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,ki,k ,sp,t ,t ,t ,k ,t ,bs,k , //23
+			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,k ,sp,t ,t ,t ,k ,t ,bs,k , //23
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k   //24
 	},
 	{
 		//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7, 8
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //0
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //1
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //2
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //3
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //4
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //5
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //6
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,st,t ,m2,t ,t ,t ,t ,t ,t ,t ,t ,e1,s3,k , //7
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //8
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //9
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //10
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //11
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //12
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //13
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //14
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,st,k ,k ,br,k ,k , //15
-			k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,m2,k ,k , //16
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //17
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k , //18
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //19
-			k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //20
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //21
-			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k , //22
-			k ,s2,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //23
+			k ,t ,t ,k ,k ,t ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,t ,t ,t ,k ,k ,k ,k , //1
+			k ,k ,t ,k ,k ,t ,t ,t ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,t ,t ,t ,t ,t ,k ,k ,k , //2
+			k ,k ,t ,t ,k ,k ,t ,k ,k ,t ,k ,t ,t ,t ,k ,t ,t ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,k ,k , //3
+			k ,k ,k ,t ,k ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //4
+			k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //5
+			k ,k ,k ,t ,k ,k ,k ,t ,t ,t ,k ,k ,k ,t ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //6
+			k ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,t ,k ,br,k ,st,t ,m2,t ,t ,t ,t ,t ,t ,t ,t ,e1,s3,k , //7
+			k ,t ,k ,k ,k ,t ,t ,t ,k ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //8
+			k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k ,t ,k ,t ,s1,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //9
+			k ,t ,t ,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //10
+			k ,k ,t ,k ,t ,k ,t ,t ,t ,k ,k ,t ,k ,k ,t ,k ,t ,t ,k ,k ,t ,t ,t ,t ,t ,t ,t ,k ,k , //11
+			k ,k ,t ,t ,t ,k ,t ,k ,k ,k ,k ,t ,k ,k ,t ,k ,k ,t ,k ,k ,k ,t ,t ,t ,t ,t ,k ,k ,k , //12
+			k ,k ,k ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,k ,k ,k ,k ,t ,t ,t ,k ,k ,k ,k , //13
+			k ,k ,k ,k ,k ,k ,m2,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //14
+			k ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,s2,t ,st,k ,k ,k ,k ,k , //15
+			k ,t ,k ,k ,k ,k ,t ,k ,k ,k ,k ,t ,k ,k ,k ,k ,t ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k , //16
+			k ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k ,t ,t ,k , //17
+			k ,k ,t ,k ,t ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,t ,k ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,k , //18
+			k ,k ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,k , //19
+			k ,k ,t ,k ,k ,k ,t ,t ,t ,t ,t ,t ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k ,t ,t ,k , //20
+			k ,k ,t ,t ,t ,k ,t ,k ,k ,t ,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,k ,k ,t ,k , //21
+			k ,k ,k ,k ,t ,k ,t ,k ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,t ,k ,t ,k ,k ,k ,k ,t ,k , //22
+			k ,ki,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,k , //23
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k   //24
 	}
 };
@@ -486,42 +486,42 @@ GAME_MAP_KIND mapDatathird[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 	{
 		//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7, 8
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //0
-			k ,e2,t ,t ,t ,t ,k ,ag,k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,k ,bg,k ,t ,t ,e3,t ,t ,k , //1
-			k ,k ,k ,k ,k ,t ,k ,k2,k ,t ,t ,t ,t ,t ,k ,t ,t ,t ,k ,t ,k ,k3,k ,t ,t ,t ,t ,t ,k , //2
-			k ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k , //3
-			k ,t ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k , //4
-			k ,t ,k ,k ,k ,t ,t ,t ,t ,t ,sp,ca,t ,t ,k ,t ,k ,t ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,k , //5
-			k ,t ,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k , //6
-			k ,t ,k ,t ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k , //7
-			k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k , //8
-			k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //9
-			k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,t ,t ,t ,k ,t ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,k , //10
+			k ,sp,t ,t ,t ,t ,k ,ag,k ,t ,t ,k ,t ,e2,k ,t ,k ,t ,t ,t ,k ,bg,k ,t ,t ,t ,t ,e3,k , //1
+			k ,k ,k ,k ,k ,t ,k ,k2,k ,t ,k ,t ,t ,k ,k ,t ,t ,t ,k ,t ,k ,k3,k ,t ,k ,t ,k ,t ,k , //2
+			k ,t ,t ,t ,t ,t ,k ,t ,t ,t ,k ,k ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k , //3
+			k ,t ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,t ,k ,k ,t ,k ,t ,t ,t ,k ,t ,t ,k ,t ,k ,t ,t ,k , //4
+			k ,t ,k ,k ,k ,t ,m3,t ,k ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,k ,k ,t ,k ,t ,t ,k ,k ,t ,k , //5
+			k ,t ,k ,t ,t ,t ,k ,t ,t ,k ,t ,k ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k , //6
+			k ,t ,k ,t ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,k ,t ,k ,t ,t ,k , //7
+			k ,t ,k ,t ,k ,t ,t ,t ,k ,k ,k ,t ,t ,k ,k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,k ,k ,t ,k , //8
+			k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,t ,t ,m4,t ,t ,t ,t ,t ,t ,t ,k , //9
+			k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k ,k ,k ,k ,t ,k ,k ,k ,t ,k ,t ,k , //10
 			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k , //11
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //12
-			k ,st,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,st,k , //13
-			k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,k ,k , //14
-			k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,k ,t ,k , //15
-			k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k ,k ,t ,k , //16
-			k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k , //17
-			k ,t ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k ,k ,k ,k ,k ,t ,k , //18
-			k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k , //19
-			k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,k ,k ,t ,k , //20
-			k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,k , //21
-			k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,k ,k , //22
-			k ,bs,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,as,k , //23
+			k ,st,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,t ,st,k , //13
+			k ,t ,k ,t ,t ,t ,k ,k ,k ,k ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,k ,k , //14
+			k ,t ,k ,t ,k ,k ,k ,t ,t ,s4,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,k ,t ,k , //15
+			k ,t ,k ,t ,k ,t ,k ,t ,k ,k ,k ,k ,k ,t ,k ,t ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,t ,k , //16
+			k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,k , //17
+			k ,t ,k ,t ,k ,t ,k ,k ,k ,k ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,k ,k ,k ,k ,t ,k , //18
+			k ,k ,k ,k ,k ,t ,t ,t ,t ,k ,t ,t ,t ,t ,k ,t ,t ,t ,k ,t ,k ,t ,t ,t ,t ,t ,k ,t ,k , //19
+			k ,t ,t ,t ,k ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,k ,k ,k ,k ,k ,t ,k , //20
+			k ,t ,k ,t ,t ,t ,t ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k ,t ,t ,t ,k ,t ,t ,t ,k ,t ,t ,t ,k , //21
+			k ,t ,k ,t ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,t ,k ,t ,k ,t ,k ,k ,k , //22
+			k ,bs,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,t ,s3,k ,t ,k ,t ,t ,t ,k ,t ,t ,as,k , //23
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k   //24
 	},
 	{
 		//  0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7, 8
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //0
 			k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,w2,k ,k , //1
-			k ,t ,k ,t ,k ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //2
+			k ,t ,k ,t ,k ,t ,t ,t ,k ,t ,k ,k ,k ,t ,k ,k ,m2,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k , //2
 			k ,t ,k ,t ,k ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,k ,t ,k , //3
 			k ,t ,k ,t ,t ,k ,t ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k , //4
-			k ,t ,t ,k ,t ,k ,t ,k ,k ,k ,k ,t ,t ,t ,t ,k ,k ,t ,k ,t ,t ,t ,t ,k ,k ,t ,k ,t ,k , //5
-			k ,k ,k ,k ,t ,k ,t ,e1,k ,t ,t ,t ,k ,k ,t ,t ,t ,t ,k ,t ,k ,k ,k ,k ,k ,t ,k ,t ,k , //6
+			k ,s1,k ,k ,t ,k ,t ,k ,k ,k ,k ,t ,t ,t ,t ,k ,k ,t ,k ,t ,t ,t ,t ,k ,k ,t ,k ,t ,k , //5
+			k ,k ,k ,k ,t ,k ,t ,t ,k ,t ,t ,t ,k ,k ,t ,t ,t ,t ,k ,t ,k ,k ,k ,k ,k ,t ,k ,t ,k , //6
 			k ,t ,k ,t ,t ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,t ,t ,t ,t ,t ,k , //7
-			k ,t ,k ,t ,k ,k ,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,k ,k ,t ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k , //8
+			k ,t ,k ,e1,k ,k ,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,k ,k ,t ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k , //8
 			k ,t ,t ,t ,t ,t ,k ,t ,k ,t ,k ,t ,k ,t ,k ,t ,t ,t ,t ,k ,k ,t ,t ,k ,t ,t ,t ,k ,k , //9
 			k ,t ,k ,t ,k ,k ,k ,t ,k ,t ,t ,t ,k ,t ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k ,t ,k ,t ,k ,k , //10
 			k ,t ,k ,t ,t ,t ,t ,t ,k ,st,k ,k ,k ,t ,t ,t ,t ,k ,k ,st,k ,t ,t ,k ,t ,k ,t ,k ,k , //11
@@ -530,13 +530,13 @@ GAME_MAP_KIND mapDatathird[GAME_FLOOR_MAX][GAME_MAP_TATE_MAX][GAME_MAP_YOKO_MAX]
 			k ,k ,k ,t ,k ,k ,t ,t ,t ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,k , //14
 			k ,t ,k ,t ,k ,k ,t ,t ,k ,k ,k ,t ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,t ,t ,t ,k , //15
 			k ,t ,k ,t ,k ,t ,t ,k ,k ,t ,k ,t ,k ,t ,k ,t ,k ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,t ,k , //16
-			k ,t ,t ,t ,t ,t ,k ,k ,k ,t ,t ,t ,k ,t ,k ,t ,k ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k , //17
+			k ,t ,t ,t ,t ,t ,k ,k ,k ,t ,m1,t ,k ,t ,k ,t ,k ,t ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,k , //17
 			k ,t ,k ,t ,k ,k ,k ,k ,k ,t ,k ,k ,k ,t ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k , //18
 			k ,t ,k ,t ,k ,k ,k ,k ,k ,t ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k , //19
 			k ,t ,k ,k ,k ,t ,t ,t ,t ,t ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,k ,k ,t ,k , //20
-			k ,t ,k ,k ,t ,t ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,k ,ki,t ,t ,t ,k ,t ,t ,t ,k , //21
-			k ,k ,k ,k ,t ,k ,k ,t ,t ,t ,t ,t ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k , //22
-			k ,k ,w1,kl,t ,k ,t ,t ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k , //23
+			k ,ca,k ,k ,t ,t ,k ,k ,k ,k ,k ,k ,t ,t ,t ,t ,t ,t ,t ,k ,ki,t ,t ,t ,k ,t ,t ,t ,k , //21
+			k ,k ,k ,k ,t ,k ,k ,t ,t ,t ,t ,k ,k ,k ,t ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,t ,k ,t ,k , //22
+			k ,k ,w1,kl,t ,k ,s2,t ,k ,k ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,t ,k ,t ,k , //23
 			k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k ,k   //24
 	}
 };
@@ -4204,9 +4204,9 @@ VOID MY_OVER_PROC(VOID)
 	if (CheckHitKey(KEY_INPUT_ESCAPE) == TRUE)
 	{
 		//BGMが流れているなら
-		if (CheckSoundMem(BGM_COMP.handle) != 0)
+		if (CheckSoundMem(BGM_FAIL.handle) != 0)
 		{
-			StopSoundMem(BGM_COMP.handle);	//BGMを止める
+			StopSoundMem(BGM_FAIL.handle);	//BGMを止める
 		}
 		SetDrawBright(255, 255, 255);
 		GameScene = GAME_SCENE_START;
@@ -4214,11 +4214,11 @@ VOID MY_OVER_PROC(VOID)
 	}
 
 	//BGMが流れていないなら
-	if (CheckSoundMem(BGM_COMP.handle) == 0)
+	if (CheckSoundMem(BGM_FAIL.handle) == 0)
 	{
 		//BGMの音量を下げる
-		//ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, BGM_COMP.handle); //MUSIC_VOLUMEで音量調節
-		//PlaySoundMem(BGM_COMP.handle, DX_PLAYTYPE_LOOP);
+		ChangeVolumeSoundMem(255 * MUSIC_VOLUME / 100, BGM_FAIL.handle); //MUSIC_VOLUMEで音量調節
+		PlaySoundMem(BGM_FAIL.handle, DX_PLAYTYPE_LOOP);
 	}
 
 	//コンプリートの点滅
@@ -4654,6 +4654,16 @@ BOOL MY_LOAD_MUSIC(VOID)
 	{
 		//エラーメッセージ表示
 		MessageBox(GetMainWindowHandle(), MUSIC_BGM_COMP_PATH, MUSIC_LOAD_ERR_TITLE, MB_OK);
+		return FALSE;
+	}
+
+	//ゲームオーバーBGM
+	strcpy_s(BGM_FAIL.path, MUSIC_BGM_FAIL_PATH);				//パスの設定
+	BGM_FAIL.handle = LoadSoundMem(BGM_FAIL.path);				//読み込み
+	if (BGM_FAIL.handle == -1)
+	{
+		//エラーメッセージ表示
+		MessageBox(GetMainWindowHandle(), MUSIC_BGM_FAIL_PATH, MUSIC_LOAD_ERR_TITLE, MB_OK);
 		return FALSE;
 	}
 

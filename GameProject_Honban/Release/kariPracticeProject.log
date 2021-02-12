@@ -4,7 +4,7 @@ C:\github\作品制作Ⅲ＿本番\GameProject_Honban\main.cpp(4452,24): warning
 C:\github\作品制作Ⅲ＿本番\GameProject_Honban\main.cpp(4481,21): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
 C:\github\作品制作Ⅲ＿本番\GameProject_Honban\main.cpp(4497,22): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
   コード生成しています。
-  4 of 48 functions ( 8.3%) were compiled, the rest were copied from previous compilation.
+  3 of 48 functions ( 6.2%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     4 functions had inline decision re-evaluated but remain unchanged
   コード生成が終了しました。
