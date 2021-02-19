@@ -117,7 +117,7 @@
 #define FONT_CREATE_ERR_TITLE	TEXT("フォント作成エラー")
 
 //BGM音量
-#define MUSIC_VOLUME             0   //BGMの音量（0~100）
+#define MUSIC_VOLUME             50   //BGMの音量（0~100）
 //閉じるボタンを押したとき
 #define MSG_CLOSE_TITLE			TEXT("終了メッセージ")
 #define MSG_CLOSE_CAPTION		TEXT("ゲームを終了しますか？")
